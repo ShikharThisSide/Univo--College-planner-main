@@ -1,7 +1,14 @@
 import { Resend } from 'resend'
+import crypto from 'node:crypto'
 import { pendingOtps } from './_otpStore.js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+const otpSecret = () => process.env.OTP_SECRET || process.env.RESEND_API_KEY || 'univo-development-secret'
+const createVerificationToken = (email, code, expiresAt) => {
+  const payload = Buffer.from(JSON.stringify({ email, code, expiresAt })).toString('base64url')
+  const signature = crypto.createHmac('sha256', otpSecret()).update(payload).digest('base64url')
+  return `${payload}.${signature}`
+}
 export default async function handler(req, res) {
   try {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -21,7 +28,7 @@ export default async function handler(req, res) {
       html: `<div style="font-family:Arial,sans-serif"><h2>Verify your Univo account</h2><p>Your verification code is:</p><p style="font-size:32px;font-weight:700;letter-spacing:8px">${code}</p><p>This code expires in 10 minutes.</p></div>`,
     })
     if (error) return res.status(502).json({ error: 'Unable to send the verification email.' })
-    return res.status(200).json({ ok: true })
+    return res.status(200).json({ ok: true, verificationToken: createVerificationToken(email, code, Date.now() + 10 * 60 * 1000) })
   } catch (error) {
     console.error('send-otp failed:', error)
     return res.status(500).json({ error: 'Unable to send the verification email.' })

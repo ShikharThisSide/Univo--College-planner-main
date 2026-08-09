@@ -42,6 +42,7 @@ function LoginModal({ onClose, initialEmail = '' }) {
   const [createPassword, setCreatePassword] = useState('')
   const [passwordError, setPasswordError] = useState('')
   const [otp, setOtp] = useState('')
+  const [verificationToken, setVerificationToken] = useState('')
   const [otpError, setOtpError] = useState('')
   const [sendingOtp, setSendingOtp] = useState(false)
   const checkEmail = (e) => {
@@ -60,7 +61,8 @@ function LoginModal({ onClose, initialEmail = '' }) {
     setPasswordError('')
     try {
       const response = await fetch('/api/send-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:normalized }) })
-      await readApiResponse(response, 'Unable to send the verification code. Please try again.')
+      const result = await readApiResponse(response, 'Unable to send the verification code. Please try again.')
+      setVerificationToken(result.verificationToken || '')
       setCreateStep(false)
       setOtpStep(true)
     } catch (error) { setPasswordError(error.message) } finally { setSendingOtp(false) }
@@ -69,7 +71,7 @@ function LoginModal({ onClose, initialEmail = '' }) {
     e.preventDefault()
     setOtpError('')
     try {
-      const response = await fetch('/api/verify-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, code:otp }) })
+      const response = await fetch('/api/verify-otp', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, code:otp, verificationToken }) })
       await readApiResponse(response, 'Invalid verification code.')
       const normalized = email.trim().toLowerCase()
       const users = JSON.parse(localStorage.getItem('univoUsers') || '[]')
