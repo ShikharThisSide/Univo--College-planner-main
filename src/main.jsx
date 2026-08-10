@@ -12,7 +12,10 @@ async function readApiResponse(response, fallbackMessage) {
   if (body.trim()) {
     try { result = JSON.parse(body) } catch { /* The server returned a non-JSON response. */ }
   }
-  if (!response.ok) throw new Error(result.error || fallbackMessage)
+  if (!response.ok) {
+    const isLocalApiUnavailable = window.location.hostname === 'localhost' && !body.trim()
+    throw new Error(result.error || (isLocalApiUnavailable ? 'Local API routes are not running. Start the app with “npm run dev:vercel”.' : fallbackMessage))
+  }
   return result
 }
 
