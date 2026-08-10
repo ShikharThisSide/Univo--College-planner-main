@@ -15,6 +15,7 @@
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^13.0.0",
     "lucide-react": "latest",
+    "motion": "^13.1.0",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "^7.18.2",

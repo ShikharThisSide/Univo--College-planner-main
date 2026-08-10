@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ChevronDown, Menu, Minus, Plus, X, GraduationCap, Building2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LoginPage from '../auth/LoginPage'
+import TextLoop from '../../components/ui/TextLoop'
 import '../../styles.css'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4'
@@ -149,7 +150,14 @@ export default function LandingPage() {
       <section className="infoSection featuresSection" id="features">
         <div className="sectionIntro">
           <span className="eyebrow">Two paths, one platform</span>
-          <h2>Individual freedom.<br />Institutional power.</h2>
+          <TextLoop
+            staticText="Individual"
+            rotatingTexts={['freedom.', 'focus.', 'momentum.']}
+            className="landingTextLoop sectionTextLoop"
+            staticTextClassName="landingTextLoopStatic"
+            rotatingTextClassName="landingTextLoopRotating"
+          />
+          <h2 className="sectionSecondHeading">Institutional power.</h2>
           <p>Path A for solo students. Path B for universities with isolated workspaces, RBAC, and real teacher workflows.</p>
         </div>
         <div className="featureGrid">

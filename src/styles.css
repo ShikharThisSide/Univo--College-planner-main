@@ -170,3 +170,9 @@
 .entryUniversity:hover { border-color:rgb(249 115 22 / .5); }
 .desktopCta { display:none; padding:10px 20px; text-decoration:none; color:#fff; }
 @media (min-width:768px) { .desktopCta { display:inline-flex; align-items:center; } .entryPoints { grid-template-columns:1fr 1fr; max-width:560px; } }
+.landingTextLoop { max-width: 760px; color: #fff; font-size: clamp(46px, 7vw, 88px); line-height: .98; letter-spacing: -.065em; font-weight: 600; }
+.landingTextLoopStatic, .landingTextLoopRotating { display: inline-block; }
+.landingTextLoopRotating { color: #f6f4ed; }
+.sectionTextLoop { justify-content: center; max-width: 100%; margin: 0 auto; color: #f6f4ed; }
+.sectionSecondHeading { margin-top: 0 !important; }
+@media (max-width: 639px) { .landingTextLoop { font-size: clamp(38px, 12vw, 58px); } }
