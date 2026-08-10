@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -24,6 +24,14 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
+
+  useEffect(() => {
+    const googleEmail = searchParams.get('google_email')
+    if (!googleEmail) return
+    const path = searchParams.get('path') || signupPath
+    const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path })
+    navigate(dashboardPath, { replace: true })
+  }, [login, navigate, searchParams, signupPath])
 
   const continueWithGoogle = () => {
     window.location.assign(`/api/auth/google?path=${encodeURIComponent(signupPath)}`)
