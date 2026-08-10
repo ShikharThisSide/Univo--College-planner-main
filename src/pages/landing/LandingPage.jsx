@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ChevronDown, Menu, Minus, Plus, X, GraduationCap, Building2 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import LoginPage from '../auth/LoginPage'
 import '../../styles.css'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4'
@@ -58,6 +59,8 @@ export default function LandingPage() {
   const [open, setOpen] = useState(false)
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const loginPath = searchParams.get('login')
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -84,7 +87,6 @@ export default function LandingPage() {
                 ))}
               </div>
             </div>
-            <Link to="/login" className="cta desktopCta">Log in</Link>
             <button className="menuButton" type="button" onClick={() => setOpen(!open)} aria-label="Toggle menu">
               <Menu className={open ? 'icon hiddenIcon' : 'icon'} size={22} />
               <X className={open ? 'icon' : 'icon hiddenIcon'} size={22} />
@@ -100,7 +102,6 @@ export default function LandingPage() {
                 </a>
               ))}
             </div>
-            <Link to="/login" className="cta drawerCta" onClick={() => setOpen(false)}>Log in</Link>
           </aside>
 
           <main className="main">
@@ -110,14 +111,14 @@ export default function LandingPage() {
 
               {/* Dual entry points */}
               <div className="entryPoints">
-                <Link to="/login?path=student" className="entryCard entryStudent">
+                <Link to="/?login=student" className="entryCard entryStudent">
                   <GraduationCap size={22} />
                   <div>
                     <strong>I'm a Student</strong>
                     <span>Personal dashboard · Notes · Community</span>
                   </div>
                 </Link>
-                <Link to="/login?path=university" className="entryCard entryUniversity">
+                <Link to="/?login=university" className="entryCard entryUniversity">
                   <Building2 size={22} />
                   <div>
                     <strong>I'm a University</strong>
@@ -163,7 +164,7 @@ export default function LandingPage() {
           <span className="eyebrow">Built different</span>
           <h2>Startup polish.<br />Not a student project.</h2>
           <p>Glassmorphism, magnetic nav, command palette, theme switcher, skeleton loaders, and motion everywhere.</p>
-          <Link to="/login?path=student" className="darkButton">Try the demo</Link>
+          <Link to="/?login=student" className="darkButton">Try the demo</Link>
         </div>
         <div className="steps">
           <div><span>1</span><p><strong>Sign up</strong><br />Two clear entry points — student or university.</p></div>
@@ -179,17 +180,18 @@ export default function LandingPage() {
           <div className="footerBrand">
             <Logo />
             <p>Your campus companion — dark, premium, and built for the way students actually live.</p>
-            <Link to="/login?path=student" className="footerLogin">Get started free</Link>
+            <Link to="/?login=student" className="footerLogin">Get started free</Link>
           </div>
           <div className="footerColumn"><span className="footerHeading">Product</span><a href="#top">Home</a><a href="#faq">FAQ</a><a href="#features">Features</a></div>
-          <div className="footerColumn"><span className="footerHeading">For students</span><Link to="/login?path=student">Individual plan</Link><Link to="/login?path=student">Notes Hub</Link><Link to="/login?path=student">Marketplace</Link></div>
-          <div className="footerColumn"><span className="footerHeading">For universities</span><Link to="/login?path=university">Institutional plan</Link><a href="mailto:hello@univo.app">Contact sales</a></div>
+          <div className="footerColumn"><span className="footerHeading">For students</span><Link to="/?login=student">Individual plan</Link><Link to="/?login=student">Notes Hub</Link><Link to="/?login=student">Marketplace</Link></div>
+          <div className="footerColumn"><span className="footerHeading">For universities</span><Link to="/?login=university">Institutional plan</Link><a href="mailto:hello@univo.app">Contact sales</a></div>
         </div>
         <div className="footerBottom">
           <span>© 2026 Univo. Built for students.</span>
           <span className="statusPill"><i /> All systems operational</span>
         </div>
       </footer>
+      {loginPath && <LoginPage embedded initialPath={loginPath} />}
     </>
   )
 }
