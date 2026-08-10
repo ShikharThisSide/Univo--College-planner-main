@@ -20,7 +20,7 @@ const faqs = [
 
 function Logo() {
   return (
-    <Link className="logo" to="/" aria-label="Return to Univo home">
+    <Link className="logo homeButton" to="/" aria-label="Home — Univo" title="Home">
       <svg className="logoMark" viewBox="0 0 40 32" aria-hidden="true">
         <path className="capTop" d="M2 11.5 20 3l18 8.5L20 20 2 11.5Z" />
         <path className="capBase" d="M9 15.5v6.2c0 3.3 4.9 6.3 11 6.3s11-3 11-6.3v-6.2l-11 5.2-11-5.2Z" />
@@ -221,7 +221,6 @@ export default function LandingPage() {
         <div className="processCopy">
           <span className="eyebrow">Built different</span>
           <h2>Startup polish.<br />Not a student project.</h2>
-          <p>Glassmorphism, magnetic nav, command palette, theme switcher, skeleton loaders, and motion everywhere.</p>
           <Link to="/?login=student" className="darkButton">Try the demo</Link>
         </div>
         <div className="steps">

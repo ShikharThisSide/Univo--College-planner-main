@@ -11,7 +11,7 @@ export default function Logo({ to = '/', className = '', showText = true, size =
 
   if (to) {
     return (
-      <Link to={to} className={`inline-flex items-center gap-2.5 text-white no-underline ${className}`}>
+      <Link to={to} className={`inline-flex items-center gap-2.5 text-white no-underline cursor-pointer ${className}`} aria-label="Home — Univo" title="Home">
         {content}
       </Link>
     )

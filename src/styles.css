@@ -212,6 +212,8 @@
 .chapterPreview small { color:var(--accent-solid); font-size:10px; letter-spacing:.12em; }
 .chapterPreview strong { font-size:12px; font-weight:600; }
 @media (max-width: 700px) { .chapterScrubber { right:10px; } .chapterPreview { display:none; } }
+.processCopy { position:relative; z-index:1; }
+.processCopy .darkButton { position:relative; z-index:2; display:inline-block; }
 .dashboardDock { position:fixed; left:50%; bottom:20px; z-index:35; transform:translateX(-50%); }
 .dashboardDockInner { display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid rgb(255 255 255 / .12); border-radius:26px; background:rgb(20 28 31 / .88); box-shadow:0 18px 45px rgb(0 0 0 / .35), inset 0 1px rgb(255 255 255 / .08); backdrop-filter:blur(20px); }
 .dashboardDockIcon { position:relative; display:grid; place-items:center; width:42px; height:42px; border:1px solid rgb(255 255 255 / .1); border-radius:13px; color:rgb(255 255 255 / .72); background:linear-gradient(180deg,rgb(255 255 255 / .09),rgb(255 255 255 / .035)); cursor:pointer; transition:transform .2s, color .2s, border-color .2s, background .2s; }
