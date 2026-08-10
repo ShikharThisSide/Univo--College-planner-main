@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronDown, Menu, Minus, Plus, X, GraduationCap, Building2 } from 'lucide-react'
+import { ChevronDown, Menu, Minus, Plus, X, GraduationCap, Building2, Sparkles, Layers, Zap } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LoginPage from '../auth/LoginPage'
 import TextLoop from '../../components/ui/TextLoop'
+import TestimonialMarquee from '../../components/ui/TestimonialMarquee'
 import '../../styles.css'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4'
@@ -56,6 +57,55 @@ function FAQSection() {
   )
 }
 
+export function PricingSection() {
+  const [annual, setAnnual] = useState(false)
+  const plans = [
+    { icon: Sparkles, name: 'Free', description: 'Perfect for getting started', price: 0, features: ['Personal dashboard', 'Attendance tracking', 'Notes Hub', 'Community access'], action: 'Get started' },
+    { icon: Layers, name: 'Student Plus', description: 'For students who want more', price: annual ? 8 : 10, features: ['Everything in Free', 'Marketplace access', 'Priority notes sync', 'Advanced insights'], action: 'Choose plan' },
+    { icon: Zap, name: 'Campus', description: 'For growing university communities', price: annual ? 24 : 29, featured: true, features: ['Everything in Student Plus', 'Unlimited workflows', 'Teacher and admin tools', 'Analytics and reporting'], action: 'Choose plan' },
+    { icon: Building2, name: 'University', description: 'A complete campus workspace', price: null, features: ['Everything in Campus', 'Isolated university workspace', 'Dedicated support', 'Custom integrations'], action: 'Contact sales' },
+  ]
+
+  return (
+    <div className="pricingPage">
+      <nav className="nav pricingPageNav">
+        <Logo />
+        <div className="desktopNav pricingPageLinks">
+          <div className="navPill">
+            <a href="/" className="navLink">Home</a>
+            <a href="/#features" className="navLink">Features</a>
+            <a href="/#faq" className="navLink">FAQ</a>
+          </div>
+        </div>
+      </nav>
+      <section className="pricingSection" id="pricing">
+      <div className="pricingIntro">
+        <span className="eyebrow">Simple, transparent plans</span>
+        <h2>Choose your campus plan.</h2>
+        <p>Start small, stay organized, and grow with Univo.</p>
+        <div className="billingToggle" role="group" aria-label="Billing period">
+          <button type="button" className={!annual ? 'active' : ''} onClick={() => setAnnual(false)}>Monthly</button>
+          <button type="button" className={annual ? 'active' : ''} onClick={() => setAnnual(true)}>Annually <span>Save 20%</span></button>
+        </div>
+      </div>
+      <div className="pricingGrid">
+        {plans.map(({ icon: Icon, ...plan }) => (
+          <article className={`pricingCard ${plan.featured ? 'featured' : ''}`} key={plan.name}>
+            {plan.featured && <span className="pricingBadge">Best value</span>}
+            <div className="pricingIcon"><Icon size={19} /></div>
+            <h3>{plan.name}</h3>
+            <p className="pricingDescription">{plan.description}</p>
+            <div className="pricingPrice">{plan.price === null ? 'Custom' : `$${plan.price}`}<small>{plan.price === null ? ' pricing' : '/month'}</small></div>
+            <a className="pricingButton" href={plan.name === 'University' ? 'mailto:hello@univo.app' : '/?login=student'}>{plan.action}</a>
+            <div className="pricingFeatures"><strong>Features</strong>{plan.features.map((feature) => <span key={feature}>✓ {feature}</span>)}</div>
+          </article>
+        ))}
+      </div>
+      </section>
+    </div>
+  )
+}
+
 export default function LandingPage() {
   const [open, setOpen] = useState(false)
   const { isAuthenticated } = useAuth()
@@ -82,7 +132,7 @@ export default function LandingPage() {
             <div className="desktopNav">
               <div className="navPill">
                 {links.map((link) => (
-                  <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '#features' : '#'} className="navLink">
+                  <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '#features' : link === 'Pricing' ? '/pricing' : '#'} className="navLink">
                     {link}{link === 'For Universities' && <ChevronDown size={14} />}
                   </a>
                 ))}
@@ -98,7 +148,7 @@ export default function LandingPage() {
           <aside className={`drawer ${open ? 'open' : ''}`}>
             <div className="drawerLinks">
               {links.map((link, i) => (
-                <a href={link === 'FAQ' ? '#faq' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
+                  <a href={link === 'FAQ' ? '#faq' : link === 'Pricing' ? '/pricing' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
                   {link}{link === 'For Universities' && <ChevronDown size={18} />}
                 </a>
               ))}
@@ -182,6 +232,7 @@ export default function LandingPage() {
       </section>
 
       <FAQSection />
+      <TestimonialMarquee />
 
       <footer className="footer">
         <div className="footerTop">

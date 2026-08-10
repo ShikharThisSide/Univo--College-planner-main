@@ -3,13 +3,14 @@ import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import RoleGuard from './components/guards/RoleGuard'
 import DashboardLayout from './components/layout/DashboardLayout'
-import LandingPage from './pages/landing/LandingPage'
+import LandingPage, { PricingSection } from './pages/landing/LandingPage'
 import LoginPage from './pages/auth/LoginPage'
 import IndividualStudentDashboard from './pages/dashboard/IndividualStudentDashboard'
 import InstitutionalStudentDashboard from './pages/dashboard/InstitutionalStudentDashboard'
 import TeacherDashboard from './pages/dashboard/TeacherDashboard'
 import AdminDashboard from './pages/dashboard/AdminDashboard'
 import ModulePlaceholder from './pages/modules/ModulePlaceholder'
+import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
 import './app.css'
 
@@ -20,6 +21,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/pricing" element={<PricingSection />} />
             <Route path="/login" element={<LoginPage />} />
 
             {/* Individual student routes */}
@@ -96,6 +98,7 @@ export default function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <ChapterScrubber />
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>

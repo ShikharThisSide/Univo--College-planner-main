@@ -1,31 +1,49 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react'
+import { ArrowLeft, Eye, EyeOff, GraduationCap, BookOpen, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { AnimatePresence, m } from 'motion/react'
 import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 
 function OtpBoxes({ value, onChange }) {
   const digits = Array.from({ length: 6 }, (_, index) => value[index] || '')
   return (
-    <div className="grid grid-cols-6 gap-2" aria-label="Verification code">
+    <m.div className="grid grid-cols-6 gap-2" aria-label="Verification code" initial={false} animate={{ x: 0 }}>
       {digits.map((digit, index) => (
-        <input
-          key={index}
-          type="text"
-          inputMode="numeric"
-          maxLength={1}
-          value={digit}
-          onChange={(e) => {
-            const nextDigits = [...digits]
-            nextDigits[index] = e.target.value.replace(/\D/g, '').slice(-1)
-            onChange(nextDigits.join(''))
-          }}
-          className="w-full aspect-square rounded-xl border border-white/10 bg-white/6 text-center text-lg font-semibold text-white outline-none focus:border-[var(--accent-solid)] focus:ring-2 focus:ring-[var(--accent-solid)]/20 transition-all"
-          aria-label={`Verification digit ${index + 1}`}
-        />
+        <div key={index} className="relative w-full aspect-square">
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            value={digit}
+            onChange={(e) => {
+              const nextDigits = [...digits]
+              nextDigits[index] = e.target.value.replace(/\D/g, '').slice(-1)
+              onChange(nextDigits.join(''))
+            }}
+            className="absolute inset-0 z-10 w-full rounded-xl border border-white/10 bg-white/6 text-center text-lg font-semibold text-transparent caret-transparent outline-none focus:border-[var(--accent-solid)] focus:ring-2 focus:ring-[var(--accent-solid)]/20 transition-all"
+            aria-label={`Verification digit ${index + 1}`}
+          />
+          <span className="pointer-events-none absolute inset-0 z-20 grid place-items-center" aria-hidden="true">
+            <AnimatePresence initial={false} mode="popLayout">
+              {digit && (
+                <m.span
+                  key={`${index}-${digit}`}
+                  initial={{ opacity: 0, scale: 0.8, y: 8, filter: 'blur(5px)' }}
+                  animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, scale: 0.9, y: -5, filter: 'blur(3px)' }}
+                  transition={{ duration: 0.22, ease: [0.23, 1, 0.32, 1] }}
+                  className="font-mono text-lg font-semibold text-white"
+                >
+                  {digit}
+                </m.span>
+              )}
+            </AnimatePresence>
+          </span>
+        </div>
       ))}
-    </div>
+    </m.div>
   )
 }
 
@@ -39,6 +57,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
   const [mode, setMode] = useState('login')
+  const [universityRole, setUniversityRole] = useState(null)
   const [otp, setOtp] = useState('')
   const [enteredOtp, setEnteredOtp] = useState('')
   const [verificationToken, setVerificationToken] = useState('')
@@ -53,7 +72,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     const googleEmail = searchParams.get('google_email')
     if (!googleEmail) return
     const path = searchParams.get('path') || signupPath
-    const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path })
+    const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path, roleOverride: universityRole || undefined })
     navigate(dashboardPath, { replace: true })
   }, [login, navigate, searchParams, signupPath])
 
@@ -97,7 +116,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       } catch {
         return setError('Unable to verify the code. Please try again.')
       }
-      accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath }
+      accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
       setNotice('Account created successfully. Signing you in…')
     } else if (mode === 'reset') {
@@ -116,7 +135,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
       if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
     }
-    const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath })
+    const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: accounts[normalizedEmail]?.role || universityRole || undefined })
     navigate(path)
   }
 
@@ -144,6 +163,24 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             {isUniversity ? 'University workspace' : 'Student account'}
           </span>
         </div>
+        {isUniversity && !universityRole ? (
+          <div className="profileRoleSelector">
+            <h1 className="font-display text-3xl font-bold mt-2 mb-2">Choose your role.</h1>
+            <p className="text-white/45 text-sm mb-7">Select how you access your university workspace.</p>
+            <div className="profileRoleGrid">
+              {[
+                { id: 'student_institutional', label: 'Student', icon: GraduationCap, copy: 'Classes, attendance, and campus life.' },
+                { id: 'teacher', label: 'Teacher', icon: BookOpen, copy: 'Teach, grade, and manage classes.' },
+                { id: 'admin', label: 'Admin', icon: ShieldCheck, copy: 'Manage your university workspace.' },
+              ].map(({ id, label, icon: Icon, copy }) => (
+                <button key={id} type="button" className="profileRoleCard" onClick={() => setUniversityRole(id)}>
+                  <span className="profileRoleIcon"><Icon size={25} /></span>
+                  <span><strong>{label}</strong><small>{copy}</small></span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : <>
         <h1 className="font-display text-3xl font-bold mt-2 mb-1">
           {mode === 'create' ? 'Create your account.' : mode === 'reset' ? 'Reset your password.' : isUniversity ? 'Set up your campus.' : 'Welcome back.'}
         </h1>
@@ -230,6 +267,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             <>Don&apos;t have an account? <button type="button" onClick={() => { setMode('create'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Create one</button></>
           )}
         </p>
+        </>}
         {mode === 'login' && error === 'Incorrect password' && (
           <button type="button" onClick={() => { setMode('reset'); setError(''); setNotice('') }} className="login-forgot cursor-pointer">Forgot password?</button>
         )}

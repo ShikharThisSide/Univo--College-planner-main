@@ -176,3 +176,81 @@
 .sectionTextLoop { justify-content: center; max-width: 100%; margin: 0 auto; color: #f6f4ed; }
 .sectionSecondHeading { margin-top: 0 !important; }
 @media (max-width: 639px) { .landingTextLoop { font-size: clamp(38px, 12vw, 58px); } }
+.pricingPage { min-height:100vh; color:#f6f4ed; background:#101820; }
+.pricingPageNav { position:sticky; top:0; z-index:20; padding:20px 3vw; background:rgb(16 24 32 / .82); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+.pricingPageLinks { display:flex; }
+.pricingSection { position:relative; overflow:hidden; min-height:100vh; padding:128px 20px; color:#f6f4ed; background:#101820; scroll-margin-top:20px; }
+.pricingSection::before { position:absolute; top:-180px; left:50%; width:540px; height:540px; border:1px solid rgb(196 240 77 / .14); border-radius:50%; box-shadow:0 0 0 34px rgb(196 240 77 / .035),0 0 0 70px rgb(196 240 77 / .02); transform:translateX(-50%); content:""; pointer-events:none; }
+.pricingIntro { position:relative; z-index:1; max-width:760px; margin:0 auto 64px; text-align:center; }
+.pricingIntro .eyebrow { color:#c4f04d; }
+.pricingIntro h2 { font-size:clamp(42px,6vw,76px); }
+.pricingIntro p { margin:18px 0 28px; color:rgb(255 255 255 / .6); font-size:18px; }
+.billingToggle { display:inline-flex; gap:4px; padding:5px; border:1px solid rgb(255 255 255 / .12); border-radius:14px; background:rgb(255 255 255 / .06); }
+.billingToggle button { padding:10px 16px; border:0; border-radius:9px; color:rgb(255 255 255 / .6); background:transparent; font:600 13px Geist; cursor:pointer; }
+.billingToggle button.active { color:#101820; background:#f6f4ed; }
+.billingToggle span { margin-left:5px; color:#8ab729; font-size:10px; }
+.pricingGrid { position:relative; z-index:1; display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:1300px; margin:auto; }
+.pricingCard { position:relative; display:flex; min-height:500px; flex-direction:column; padding:28px; border:1px solid rgb(255 255 255 / .12); border-radius:24px; background:linear-gradient(145deg,rgb(255 255 255 / .1),rgb(255 255 255 / .035)); }
+.pricingCard.featured { border-color:#c4f04d; background:linear-gradient(145deg,rgb(196 240 77 / .18),rgb(255 255 255 / .05)); box-shadow:0 0 36px rgb(196 240 77 / .1); }
+.pricingBadge { position:absolute; top:18px; right:18px; padding:5px 9px; border-radius:99px; color:#101820; background:#c4f04d; font-size:10px; font-weight:800; text-transform:uppercase; }
+.pricingIcon { display:grid; place-items:center; width:42px; height:42px; margin-bottom:28px; border-radius:13px; color:#c4f04d; background:rgb(196 240 77 / .12); }
+.pricingCard h3 { margin:0; font-size:22px; }
+.pricingDescription { min-height:44px; margin:8px 0 22px; color:rgb(255 255 255 / .58); line-height:1.45; }
+.pricingPrice { margin-bottom:24px; color:#fff; font:600 42px Space Grotesk; letter-spacing:-.06em; }
+.pricingPrice small { color:rgb(255 255 255 / .5); font:400 13px DM Sans; letter-spacing:0; }
+.pricingButton { display:block; padding:13px 16px; border:1px solid rgb(255 255 255 / .3); border-radius:11px; color:#fff; text-align:center; text-decoration:none; font-size:12px; font-weight:700; text-transform:uppercase; }
+.featured .pricingButton { color:#101820; border-color:#c4f04d; background:#c4f04d; }
+.pricingFeatures { display:flex; flex-direction:column; gap:12px; margin-top:30px; color:rgb(255 255 255 / .6); font-size:13px; }
+.pricingFeatures strong { margin-bottom:3px; color:#f6f4ed; }
+@media (max-width: 1000px) { .pricingGrid { grid-template-columns:repeat(2,1fr); max-width:680px; } }
+@media (max-width: 560px) { .pricingGrid { grid-template-columns:1fr; } .pricingCard { min-height:0; } }
+.chapterScrubber { position:fixed; right:22px; top:50%; z-index:25; display:flex; flex-direction:column; gap:9px; transform:translateY(-50%); }
+.chapterTickButton { position:relative; display:flex; justify-content:flex-end; align-items:center; width:72px; min-height:10px; padding:0; border:0; background:transparent; cursor:pointer; }
+.chapterTick { display:block; height:2px; border-radius:999px; background:rgb(255 255 255 / .28); transition:background .2s; }
+.chapterTickButton:hover .chapterTick, .chapterTick.active { background:var(--accent-solid); }
+.chapterPreview { position:absolute; right:28px; display:flex; width:220px; flex-direction:column; gap:4px; padding:12px 14px; border:1px solid rgb(255 255 255 / .12); border-radius:13px; color:#f6f4ed; background:rgb(25 35 38 / .92); box-shadow:0 12px 30px rgb(0 0 0 / .25); text-align:left; pointer-events:none; }
+.chapterPreview small { color:var(--accent-solid); font-size:10px; letter-spacing:.12em; }
+.chapterPreview strong { font-size:12px; font-weight:600; }
+@media (max-width: 700px) { .chapterScrubber { right:10px; } .chapterPreview { display:none; } }
+.dashboardDock { position:fixed; left:50%; bottom:20px; z-index:35; transform:translateX(-50%); }
+.dashboardDockInner { display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid rgb(255 255 255 / .12); border-radius:26px; background:rgb(20 28 31 / .88); box-shadow:0 18px 45px rgb(0 0 0 / .35), inset 0 1px rgb(255 255 255 / .08); backdrop-filter:blur(20px); }
+.dashboardDockIcon { position:relative; display:grid; place-items:center; width:42px; height:42px; border:1px solid rgb(255 255 255 / .1); border-radius:13px; color:rgb(255 255 255 / .72); background:linear-gradient(180deg,rgb(255 255 255 / .09),rgb(255 255 255 / .035)); cursor:pointer; transition:transform .2s, color .2s, border-color .2s, background .2s; }
+.dashboardDockIcon:hover, .dashboardDockIcon:focus-visible { color:var(--accent-solid); border-color:rgb(196 240 77 / .45); background:rgb(196 240 77 / .12); transform:translateY(-5px) scale(1.05); outline:none; }
+.dashboardDockTooltip { position:absolute; bottom:-28px; left:50%; padding:4px 7px; border-radius:6px; color:#f6f4ed; background:rgb(15 22 25 / .95); font-size:10px; white-space:nowrap; opacity:0; pointer-events:none; transform:translate(-50%,4px); transition:opacity .2s, transform .2s; }
+.dashboardDockIcon:hover .dashboardDockTooltip, .dashboardDockIcon:focus-visible .dashboardDockTooltip { opacity:1; transform:translate(-50%,0); }
+.dashboardDockDivider { width:1px; height:26px; margin:0 2px; background:rgb(255 255 255 / .14); }
+@media (max-width: 700px) { .dashboardDock { bottom:12px; } .dashboardDockInner { gap:5px; padding:7px; } .dashboardDockIcon { width:38px; height:38px; } .dashboardDockDivider { display:none; } }
+.profileRoleSelector { margin-top:8px; }
+.profileRoleGrid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:18px; justify-items:center; }
+.profileRoleCard { display:flex; align-items:center; flex-direction:column; gap:10px; width:100%; padding:0; border:0; color:#fff; background:transparent; text-align:center; cursor:pointer; transition:transform .25s; }
+.profileRoleCard:hover { transform:translateY(-7px); }
+.profileRoleIcon { display:grid; place-items:center; width:88px; height:88px; border:1px solid rgb(255 255 255 / .16); border-radius:50%; color:var(--accent-solid); background:linear-gradient(145deg, rgb(196 240 77 / .2), rgb(255 255 255 / .06)); box-shadow:inset 0 1px rgb(255 255 255 / .15), 0 12px 28px rgb(0 0 0 / .2); transition:box-shadow .25s, border-color .25s, transform .25s; }
+.profileRoleCard:hover .profileRoleIcon { border-color:var(--accent-solid); box-shadow:0 0 0 5px rgb(196 240 77 / .1), 0 16px 32px rgb(0 0 0 / .3); transform:scale(1.06); }
+.profileRoleCard span:last-child { display:flex; flex-direction:column; gap:3px; }
+.profileRoleCard strong { font-size:14px; }
+.profileRoleCard small { color:rgb(255 255 255 / .45); font-size:10px; line-height:1.35; }
+@media (max-width: 480px) { .profileRoleGrid { gap:8px; } .profileRoleIcon { width:72px; height:72px; } .profileRoleCard small { display:none; } }
+.profileDropdownTrigger { position:relative; display:flex; align-items:center; gap:12px; min-width:210px; padding:8px 10px 8px 14px; border:1px solid rgb(255 255 255 / .1); border-radius:17px; color:#f6f4ed; background:rgb(255 255 255 / .05); cursor:pointer; transition:background .2s,border-color .2s,box-shadow .2s; }
+.profileDropdownTrigger:hover, .profileDropdownTrigger:focus-visible { border-color:rgb(196 240 77 / .35); background:rgb(255 255 255 / .09); box-shadow:0 8px 25px rgb(0 0 0 / .2); outline:none; }
+.profileDropdownAvatar { display:grid; place-items:center; width:40px; height:40px; margin-left:auto; border-radius:50%; color:#101820; background:linear-gradient(135deg,#c4f04d,#d98b62); font-size:12px; font-weight:800; }
+.profileMenuItem { display:flex; align-items:center; justify-content:space-between; width:100%; padding:10px 14px; border:0; color:rgb(255 255 255 / .78); background:transparent; font:13px Geist; text-align:left; cursor:pointer; }
+.profileMenuItem:hover { color:#fff; background:rgb(255 255 255 / .07); }
+.profileMenuItem span { color:rgb(255 255 255 / .35); font-size:11px; }
+.profileMenuDivider { height:1px; margin:5px 10px; background:rgb(255 255 255 / .1); }
+.profileMenuLogout { justify-content:flex-start; gap:8px; color:#ff8585; }
+.testimonialMarquee { position:relative; overflow:hidden; padding:110px 0 120px; color:#f6f4ed; background:#101820; }
+.testimonialMarqueeIntro { max-width:700px; margin:0 auto 42px; padding:0 20px; text-align:center; }
+.testimonialMarqueeIntro .eyebrow { color:#c4f04d; }
+.testimonialMarqueeIntro h2 { font-size:clamp(34px,5vw,62px); }
+.testimonialMarqueeRows { display:flex; flex-direction:column; gap:14px; }
+.testimonialMarqueeTrack { display:flex; width:max-content; gap:14px; animation:testimonialMarquee 52s linear infinite; }
+.testimonialMarqueeTrack.reverse { animation-direction:reverse; }
+.testimonialMarqueeRows:hover .testimonialMarqueeTrack { animation-play-state:paused; }
+.testimonialMarqueeCard { width:270px; min-height:150px; padding:18px; border:1px solid rgb(255 255 255 / .12); border-radius:18px; background:linear-gradient(145deg,rgb(255 255 255 / .1),rgb(255 255 255 / .035)); box-shadow:0 14px 35px rgb(0 0 0 / .16); }
+.testimonialIdentity { display:flex; align-items:center; gap:10px; }
+.testimonialIdentity img { width:32px; height:32px; border-radius:50%; object-fit:cover; border:1px solid rgb(196 240 77 / .45); }
+.testimonialIdentity div { display:flex; flex-direction:column; gap:2px; }
+.testimonialIdentity strong { font-size:13px; }
+.testimonialIdentity span { color:rgb(255 255 255 / .4); font-size:11px; }
+.testimonialMarqueeCard p { margin:16px 0 0; color:rgb(255 255 255 / .65); font-size:13px; line-height:1.5; }
+@keyframes testimonialMarquee { from { transform:translateX(0); } to { transform:translateX(-50%); } }

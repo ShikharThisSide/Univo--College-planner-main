@@ -8,6 +8,7 @@ import MagneticSidebar from './MagneticSidebar'
 import NotificationBell from '../ui/NotificationBell'
 import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
+import DashboardDock from '../ui/DashboardDock'
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth()
@@ -51,13 +52,13 @@ export default function DashboardLayout() {
               <button
                 type="button"
                 onClick={() => setDemoOpen(!demoOpen)}
-                className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl hover:bg-white/6 transition-colors"
+                className="profileDropdownTrigger"
               >
-                <span className="w-8 h-8 rounded-full univo-gradient-bg flex items-center justify-center text-xs font-bold">{initials}</span>
                 <div className="text-left hidden sm:block">
                   <p className="text-sm font-medium leading-tight">{user?.name}</p>
-                  <p className="text-[10px] text-white/40">{getRoleLabel(user?.role)}</p>
+                  <p className="text-[10px] text-white/40">{user?.email || getRoleLabel(user?.role)}</p>
                 </div>
+                <span className="profileDropdownAvatar">{initials}</span>
                 <ChevronDown size={14} className="text-white/40" />
               </button>
 
@@ -65,9 +66,10 @@ export default function DashboardLayout() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDemoOpen(false)} />
                   <div className="absolute right-0 top-full mt-2 w-56 z-50 glass-panel rounded-2xl py-2 shadow-2xl">
-                    <button type="button" onClick={handleLogout} className="w-full px-4 py-2 text-left text-sm text-red-400/80 hover:bg-white/6 flex items-center gap-2">
-                      <LogOut size={14} /> Log out
-                    </button>
+                    <button type="button" onClick={() => { setDemoOpen(false); setThemeOpen(true) }} className="profileMenuItem">Settings <span>⌘</span></button>
+                    <button type="button" onClick={() => { setDemoOpen(false); setThemeOpen(true) }} className="profileMenuItem">Theme <span>◐</span></button>
+                    <div className="profileMenuDivider" />
+                    <button type="button" onClick={handleLogout} className="profileMenuItem profileMenuLogout"><LogOut size={14} /> Sign out</button>
                   </div>
                 </>
               )}
@@ -81,6 +83,7 @@ export default function DashboardLayout() {
       </div>
 
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onThemeOpen={() => setThemeOpen(true)} />
+      <DashboardDock items={navItems} onSearch={() => setCmdOpen(true)} onSettings={() => setThemeOpen(true)} />
     </div>
   )
 }

@@ -14,13 +14,13 @@ export function AuthProvider({ children }) {
     }
   })
 
-  const login = useCallback(({ email, password, name: providedName = '', signupPath = 'student', demoRole = null }) => {
+  const login = useCallback(({ email, password, name: providedName = '', signupPath = 'student', demoRole = null, roleOverride = null }) => {
     let nextUser
 
     if (demoRole && DEMO_USERS[demoRole]) {
       nextUser = { ...DEMO_USERS[demoRole], id: `demo-${demoRole}` }
     } else {
-      const role = inferRoleFromEmail(email, signupPath)
+      const role = roleOverride || inferRoleFromEmail(email, signupPath)
       const name = providedName.trim() || email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
       nextUser = {
         id: email,
