@@ -13,7 +13,9 @@ export default function handler(req, res) {
     let tokenData
     try {
       const expected = crypto.createHmac('sha256', otpSecret()).update(payload || '').digest('base64url')
-      if (!payload || !signature || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) throw new Error('Invalid signature')
+      const received = Buffer.from(signature || '')
+      const expectedBuffer = Buffer.from(expected)
+      if (!payload || !signature || received.length !== expectedBuffer.length || !crypto.timingSafeEqual(received, expectedBuffer)) throw new Error('Invalid signature')
       tokenData = JSON.parse(Buffer.from(payload, 'base64url').toString())
     } catch {
       return res.status(400).json({ error: 'Invalid or expired verification code.' })
