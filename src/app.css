@@ -4,20 +4,20 @@
 @theme {
   --font-display: "Space Grotesk", system-ui, sans-serif;
   --font-body: "DM Sans", system-ui, sans-serif;
-  --color-base: #0a0a0f;
-  --color-base-elevated: #12121a;
-  --color-glass: rgba(255, 255, 255, 0.04);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-base: #0e1820;
+  --color-base-elevated: #18232a;
+  --color-glass: rgba(42, 47, 49, 0.78);
+  --color-glass-border: rgba(255, 255, 255, 0.09);
   --color-muted: rgba(255, 255, 255, 0.55);
   --color-subtle: rgba(255, 255, 255, 0.35);
 }
 
 :root {
-  --accent-from: #8b5cf6;
-  --accent-to: #f97316;
-  --accent-solid: #a855f7;
-  --accent-glow: rgba(168, 85, 247, 0.35);
-  --accent-muted: rgba(168, 85, 247, 0.15);
+  --accent-from: #d7b678;
+  --accent-to: #c97854;
+  --accent-solid: #e2b978;
+  --accent-glow: rgba(215, 166, 112, 0.28);
+  --accent-muted: rgba(215, 166, 112, 0.16);
   color-scheme: dark;
 }
 
@@ -32,11 +32,19 @@
 }
 
 [data-accent="nova-purple"] {
-  --accent-from: #8b5cf6;
-  --accent-to: #f97316;
-  --accent-solid: #a855f7;
-  --accent-glow: rgba(168, 85, 247, 0.35);
-  --accent-muted: rgba(168, 85, 247, 0.15);
+  --accent-from: #d7b678;
+  --accent-to: #c97854;
+  --accent-solid: #e2b978;
+  --accent-glow: rgba(215, 166, 112, 0.28);
+  --accent-muted: rgba(215, 166, 112, 0.16);
+}
+
+[data-accent="forest-lime"] {
+  --accent-from: #c4f04d;
+  --accent-to: #8ab729;
+  --accent-solid: #c4f04d;
+  --accent-glow: rgba(196, 240, 77, 0.24);
+  --accent-muted: rgba(196, 240, 77, 0.14);
 }
 
 [data-accent="coral-ember"] {
@@ -70,7 +78,7 @@
 body.univo-app {
   font-family: var(--font-body);
   background: var(--color-base);
-  color: white;
+  color: #f4f1f6;
 }
 
 .font-display {
@@ -93,6 +101,18 @@ body.univo-app {
   border: 1px solid var(--color-glass-border);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+}
+
+/* Dashboard surfaces follow the deep charcoal / plum palette from the product UI. */
+.dashboard-shell {
+  background:
+    radial-gradient(circle at 88% 4%, rgba(72, 102, 66, 0.16), transparent 27%),
+    radial-gradient(circle at 44% 34%, rgba(34, 71, 68, 0.12), transparent 32%),
+    var(--color-base);
+}
+
+.dashboard-shell .glass-panel {
+  background: rgba(27, 37, 39, 0.88);
 }
 
 .glass-card {

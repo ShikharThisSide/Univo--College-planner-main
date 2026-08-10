@@ -12,11 +12,12 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const { login } = useAuth()
 
   const [email, setEmail] = useState('')
+  const [fullName, setFullName] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [mode, setMode] = useState('login')
   const [otp, setOtp] = useState('')
   const [enteredOtp, setEnteredOtp] = useState('')
+  const [verificationToken, setVerificationToken] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -24,16 +25,43 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email.trim()) return setError('Enter your email')
     const normalizedEmail = email.trim().toLowerCase()
     const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
     if (mode === 'create' && password.length < 8) return setError('Password must be at least 8 characters')
-    if (mode === 'create' && password !== confirmPassword) return setError('Passwords do not match')
     if (mode === 'create') {
+      if (!fullName.trim()) return setError('Enter your full name')
       if (accounts[normalizedEmail]) return setError('An account already exists for this email')
-      accounts[normalizedEmail] = { password, signupPath }
+      if (!verificationToken) {
+        try {
+          const response = await fetch('/api/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: normalizedEmail }),
+          })
+          const result = await response.json()
+          if (!response.ok) return setError(result.error || 'Unable to send verification code')
+          setVerificationToken(result.verificationToken)
+          return setNotice('Verification code sent. Check your email.')
+        } catch {
+          return setError('Unable to reach the email verification service. Start the app with “npm run dev:vercel”.')
+        }
+      }
+      if (!enteredOtp.trim()) return setError('Enter the verification code')
+      try {
+        const response = await fetch('/api/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalizedEmail, code: enteredOtp, verificationToken }),
+        })
+        const result = await response.json()
+        if (!response.ok) return setError(result.error || 'Invalid verification code')
+      } catch {
+        return setError('Unable to verify the code. Please try again.')
+      }
+      accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
       setNotice('Account created successfully. Signing you in…')
     } else if (mode === 'reset') {
@@ -52,7 +80,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
       if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
     }
-    const path = login({ email: normalizedEmail, password, signupPath })
+    const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath })
     navigate(path)
   }
 
@@ -90,6 +118,15 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
+          {mode === 'create' && (
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Full name"
+              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
+            />
+          )}
           <input
             type="email"
             value={email}
@@ -97,26 +134,19 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             placeholder="Email address"
             className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
           />
-          <div className="relative">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              className="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
-            />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70">
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
-          {mode === 'create' && (
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm password"
-              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
-            />
+          {(mode !== 'reset' || otp) && (
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={mode === 'reset' ? 'New password' : 'Password'}
+                className="w-full px-4 py-3.5 pr-12 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
+              />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70">
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           )}
           {mode === 'reset' && otp && (
             <input
@@ -128,13 +158,14 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
               className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none"
             />
           )}
-          {mode === 'reset' && otp && (
+          {mode === 'create' && verificationToken && (
             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="New password"
-              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none"
+              type="text"
+              inputMode="numeric"
+              value={enteredOtp}
+              onChange={(e) => { setEnteredOtp(e.target.value); setError('') }}
+              placeholder="Enter verification code"
+              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
             />
           )}
           {error && <p className="text-red-400 text-xs">{error}</p>}

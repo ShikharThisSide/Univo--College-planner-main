@@ -8,6 +8,7 @@ import AttendanceRing from '../../components/ui/AttendanceRing'
 import AnimatedProgress from '../../components/ui/AnimatedProgress'
 import { SkeletonDashboard } from '../../components/ui/Skeleton'
 import { individualStudentData } from '../../lib/mockData'
+import { useAuth } from '../../context/AuthContext'
 
 function PriorityBadge({ priority }) {
   const colors = { high: 'text-red-400 bg-red-400/10', medium: 'text-amber-400 bg-amber-400/10', low: 'text-emerald-400 bg-emerald-400/10' }
@@ -16,7 +17,11 @@ function PriorityBadge({ priority }) {
 
 export default function IndividualStudentDashboard() {
   const [loading, setLoading] = useState(true)
-  const data = individualStudentData
+  const { user } = useAuth()
+  const data = {
+    ...individualStudentData,
+    name: user?.name?.split(' ')[0] || individualStudentData.name,
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 900)

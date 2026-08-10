@@ -10,7 +10,7 @@ import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
 
 export default function DashboardLayout() {
-  const { user, logout, switchDemoRole } = useAuth()
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
   const [themeOpen, setThemeOpen] = useState(false)
@@ -26,7 +26,7 @@ export default function DashboardLayout() {
   const initials = user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
   return (
-    <div className="min-h-screen bg-[var(--color-base)] text-white noise-bg">
+    <div className="dashboard-shell min-h-screen text-white noise-bg">
       <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] pointer-events-none univo-gradient-bg" style={{ transform: 'translate(30%, -40%)' }} />
 
       <MagneticSidebar items={navItems} />
@@ -65,26 +65,9 @@ export default function DashboardLayout() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDemoOpen(false)} />
                   <div className="absolute right-0 top-full mt-2 w-56 z-50 glass-panel rounded-2xl py-2 shadow-2xl">
-                    <p className="px-4 py-2 text-[10px] uppercase tracking-wider text-white/35">Switch demo role</p>
-                    {['individual', 'institutional', 'teacher', 'admin'].map((role) => (
-                      <button
-                        key={role}
-                        type="button"
-                        onClick={() => {
-                          const path = switchDemoRole(role)
-                          setDemoOpen(false)
-                          navigate(path)
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-white/6 capitalize"
-                      >
-                        {role.replace('_', ' ')}
-                      </button>
-                    ))}
-                    <div className="border-t border-white/8 mt-1 pt-1">
-                      <button type="button" onClick={handleLogout} className="w-full px-4 py-2 text-left text-sm text-red-400/80 hover:bg-white/6 flex items-center gap-2">
-                        <LogOut size={14} /> Log out
-                      </button>
-                    </div>
+                    <button type="button" onClick={handleLogout} className="w-full px-4 py-2 text-left text-sm text-red-400/80 hover:bg-white/6 flex items-center gap-2">
+                      <LogOut size={14} /> Log out
+                    </button>
                   </div>
                 </>
               )}

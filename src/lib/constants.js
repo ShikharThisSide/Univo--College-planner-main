@@ -6,7 +6,8 @@ export const ROLES = {
 }
 
 export const ACCENT_PALETTES = [
-  { id: 'nova-purple', label: 'Nova Purple', from: '#8b5cf6', to: '#f97316' },
+  { id: 'forest-lime', label: 'Forest Lime', from: '#c4f04d', to: '#8ab729' },
+  { id: 'nova-purple', label: 'Nova Purple', from: '#9657e8', to: '#f47b3a' },
   { id: 'coral-ember', label: 'Coral Ember', from: '#f97316', to: '#ef4444' },
   { id: 'deep-teal', label: 'Deep Teal', from: '#14b8a6', to: '#06b6d4' },
   { id: 'electric-blue', label: 'Electric Blue', from: '#3b82f6', to: '#8b5cf6' },

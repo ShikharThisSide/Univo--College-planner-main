@@ -4,7 +4,7 @@ import { ACCENT_PALETTES } from '../lib/constants'
 const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
-  const [accent, setAccent] = useState(() => localStorage.getItem('univoAccent') || 'nova-purple')
+  const [accent, setAccent] = useState(() => localStorage.getItem('univoAccent') || 'forest-lime')
   const [mode, setMode] = useState(() => localStorage.getItem('univoMode') || 'dark')
 
   useEffect(() => {
