@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   if (!code) return res.status(400).send('Google sign-in was cancelled or did not return a code.')
 
   const origin = `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers.host}`
-  const redirectUri = `${origin}/api/auth/google/callback`
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${origin}/api/auth/google/callback`
   const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
