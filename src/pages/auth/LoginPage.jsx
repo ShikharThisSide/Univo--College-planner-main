@@ -15,8 +15,11 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [mode, setMode] = useState('login')
+  const [otp, setOtp] = useState('')
+  const [enteredOtp, setEnteredOtp] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
@@ -24,9 +27,32 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!email.trim()) return setError('Enter your email')
+    const normalizedEmail = email.trim().toLowerCase()
+    const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
     if (mode === 'create' && password.length < 8) return setError('Password must be at least 8 characters')
     if (mode === 'create' && password !== confirmPassword) return setError('Passwords do not match')
-    const path = login({ email, password, signupPath })
+    if (mode === 'create') {
+      if (accounts[normalizedEmail]) return setError('An account already exists for this email')
+      accounts[normalizedEmail] = { password, signupPath }
+      localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+      setNotice('Account created successfully. Signing you in…')
+    } else if (mode === 'reset') {
+      if (!accounts[normalizedEmail]) return setError('No account found for this email')
+      if (!otp) {
+        const generatedOtp = String(Math.floor(100000 + Math.random() * 900000))
+        setOtp(generatedOtp)
+        return setNotice(`Demo OTP: ${generatedOtp}`)
+      }
+      if (enteredOtp !== otp) return setError('Incorrect OTP')
+      if (password.length < 8) return setError('New password must be at least 8 characters')
+      accounts[normalizedEmail].password = password
+      localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+      setNotice('Password updated. Signing you in…')
+    } else {
+      if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
+      if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
+    }
+    const path = login({ email: normalizedEmail, password, signupPath })
     navigate(path)
   }
 
@@ -55,12 +81,12 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
           </span>
         </div>
         <h1 className="font-display text-3xl font-bold mt-2 mb-1">
-          {mode === 'create' ? 'Create your account.' : isUniversity ? 'Set up your campus.' : 'Welcome back.'}
+          {mode === 'create' ? 'Create your account.' : mode === 'reset' ? 'Reset your password.' : isUniversity ? 'Set up your campus.' : 'Welcome back.'}
         </h1>
         <p className="text-white/45 text-sm mb-6">
           {isUniversity
             ? 'One login for admins, teachers, and students — role-based redirect after auth.'
-            : mode === 'create' ? 'Create your personal dashboard and start planning your campus life.' : 'Sign in to your personal dashboard, notes hub, and community.'}
+            : mode === 'create' ? 'Create your personal dashboard and start planning your campus life.' : mode === 'reset' ? 'Enter your email and use the OTP to choose a new password.' : 'Sign in to your personal dashboard, notes hub, and community.'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -92,9 +118,29 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
               className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
             />
           )}
+          {mode === 'reset' && otp && (
+            <input
+              type="text"
+              inputMode="numeric"
+              value={enteredOtp}
+              onChange={(e) => setEnteredOtp(e.target.value)}
+              placeholder="Enter OTP"
+              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none"
+            />
+          )}
+          {mode === 'reset' && otp && (
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="New password"
+              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none"
+            />
+          )}
           {error && <p className="text-red-400 text-xs">{error}</p>}
+          {notice && <p className="text-[var(--accent-solid)] text-xs">{notice}</p>}
           <button type="submit" className="w-full py-3.5 rounded-full univo-gradient-bg font-semibold text-sm hover:opacity-90 transition-opacity">
-            {mode === 'create' ? 'Create account' : 'Continue'}
+            {mode === 'create' ? 'Create account' : mode === 'reset' ? (otp ? 'Update password' : 'Send OTP') : 'Continue'}
           </button>
         </form>
 
@@ -103,10 +149,15 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             <>Individual student? <Link to={loginHref('student')} className="text-[var(--accent-solid)] hover:underline">Sign in here</Link></>
           ) : mode === 'create' ? (
             <>Already have an account? <button type="button" onClick={() => { setMode('login'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
+          ) : mode === 'reset' ? (
+            <>Remembered your password? <button type="button" onClick={() => { setMode('login'); setOtp(''); setEnteredOtp(''); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
           ) : (
             <>Don&apos;t have an account? <button type="button" onClick={() => { setMode('create'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Create one</button></>
           )}
         </p>
+        {mode === 'login' && error === 'Incorrect password' && (
+          <button type="button" onClick={() => { setMode('reset'); setError(''); setNotice('') }} className="login-forgot cursor-pointer">Forgot password?</button>
+        )}
       </motion.div>
     </div>
   )

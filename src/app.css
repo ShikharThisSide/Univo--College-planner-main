@@ -214,6 +214,7 @@ body.univo-app {
 .login-card input {
   width: 100%;
   box-sizing: border-box;
+  color: #fff !important;
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.22);
 }
@@ -250,4 +251,13 @@ body.univo-app {
 .login-back:hover {
   color: var(--accent-solid);
   transform: translateX(-2px);
+}
+
+.login-forgot {
+  display: block;
+  margin: 14px auto 0;
+  border: 0;
+  color: var(--accent-solid);
+  background: transparent;
+  font-size: 12px;
 }
