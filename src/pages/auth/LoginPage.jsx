@@ -5,6 +5,30 @@ import { motion } from 'framer-motion'
 import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 
+function OtpBoxes({ value, onChange }) {
+  const digits = Array.from({ length: 6 }, (_, index) => value[index] || '')
+  return (
+    <div className="grid grid-cols-6 gap-2" aria-label="Verification code">
+      {digits.map((digit, index) => (
+        <input
+          key={index}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          onChange={(e) => {
+            const nextDigits = [...digits]
+            nextDigits[index] = e.target.value.replace(/\D/g, '').slice(-1)
+            onChange(nextDigits.join(''))
+          }}
+          className="w-full aspect-square rounded-xl border border-white/10 bg-white/6 text-center text-lg font-semibold text-white outline-none focus:border-[var(--accent-solid)] focus:ring-2 focus:ring-[var(--accent-solid)]/20 transition-all"
+          aria-label={`Verification digit ${index + 1}`}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function LoginPage({ embedded = false, initialPath = 'student' } = {}) {
   const [searchParams] = useSearchParams()
   const signupPath = searchParams.get('path') || initialPath || 'student'
@@ -161,24 +185,10 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             </div>
           )}
           {mode === 'reset' && otp && (
-            <input
-              type="text"
-              inputMode="numeric"
-              value={enteredOtp}
-              onChange={(e) => setEnteredOtp(e.target.value)}
-              placeholder="Enter OTP"
-              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none"
-            />
+            <OtpBoxes value={enteredOtp} onChange={setEnteredOtp} />
           )}
           {mode === 'create' && verificationToken && (
-            <input
-              type="text"
-              inputMode="numeric"
-              value={enteredOtp}
-              onChange={(e) => { setEnteredOtp(e.target.value); setError('') }}
-              placeholder="Enter verification code"
-              className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
-            />
+            <OtpBoxes value={enteredOtp} onChange={(value) => { setEnteredOtp(value); setError('') }} />
           )}
           {error && <p className="text-red-400 text-xs">{error}</p>}
           {notice && <p className="text-[var(--accent-solid)] text-xs">{notice}</p>}
