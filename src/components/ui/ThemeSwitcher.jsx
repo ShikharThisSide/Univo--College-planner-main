@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Palette, Sun, Moon } from 'lucide-react'
+import { Sun, Moon } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function ThemeSwitcher({ externalOpen, onExternalClose }) {
@@ -15,10 +15,10 @@ export default function ThemeSwitcher({ externalOpen, onExternalClose }) {
         <button
           type="button"
           onClick={() => setInternalOpen(!internalOpen)}
-          className="p-2.5 rounded-xl glass-panel hover:bg-white/8 transition-colors"
-          aria-label="Theme settings"
+          className="p-2.5 rounded-xl glass-panel cursor-pointer hover:bg-white/8 hover:border-[var(--accent-solid)]/35 transition-all"
+          aria-label="Change theme"
         >
-          <Palette size={18} className="text-white/70" />
+          {mode === 'dark' ? <Sun size={18} className="text-white/70" /> : <Moon size={18} className="text-white/70" />}
         </button>
       )}
 
@@ -39,7 +39,7 @@ export default function ThemeSwitcher({ externalOpen, onExternalClose }) {
                     key={p.id}
                     type="button"
                     onClick={() => setAccent(p.id)}
-                    className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all text-left text-xs ${
+                    className={`flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all text-left text-xs ${
                       accent === p.id ? 'border-white/30 bg-white/8' : 'border-white/8 hover:border-white/15'
                     }`}
                   >
@@ -55,7 +55,7 @@ export default function ThemeSwitcher({ externalOpen, onExternalClose }) {
                 <button
                   type="button"
                   onClick={toggleMode}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl hover:bg-white/6 text-sm"
+                  className="w-full flex items-center justify-between p-2.5 rounded-xl cursor-pointer hover:bg-white/6 text-sm"
                 >
                   <span>{mode === 'dark' ? 'Light mode' : 'Dark mode'}</span>
                   {mode === 'dark' ? <Sun size={16} className="text-white/50" /> : <Moon size={16} className="text-white/50" />}

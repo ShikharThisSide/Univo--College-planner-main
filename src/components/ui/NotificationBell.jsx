@@ -12,10 +12,10 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="relative p-2.5 rounded-xl glass-panel hover:bg-white/8 transition-colors"
+        className="group relative p-2.5 rounded-xl glass-panel cursor-pointer hover:bg-white/8 hover:border-[var(--accent-solid)]/35 transition-all"
         aria-label="Notifications"
       >
-        <Bell size={18} className="text-white/70" />
+        <Bell size={18} className="text-white/70 transition-colors group-hover:text-[var(--accent-solid)]" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full univo-gradient-bg text-[10px] font-bold flex items-center justify-center badge-pulse">
             {unreadCount}

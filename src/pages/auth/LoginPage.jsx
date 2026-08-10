@@ -25,6 +25,10 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
 
+  const continueWithGoogle = () => {
+    window.location.assign(`/api/auth/google?path=${encodeURIComponent(signupPath)}`)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email.trim()) return setError('Enter your email')
@@ -173,6 +177,28 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
           <button type="submit" className="w-full py-3.5 rounded-full univo-gradient-bg font-semibold text-sm hover:opacity-90 transition-opacity">
             {mode === 'create' ? 'Create account' : mode === 'reset' ? (otp ? 'Update password' : 'Send OTP') : 'Continue'}
           </button>
+          {mode === 'login' && (
+            <>
+              <div className="flex items-center gap-3 py-1 text-[10px] uppercase tracking-widest text-white/25">
+                <span className="h-px flex-1 bg-white/10" />
+                <span>or</span>
+                <span className="h-px flex-1 bg-white/10" />
+              </div>
+              <button
+                type="button"
+                onClick={continueWithGoogle}
+                className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full bg-white text-[#202124] font-semibold text-sm cursor-pointer hover:bg-white/90 transition-colors"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="#4285F4" d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.91-4.2 2.91-7.26Z" />
+                  <path fill="#34A853" d="M12 21.5c2.63 0 4.84-.87 6.45-2.36l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.55 0-4.71-1.72-5.49-4.03H3.27v2.53A9.74 9.74 0 0 0 12 21.5Z" />
+                  <path fill="#FBBC05" d="M6.51 13.58A5.86 5.86 0 0 1 6.2 12c0-.55.1-1.08.31-1.58V7.89H3.27A9.5 9.5 0 0 0 2.25 12c0 1.48.35 2.87 1.02 4.11l3.24-2.53Z" />
+                  <path fill="#EA4335" d="M12 6.39c1.43 0 2.71.49 3.72 1.45l2.79-2.79C16.84 3.48 14.63 2.5 12 2.5a9.74 9.74 0 0 0-8.73 5.39l3.24 2.53C7.29 8.11 9.45 6.39 12 6.39Z" />
+                </svg>
+                Continue with Google
+              </button>
+            </>
+          )}
         </form>
 
         <p className="text-center text-xs text-white/35 mt-6">
