@@ -220,7 +220,7 @@ body.univo-app {
 
 .login-card {
   z-index: 1;
-  background: linear-gradient(145deg, rgba(190, 190, 190, 0.2), rgba(55, 58, 60, 0.18));
+  background: linear-gradient(145deg, rgba(190, 190, 190, 0.27), rgba(55, 58, 60, 0.24));
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(30px) saturate(115%);
