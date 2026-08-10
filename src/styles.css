@@ -112,3 +112,27 @@
 .forgotButton { display:block; margin:18px auto 0; border:0; color:rgb(255 255 255 / .7); background:transparent; font:13px Geist; cursor:pointer; }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
 @keyframes modalIn { from { opacity:0; transform:translateY(18px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+.dashboard { min-height:100%; color:#f6f4ed; background:#101820; overflow:hidden; }
+.dashboard::before { position:fixed; top:-220px; right:-120px; width:620px; height:620px; border-radius:50%; background:#c4f04d; opacity:.13; filter:blur(100px); content:""; pointer-events:none; }
+.dashboardNav { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; padding:26px clamp(20px,6vw,80px); border-bottom:1px solid rgb(255 255 255 / .12); }
+.dashboardNav .logo { color:#fff; text-decoration:none; }
+.dashboardActions { display:flex; align-items:center; gap:18px; color:rgb(255 255 255 / .56); font-size:12px; }
+.dashboardActions button { border:1px solid rgb(255 255 255 / .18); border-radius:999px; padding:9px 15px; color:#f6f4ed; background:transparent; font:600 12px Geist; cursor:pointer; }
+.dashboardHero { position:relative; z-index:1; max-width:1120px; margin:0 auto; padding:clamp(70px,12vh,140px) clamp(20px,6vw,80px) 72px; }
+.dashboardHero .eyebrow, .cardLabel { color:#c4f04d; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.dashboardHero h1 { max-width:720px; margin:12px 0 22px; color:#f6f4ed; font-size:clamp(48px,8vw,96px); line-height:.95; letter-spacing:-.07em; }
+.dashboardHero h1 em { color:#c4f04d; font-style:normal; }
+.dashboardHero p { max-width:460px; margin:0; color:rgb(246 244 237 / .58); font-size:17px; line-height:1.6; }
+.dashboardGrid { position:relative; z-index:1; display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; max-width:1120px; margin:0 auto; padding:0 clamp(20px,6vw,80px) 80px; }
+.dashboardCard { min-height:230px; padding:28px; border:1px solid rgb(255 255 255 / .14); border-radius:24px; background:linear-gradient(145deg,rgb(255 255 255 / .12),rgb(255 255 255 / .04)); box-shadow:0 24px 70px rgb(0 0 0 / .2); }
+.dashboardFocus { color:#101820; background:#c4f04d; }
+.dashboardCard h2 { margin:34px 0 12px; font-size:clamp(25px,3vw,38px); line-height:1; letter-spacing:-.05em; }
+.dashboardCard p { color:rgb(246 244 237 / .6); font-size:14px; line-height:1.55; }
+.dashboardFocus p { color:rgb(16 24 32 / .66); }
+.dashboardButton { margin-top:24px; padding:12px 17px; border:0; border-radius:999px; color:#f6f4ed; background:#101820; font:600 13px Geist; cursor:pointer; }
+.dashboardButton span { margin-left:12px; color:#c4f04d; }
+.progressValue { display:block; margin-top:30px; color:#c4f04d; font:38px Silkscreen,cursive; }
+.progressTrack { height:6px; margin-top:30px; overflow:hidden; border-radius:9px; background:rgb(255 255 255 / .14); }
+.progressTrack i { display:block; width:4%; height:100%; border-radius:inherit; background:#c4f04d; }
+.quickAction { display:block; width:100%; margin-top:20px; padding:0 0 13px; border:0; border-bottom:1px solid rgb(255 255 255 / .13); color:#f6f4ed; background:transparent; text-align:left; font:500 13px Geist; cursor:pointer; }
+@media (max-width:800px) { .dashboardGrid { grid-template-columns:1fr; } .dashboardCard { min-height:auto; } .dashboardActions span { display:none; } }
