@@ -23,7 +23,7 @@ export const ROLE_DASHBOARD_PATHS = {
 export const NAV_BY_ROLE = {
   [ROLES.STUDENT_INDIVIDUAL]: [
     { id: 'home', label: 'Home', path: '/dashboard/me', icon: 'Home' },
-    { id: 'attendance', label: 'Attendance', path: '/dashboard/me/attendance', icon: 'CalendarCheck' },
+    { id: 'attendance', label: 'Class Representative', path: '/dashboard/me/attendance', icon: 'CalendarCheck' },
     { id: 'assignments', label: 'Assignments', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/me/notes', icon: 'BookOpen' },
     { id: 'marketplace', label: 'Marketplace', path: '/dashboard/me/marketplace', icon: 'Store' },
@@ -35,7 +35,7 @@ export const NAV_BY_ROLE = {
     { id: 'home', label: 'Home', path: '/dashboard/student', icon: 'Home' },
     { id: 'timetable', label: 'Timetable', path: '/dashboard/student/timetable', icon: 'Calendar' },
     { id: 'assignments', label: 'Assignments', path: '/dashboard/student/assignments', icon: 'ClipboardList' },
-    { id: 'attendance', label: 'Attendance', path: '/dashboard/student/attendance', icon: 'CalendarCheck' },
+    { id: 'attendance', label: 'Class Representative', path: '/dashboard/student/attendance', icon: 'CalendarCheck' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/student/notes', icon: 'BookOpen' },
     { id: 'forum', label: 'Forum', path: '/dashboard/student/forum', icon: 'MessagesSquare' },
     { id: 'messenger', label: 'Messenger', path: '/dashboard/student/messenger', icon: 'MessageCircle' },

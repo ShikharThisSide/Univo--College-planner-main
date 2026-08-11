@@ -10,6 +10,8 @@ import InstitutionalStudentDashboard from './pages/dashboard/InstitutionalStuden
 import TeacherDashboard from './pages/dashboard/TeacherDashboard'
 import AdminDashboard from './pages/dashboard/AdminDashboard'
 import ModulePlaceholder from './pages/modules/ModulePlaceholder'
+import ClassRepresentativePage from './pages/modules/ClassRepresentativePage'
+import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
@@ -36,9 +38,9 @@ export default function App() {
               }
             >
               <Route index element={<IndividualStudentDashboard />} />
-              <Route path="attendance" element={<ModulePlaceholder />} />
+              <Route path="attendance" element={<ClassRepresentativePage />} />
               <Route path="assignments" element={<ModulePlaceholder />} />
-              <Route path="notes" element={<ModulePlaceholder />} />
+              <Route path="notes" element={<NotesHubPage />} />
               <Route path="marketplace" element={<ModulePlaceholder />} />
               <Route path="forum" element={<ModulePlaceholder />} />
               <Route path="confessions" element={<ModulePlaceholder />} />
@@ -57,8 +59,8 @@ export default function App() {
               <Route index element={<InstitutionalStudentDashboard />} />
               <Route path="timetable" element={<ModulePlaceholder />} />
               <Route path="assignments" element={<ModulePlaceholder />} />
-              <Route path="attendance" element={<ModulePlaceholder />} />
-              <Route path="notes" element={<ModulePlaceholder />} />
+              <Route path="attendance" element={<ClassRepresentativePage />} />
+              <Route path="notes" element={<NotesHubPage />} />
               <Route path="forum" element={<ModulePlaceholder />} />
               <Route path="messenger" element={<ModulePlaceholder />} />
             </Route>
