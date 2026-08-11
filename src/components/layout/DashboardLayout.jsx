@@ -27,7 +27,7 @@ export default function DashboardLayout() {
   const initials = user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
   return (
-    <div className="dashboard-shell min-h-screen text-white noise-bg">
+    <div className="dashboard-shell min-h-screen noise-bg">
       <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] pointer-events-none univo-gradient-bg" style={{ transform: 'translate(30%, -40%)' }} />
 
       <MagneticSidebar items={navItems} />
@@ -46,7 +46,7 @@ export default function DashboardLayout() {
 
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <ThemeSwitcher externalOpen={themeOpen} onExternalClose={() => setThemeOpen(false)} />
+            <ThemeSwitcher open={themeOpen} onOpenChange={setThemeOpen} />
 
             <div className="relative ml-2">
               <button

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { ArrowLeft, Eye, EyeOff, GraduationCap, BookOpen, ShieldCheck } from 'lucide-react'
 import { motion } from 'framer-motion'
@@ -7,20 +7,36 @@ import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 
 function OtpBoxes({ value, onChange }) {
+  const inputRefs = useRef([])
   const digits = Array.from({ length: 6 }, (_, index) => value[index] || '')
+  const updateDigits = (startIndex, rawValue) => {
+    const incoming = rawValue.replace(/\D/g, '').slice(0, 6 - startIndex).split('')
+    const nextDigits = Array.from({ length: 6 }, (_, index) => value[index] || '')
+    incoming.forEach((digit, offset) => { nextDigits[startIndex + offset] = digit })
+    onChange(nextDigits.join(''))
+    const nextIndex = Math.min(startIndex + incoming.length, 5)
+    requestAnimationFrame(() => inputRefs.current[nextIndex]?.focus())
+  }
+
   return (
     <m.div className="grid grid-cols-6 gap-2" aria-label="Verification code" initial={false} animate={{ x: 0 }}>
       {digits.map((digit, index) => (
         <div key={index} className="relative w-full aspect-square">
           <input
+            ref={(element) => { inputRefs.current[index] = element }}
             type="text"
             inputMode="numeric"
             maxLength={1}
             value={digit}
-            onChange={(e) => {
-              const nextDigits = [...digits]
-              nextDigits[index] = e.target.value.replace(/\D/g, '').slice(-1)
-              onChange(nextDigits.join(''))
+            onChange={(e) => updateDigits(index, e.target.value)}
+            onPaste={(e) => { e.preventDefault(); updateDigits(index, e.clipboardData.getData('text')) }}
+            onKeyDown={(e) => {
+              if (e.key === 'Backspace' && !digits[index] && index > 0) {
+                const nextDigits = [...digits]
+                nextDigits[index - 1] = ''
+                onChange(nextDigits.join(''))
+                requestAnimationFrame(() => inputRefs.current[index - 1]?.focus())
+              }
             }}
             className="absolute inset-0 z-10 w-full rounded-xl border border-white/10 bg-white/6 text-center text-lg font-semibold text-transparent caret-transparent outline-none focus:border-[var(--accent-solid)] focus:ring-2 focus:ring-[var(--accent-solid)]/20 transition-all"
             aria-label={`Verification digit ${index + 1}`}
@@ -64,9 +80,21 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('univoRememberMe') === 'true')
 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
+
+  useEffect(() => {
+    if (mode !== 'login') return
+    try {
+      const stored = JSON.parse(localStorage.getItem('univoRememberedCredentials') || 'null')
+      if (stored) {
+        setEmail(stored.email || '')
+        setPassword(stored.password || '')
+      }
+    } catch { /* Ignore malformed remembered credentials. */ }
+  }, [mode])
 
   useEffect(() => {
     const googleEmail = searchParams.get('google_email')
@@ -134,6 +162,13 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     } else {
       if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
       if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
+      if (rememberMe) {
+        localStorage.setItem('univoRememberMe', 'true')
+        localStorage.setItem('univoRememberedCredentials', JSON.stringify({ email: normalizedEmail, password }))
+      } else {
+        localStorage.removeItem('univoRememberMe')
+        localStorage.removeItem('univoRememberedCredentials')
+      }
     }
     const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: accounts[normalizedEmail]?.role || universityRole || undefined })
     navigate(path)
@@ -220,6 +255,12 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          )}
+          {mode === 'login' && (
+            <label className="!ml-auto !flex !w-fit !flex-none cursor-pointer items-center justify-end gap-2 text-xs text-white/50">
+              <span className="whitespace-nowrap">Remember me on this device</span>
+              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="!m-0 shrink-0 accent-[var(--accent-solid)]" />
+            </label>
           )}
           {mode === 'reset' && otp && (
             <OtpBoxes value={enteredOtp} onChange={setEnteredOtp} />

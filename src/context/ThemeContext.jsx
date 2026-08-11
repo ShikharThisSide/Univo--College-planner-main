@@ -3,15 +3,40 @@ import { ACCENT_PALETTES } from '../lib/constants'
 
 const ThemeContext = createContext(null)
 
+const DEFAULT_ACCENT = 'forest-lime'
+const DEFAULT_MODE = 'dark'
+
+function readPreference(key, fallback, allowedValues) {
+  try {
+    const value = localStorage.getItem(key)
+    return allowedValues.includes(value) ? value : fallback
+  } catch {
+    return fallback
+  }
+}
+
 export function ThemeProvider({ children }) {
-  const [accent, setAccent] = useState(() => localStorage.getItem('univoAccent') || 'forest-lime')
-  const [mode, setMode] = useState(() => localStorage.getItem('univoMode') || 'dark')
+  const accentIds = ACCENT_PALETTES.map((palette) => palette.id)
+  const [accent, setAccentState] = useState(() => readPreference('univoAccent', DEFAULT_ACCENT, accentIds))
+  const [mode, setModeState] = useState(() => readPreference('univoMode', DEFAULT_MODE, ['dark', 'light']))
+
+  const setAccent = (nextAccent) => {
+    if (accentIds.includes(nextAccent)) setAccentState(nextAccent)
+  }
+
+  const setMode = (nextMode) => {
+    if (nextMode === 'dark' || nextMode === 'light') setModeState(nextMode)
+  }
 
   useEffect(() => {
     document.documentElement.setAttribute('data-accent', accent)
     document.documentElement.setAttribute('data-theme', mode)
-    localStorage.setItem('univoAccent', accent)
-    localStorage.setItem('univoMode', mode)
+    try {
+      localStorage.setItem('univoAccent', accent)
+      localStorage.setItem('univoMode', mode)
+    } catch {
+      // The theme still works when browser storage is unavailable.
+    }
   }, [accent, mode])
 
   const toggleMode = () => setMode((m) => (m === 'dark' ? 'light' : 'dark'))
