@@ -10,6 +10,7 @@ import InstitutionalStudentDashboard from './pages/dashboard/InstitutionalStuden
 import TeacherDashboard from './pages/dashboard/TeacherDashboard'
 import AdminDashboard from './pages/dashboard/AdminDashboard'
 import ModulePlaceholder from './pages/modules/ModulePlaceholder'
+import FeaturesPage from './pages/features/FeaturesPage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
 import './app.css'
@@ -22,6 +23,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/pricing" element={<PricingSection />} />
+            <Route path="/features" element={<FeaturesPage />} />
             <Route path="/login" element={<LoginPage />} />
 
             {/* Individual student routes */}

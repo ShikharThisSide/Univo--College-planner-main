@@ -73,7 +73,7 @@ export function PricingSection() {
         <div className="desktopNav pricingPageLinks">
           <div className="navPill">
             <a href="/" className="navLink">Home</a>
-            <a href="/#features" className="navLink">Features</a>
+            <Link to="/features" className="navLink">Features</Link>
             <a href="/#faq" className="navLink">FAQ</a>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function LandingPage() {
             <div className="desktopNav">
               <div className="navPill">
                 {links.map((link) => (
-                  <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '#features' : link === 'Pricing' ? '/pricing' : '#'} className="navLink">
+                    <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : '#'} className="navLink">
                     {link}{link === 'For Universities' && <ChevronDown size={14} />}
                   </a>
                 ))}
@@ -148,7 +148,7 @@ export default function LandingPage() {
           <aside className={`drawer ${open ? 'open' : ''}`}>
             <div className="drawerLinks">
               {links.map((link, i) => (
-                  <a href={link === 'FAQ' ? '#faq' : link === 'Pricing' ? '/pricing' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
+                  <a href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
                   {link}{link === 'For Universities' && <ChevronDown size={18} />}
                 </a>
               ))}
@@ -240,7 +240,7 @@ export default function LandingPage() {
             <p>Your campus companion — dark, premium, and built for the way students actually live.</p>
             <Link to="/?login=student" className="footerLogin">Get started free</Link>
           </div>
-          <div className="footerColumn"><span className="footerHeading">Product</span><a href="#top">Home</a><a href="#faq">FAQ</a><a href="#features">Features</a></div>
+          <div className="footerColumn"><span className="footerHeading">Product</span><a href="#top">Home</a><a href="#faq">FAQ</a><Link to="/features">Features</Link></div>
           <div className="footerColumn"><span className="footerHeading">For students</span><Link to="/?login=student">Individual plan</Link><Link to="/?login=student">Notes Hub</Link><Link to="/?login=student">Marketplace</Link></div>
           <div className="footerColumn"><span className="footerHeading">For universities</span><Link to="/?login=university">Institutional plan</Link><a href="mailto:hello@univo.app">Contact sales</a></div>
         </div>

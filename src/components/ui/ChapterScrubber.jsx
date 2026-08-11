@@ -16,6 +16,11 @@ const dashboardChapters = [
   { id: 'notes', title: 'Notes Hub', meta: '04', target: 'notes' },
 ]
 
+const featuresChapters = [
+  { id: 'features-top', title: 'Features overview', meta: '01', target: '#features-top' },
+  { id: 'features-tools', title: 'Campus tools', meta: '02', target: '#features-tools' },
+]
+
 function ChapterTick({ index, pointer, active, chapter, onHover, onSelect }) {
   const width = useTransform(pointer, (value) => {
     const distance = Math.abs(index - value)
@@ -35,7 +40,9 @@ export default function ChapterScrubber() {
   const [active, setActive] = useState(-1)
   const pointer = useMotionValue(-1)
   const springPointer = useSpring(pointer, { stiffness: 700, damping: 52 })
-  const chapters = location.pathname.startsWith('/dashboard') ? dashboardChapters : publicChapters
+  const chapters = location.pathname === '/features'
+    ? featuresChapters
+    : location.pathname.startsWith('/dashboard') ? dashboardChapters : publicChapters
 
   const select = (chapter) => {
     if (chapter.target.startsWith('#')) {
