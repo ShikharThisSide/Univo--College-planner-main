@@ -55,7 +55,7 @@ export default function DashboardLayout() {
                 className="profileDropdownTrigger"
               >
                 <div className="text-left hidden sm:block">
-                  <p className="text-sm font-medium leading-tight">{user?.name}</p>
+                  <p className="dashboard-light-accent-heading text-sm font-medium leading-tight">{user?.name}</p>
                   <p className="text-[10px] text-white/40">{user?.email || getRoleLabel(user?.role)}</p>
                 </div>
                 <span className="profileDropdownAvatar">{initials}</span>

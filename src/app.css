@@ -187,6 +187,11 @@ body.univo-app {
   background: var(--surface);
 }
 
+/* Primary dashboard headings follow the selected palette in light mode. */
+[data-theme="light"] .dashboard-light-accent-heading {
+  color: var(--accent-solid);
+}
+
 .glass-card {
   background: var(--surface-raised);
   border: 1px solid var(--border-subtle);

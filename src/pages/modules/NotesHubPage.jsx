@@ -155,7 +155,7 @@ export default function NotesHubPage() {
       <section className="mb-7 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-sm text-[var(--accent-solid)]"><BookOpen size={17} /><span className="font-semibold">Notes Hub</span></div>
-          <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Your subject folders, all in one place.</h1>
+          <h1 className="dashboard-light-accent-heading font-display text-3xl font-bold tracking-tight md:text-4xl">Your subject folders, all in one place.</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">Create a subject, upload its PDFs, or make an editable PDF note that you can revise and export anytime.</p>
         </div>
         <button type="button" onClick={() => { setEditingSubjectId(null); setSubjectName(''); setSubjectDialog(true) }} className="inline-flex items-center justify-center gap-2 rounded-xl univo-gradient-bg px-4 py-3 text-sm font-bold text-[#172019] hover:opacity-90"><Plus size={17} /> Add subject</button>

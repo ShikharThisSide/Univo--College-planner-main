@@ -19,6 +19,15 @@ import { downloadPdf } from '../../lib/pdfExport'
 const INITIAL_STUDENTS = []
 const ROSTER_STORAGE_KEY = 'univoClassRoster'
 
+function getStoredRoster() {
+  try {
+    const roster = JSON.parse(localStorage.getItem(ROSTER_STORAGE_KEY) || '[]')
+    return Array.isArray(roster) ? roster : INITIAL_STUDENTS
+  } catch {
+    return INITIAL_STUDENTS
+  }
+}
+
 function formatDate(value) {
   return new Date(`${value}T12:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
 }
@@ -50,7 +59,7 @@ export default function ClassRepresentativePage() {
   const rosterInput = useRef(null)
   const [className, setClassName] = useState('Data Structures')
   const [sessionDate, setSessionDate] = useState(() => new Date().toISOString().slice(0, 10))
-  const [students, setStudents] = useState(INITIAL_STUDENTS)
+  const [students, setStudents] = useState(getStoredRoster)
   const [editingRoster, setEditingRoster] = useState(false)
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState('')
@@ -61,10 +70,10 @@ export default function ClassRepresentativePage() {
 
   useEffect(() => {
     try {
-      const savedRoster = JSON.parse(localStorage.getItem(ROSTER_STORAGE_KEY) || '[]')
-      if (Array.isArray(savedRoster)) setStudents(savedRoster)
-    } catch { /* Ignore malformed local roster data. */ }
-  }, [])
+      const validStudents = students.filter((student) => student.name.trim() && student.enrollment.trim())
+      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(validStudents))
+    } catch { /* Keep the roster usable if browser storage is unavailable. */ }
+  }, [students])
 
   const visibleStudents = useMemo(() => {
     const normalized = query.trim().toLowerCase()
@@ -97,7 +106,6 @@ export default function ClassRepresentativePage() {
   const saveRoster = () => {
     const cleanedRoster = students.filter((student) => student.name.trim() && student.enrollment.trim())
     setStudents(cleanedRoster)
-    localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(cleanedRoster))
     setEditingRoster(false)
     showNotice(`Roster saved with ${cleanedRoster.length} ${cleanedRoster.length === 1 ? 'student' : 'students'}.`)
   }
@@ -115,7 +123,6 @@ export default function ClassRepresentativePage() {
         showNotice('Could not find names and enrollment numbers in that file.')
       } else {
         setStudents(importedStudents)
-        localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(importedStudents))
         showNotice(`${importedStudents.length} students imported. Everyone starts as present.`)
       }
     } catch {
@@ -156,7 +163,7 @@ export default function ClassRepresentativePage() {
             <CalendarCheck size={17} />
             <span className="font-semibold">Class Representative</span>
           </div>
-          <h1 className="font-display text-3xl font-bold tracking-tight md:text-4xl">Take attendance without the paper trail.</h1>
+          <h1 className="dashboard-light-accent-heading font-display text-3xl font-bold tracking-tight md:text-4xl">Take attendance without the paper trail.</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">Import your class roster, mark each student present or absent, and export a clean record for the session.</p>
         </div>
         <button type="button" onClick={() => { setPdfSubject(className); setPdfDate(sessionDate); setShowPdfDialog(true) }} className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl univo-gradient-bg px-4 py-3 text-sm font-bold text-[#172019] shadow-lg shadow-black/15 hover:opacity-90">
