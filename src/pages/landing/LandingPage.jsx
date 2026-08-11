@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronDown, Menu, Minus, Plus, X, GraduationCap, Building2, Sparkles, Layers, Zap } from 'lucide-react'
+import { ChevronDown, Menu, X, GraduationCap, Building2, Sparkles, Layers, Zap } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LoginPage from '../auth/LoginPage'
 import TextLoop from '../../components/ui/TextLoop'
 import TestimonialMarquee from '../../components/ui/TestimonialMarquee'
 import '../../styles.css'
+import SiteFooter from '../../components/layout/SiteFooter'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4'
 const links = ['Features', 'For Students', 'For Universities', 'Pricing', 'FAQ']
 
 const faqs = [
-  ['What can I plan with Univo?', 'Organize attendance, assignments, notes, and your entire campus life — individually or through your university workspace.'],
-  ['Can universities subscribe?', 'Yes. Universities get isolated workspaces with admin, teacher, and student roles — timetable, grading, and analytics included.'],
-  ['How do individual students join?', 'Sign up directly for a personal dashboard with self-tracked attendance, notes, marketplace, forum, and messenger.'],
-  ['How do university students join?', 'Via invite link or official email domain (@xyzuniversity.edu) with admin approval.'],
-  ['Is Univo free to get started?', 'Individual accounts are free. University plans are priced per campus — contact us for a demo.'],
+  ['What makes this platform different?', 'Univo brings planning, campus communities, and university workflows into one focused experience designed around real student life.'],
+  ['Can I use it for both personal and commercial projects?', 'Yes. Individual students can use Univo personally, while universities can set up dedicated workspaces for their campus community.'],
+  ['Does it support collaboration?', 'Yes. Shared workspaces, community tools, and role-based access make it easy for students, teachers, and administrators to work together.'],
+  ['How does the analytics system work?', 'University teams can view privacy-conscious engagement and workflow insights to understand how their campus workspace is being used.'],
+  ['Is there a mobile version available?', 'The platform is designed to work smoothly across desktop and mobile browsers, so you can stay on top of campus life anywhere.'],
+  ['How often are new updates released?', 'We ship regular improvements, feature updates, and fixes based on feedback from students and university teams.'],
+  ['Can I integrate it with external APIs?', 'Custom integrations are available for university plans. Contact us to discuss your campus systems and workflow needs.'],
+  ['Does the platform support dark mode?', 'Yes. Univo supports a dark interface for a more comfortable experience, especially during late-night study sessions.'],
+  ['What happens if I lose my data?', 'Your workspace data is securely stored and backed up. If you need help recovering access, our support team is here to assist.'],
+  ['Can I customize the UI components?', 'University workspaces can be tailored with the right workflows, permissions, and integrations for their campus.'],
 ]
 
 function Logo() {
@@ -34,22 +40,32 @@ function Logo() {
 
 function FAQSection() {
   const [active, setActive] = useState(null)
+  const columns = [faqs.slice(0, 5), faqs.slice(5)]
+
   return (
     <section className="faqSection" id="faq">
       <div className="faqIntro">
-        <span className="eyebrow">Frequently asked questions</span>
-        <h2>Everything you need to know.</h2>
-        <p>Clear answers for a clearer college journey.</p>
+        <span className="faqEyebrow">Frequently Asked Questions</span>
+        <h2>Platform &amp; Product Support</h2>
+        <p>Everything you need to know about how our platform works, from setup and<br className="faqDesktopBreak" /> customization to integrations and updates.</p>
+        <a className="faqHelpButton" href="mailto:hello@univo.app">See Full Help Center <span aria-hidden="true">→</span></a>
       </div>
-      <div className="faqList">
-        {faqs.map(([question, answer], index) => (
-          <div className={`faqItem ${active === index ? 'active' : ''}`} key={question}>
-            <button className="faqQuestion" type="button" onClick={() => setActive(active === index ? null : index)}>
-              <span className="faqIndex">{String(index + 1).padStart(2, '0')}</span>
-              <span>{question}</span>
-              {active === index ? <Minus size={20} /> : <Plus size={20} />}
-            </button>
-            {active === index && <div className="faqAnswer"><p>{answer}</p></div>}
+      <div className="faqGrid">
+        {columns.map((column, columnIndex) => (
+          <div className="faqList" key={columnIndex}>
+            {column.map(([question, answer], itemIndex) => {
+              const index = columnIndex * 5 + itemIndex
+              const isOpen = active === index
+              return (
+                <div className={`faqItem ${isOpen ? 'active' : ''}`} key={question}>
+                  <button className="faqQuestion" type="button" aria-expanded={isOpen} aria-controls={`faq-answer-${index}`} onClick={() => setActive(isOpen ? null : index)}>
+                    <span>{question}</span>
+                    <ChevronDown className="faqChevron" size={20} aria-hidden="true" />
+                  </button>
+                  {isOpen && <div className="faqAnswer" id={`faq-answer-${index}`}><p>{answer}</p></div>}
+                </div>
+              )
+            })}
           </div>
         ))}
       </div>
@@ -102,6 +118,7 @@ export function PricingSection() {
         ))}
       </div>
       </section>
+      <SiteFooter />
     </div>
   )
 }

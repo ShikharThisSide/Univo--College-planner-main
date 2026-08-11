@@ -2,7 +2,9 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
 import DotPattern from '../../components/ui/DotPattern'
+import TextLoop from '../../components/ui/TextLoop'
 import '../../styles.css'
+import SiteFooter from '../../components/layout/SiteFooter'
 
 const images = {
   hero: 'https://pub-940ccf6255b54fa799a9b01050e6c227.r2.dev/ruixen_hero_gradient.jpg',
@@ -21,7 +23,10 @@ export default function FeaturesPage() {
 
       <section className="aboutHero" id="features-top">
         <div className="aboutContainer">
-          <motion.img className="aboutHeroImage" src={images.hero} alt="Abstract campus gradient" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .8 }} />
+          <motion.div className="aboutHeroVisual" initial={{ opacity: 0, scale: .96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .8 }}>
+            <img className="aboutHeroImage" src={images.hero} alt="Abstract campus gradient" />
+            <TextLoop staticText="Campus" rotatingTexts={['focus.', 'momentum.', 'community.', 'clarity.']} interval={2600} className="featuresHeroTextLoop" staticTextClassName="featuresHeroTextStatic" rotatingTextClassName="featuresHeroTextRotating" cursorClassName="featuresHeroTextCursor" />
+          </motion.div>
           <div className="aboutHeroCopy">
             <motion.h1 initial={{ opacity: 0, x: -28 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: .15, duration: .65 }}>Your campus <span>ecosystem</span> <em>for planning, connection, and momentum.</em></motion.h1>
             <motion.div initial={{ opacity: 0, x: 28 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: .25, duration: .65 }}><p>Univo brings together the tools students and universities need to make campus life feel simpler, clearer, and more connected.</p><Link className="aboutLearnMore" to="/?login=student">Get started <ChevronRight size={16} /></Link></motion.div>
@@ -33,7 +38,6 @@ export default function FeaturesPage() {
         <div className="aboutContainer aboutContent">
           <div className="aboutHeading"><h2>Everything in one place</h2><p>One platform for individual students, university teams, and the community they share.</p></div>
           <div className="aboutFeatureLayout">
-            <motion.div className="aboutBigImage" whileHover={{ scale: 1.02 }} transition={{ duration: .35 }}><img src={images.chat} alt="Univo connected workspace" /></motion.div>
             <div className="aboutSideCards">
               <motion.article className="aboutImageCard aboutDarkCard" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }}><div className="aboutCardImage"><img src={images.moon} alt="Individual student tools" /><div /></div><div className="aboutCardBody"><h3>Accelerate your semester</h3><p>Track attendance, manage assignments, keep notes, and stay connected from one personal workspace.</p><Link className="aboutOutlineButton" to="/?login=student">Learn More</Link></div></motion.article>
               <motion.article className="aboutImageCard aboutLightCard" whileHover={{ scale: 1.03 }} transition={{ type: 'spring', stiffness: 250, damping: 20 }}><img src={images.hero} alt="Future-ready university workspace" /><div className="aboutOverlay"><h3>Future-ready campus</h3><p>Scalable tools for admins, teachers, and students—combining clarity with real workflows.</p></div></motion.article>
@@ -52,6 +56,7 @@ export default function FeaturesPage() {
           </div>
         </div>
       </motion.section>
+      <SiteFooter />
     </main>
   )
 }
