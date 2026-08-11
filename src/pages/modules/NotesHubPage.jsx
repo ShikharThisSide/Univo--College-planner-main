@@ -12,6 +12,7 @@ import {
   FolderOpen,
   Pencil,
   Plus,
+  Trash2,
   Upload,
   X,
 } from 'lucide-react'
@@ -131,6 +132,24 @@ export default function NotesHubPage() {
     showNotice('Editable PDF exported.')
   }
 
+  const removeSubject = () => {
+    if (!activeSubject || !window.confirm(`Remove the ${activeSubject.name} subject folder and its ${activeSubject.files.length} PDF${activeSubject.files.length === 1 ? '' : 's'}? This cannot be undone.`)) return
+    setSubjects((current) => current.filter((subject) => subject.id !== activeSubject.id))
+    setActiveSubjectId(null)
+    showNotice(`${activeSubject.name} subject folder removed.`)
+  }
+
+  const removeFile = (file) => {
+    if (!activeSubject || !window.confirm(`Remove “${file.title}” from ${activeSubject.name}? This cannot be undone.`)) return
+    if (file.url) URL.revokeObjectURL(file.url)
+    setSubjects((current) => current.map((subject) => (
+      subject.id === activeSubject.id
+        ? { ...subject, files: subject.files.filter((item) => item.id !== file.id) }
+        : subject
+    )))
+    showNotice(`“${file.title}” removed.`)
+  }
+
   return (
     <PageTransition>
       <section className="mb-7 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
@@ -160,7 +179,7 @@ export default function NotesHubPage() {
       ) : (
         <section>
           <div className="mb-5 flex flex-col gap-4 rounded-2xl border border-white/8 bg-white/[0.025] p-5 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-3"><button type="button" onClick={() => setActiveSubjectId(null)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/65 hover:bg-white/10" aria-label="Back to subject folders"><ArrowLeft size={18} /></button><div><div className="flex items-center gap-2"><h2 className="font-display text-xl font-bold">{activeSubject.name}</h2><button type="button" onClick={() => { setEditingSubjectId(activeSubject.id); setSubjectName(activeSubject.name); setSubjectDialog(true) }} className="text-white/35 hover:text-[var(--accent-solid)]" aria-label="Rename subject"><Pencil size={14} /></button></div><p className="mt-1 text-xs text-white/40">{activeSubject.files.length} PDF{activeSubject.files.length === 1 ? '' : 's'} in this folder</p></div></div>
+            <div className="flex items-center gap-3"><button type="button" onClick={() => setActiveSubjectId(null)} className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white/65 hover:bg-white/10" aria-label="Back to subject folders"><ArrowLeft size={18} /></button><div><div className="flex items-center gap-2"><h2 className="font-display text-xl font-bold">{activeSubject.name}</h2><button type="button" onClick={() => { setEditingSubjectId(activeSubject.id); setSubjectName(activeSubject.name); setSubjectDialog(true) }} className="cursor-pointer text-white/35 hover:text-[var(--accent-solid)]" aria-label="Rename subject"><Pencil size={14} /></button><button type="button" onClick={removeSubject} className="cursor-pointer text-white/35 hover:text-rose-300" aria-label={`Remove ${activeSubject.name} subject`}><Trash2 size={15} /></button></div><p className="mt-1 text-xs text-white/40">{activeSubject.files.length} PDF{activeSubject.files.length === 1 ? '' : 's'} in this folder</p></div></div>
             <div className="flex flex-wrap gap-2"><button type="button" onClick={() => fileInput.current?.click()} className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-bold text-white/80 hover:bg-white/10"><Upload size={15} /> Upload PDFs</button><button type="button" onClick={() => setEditor({ title: '', content: '' })} className="inline-flex items-center gap-2 rounded-xl univo-gradient-bg px-3.5 py-2.5 text-xs font-bold text-[#172019] hover:opacity-90"><FilePlus2 size={15} /> Create editable PDF</button><input ref={fileInput} onChange={uploadFiles} type="file" accept="application/pdf,.pdf" multiple className="hidden" /></div>
           </div>
 
@@ -168,7 +187,7 @@ export default function NotesHubPage() {
             {activeSubject.files.map((file, index) => (
               <GlassCard key={file.id} hover={false} delay={index * 0.03} className="flex !p-4">
                 <div className={`mr-4 grid h-12 w-12 shrink-0 place-items-center rounded-xl ${file.kind === 'editable' ? 'bg-[var(--accent-muted)] text-[var(--accent-solid)]' : 'bg-rose-400/10 text-rose-300'}`}>{file.kind === 'editable' ? <FilePenLine size={20} /> : <FileText size={20} />}</div>
-                <div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-2"><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{file.title}</h3><p className="mt-1 truncate text-xs text-white/40">{file.fileName}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${file.kind === 'editable' ? 'bg-[var(--accent-muted)] text-[var(--accent-solid)]' : 'bg-white/6 text-white/45'}`}>{file.kind === 'editable' ? 'EDITABLE' : 'PDF'}</span></div><div className="mt-4 flex items-center justify-between gap-2"><span className="text-[11px] text-white/35">{file.size} · {file.updated}</span><div className="flex gap-1.5">{file.kind === 'editable' ? <><button type="button" onClick={() => setEditor(file)} className="rounded-lg bg-white/6 px-2.5 py-1.5 text-xs font-bold text-white/70 hover:bg-white/12">Edit</button><button type="button" onClick={() => exportEditableFile(file)} className="grid h-7 w-7 place-items-center rounded-lg bg-white/6 text-white/60 hover:bg-white/12" aria-label={`Download ${file.title}`}><Download size={14} /></button></> : <button type="button" onClick={() => openFile(file)} className="inline-flex items-center gap-1 rounded-lg bg-white/6 px-2.5 py-1.5 text-xs font-bold text-white/70 hover:bg-white/12">Open <ExternalLink size={12} /></button>}</div></div></div>
+                <div className="min-w-0 flex-1"><div className="flex flex-wrap items-start justify-between gap-2"><div className="min-w-0"><h3 className="truncate text-sm font-semibold">{file.title}</h3><p className="mt-1 truncate text-xs text-white/40">{file.fileName}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-bold ${file.kind === 'editable' ? 'bg-[var(--accent-muted)] text-[var(--accent-solid)]' : 'bg-white/6 text-white/45'}`}>{file.kind === 'editable' ? 'EDITABLE' : 'PDF'}</span></div><div className="mt-4 flex items-center justify-between gap-2"><span className="text-[11px] text-white/35">{file.size} · {file.updated}</span><div className="flex gap-1.5">{file.kind === 'editable' ? <><button type="button" onClick={() => setEditor(file)} className="cursor-pointer rounded-lg bg-white/6 px-2.5 py-1.5 text-xs font-bold text-white/70 hover:bg-white/12">Edit</button><button type="button" onClick={() => exportEditableFile(file)} className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg bg-white/6 text-white/60 hover:bg-white/12" aria-label={`Download ${file.title}`}><Download size={14} /></button></> : <button type="button" onClick={() => openFile(file)} className="inline-flex cursor-pointer items-center gap-1 rounded-lg bg-white/6 px-2.5 py-1.5 text-xs font-bold text-white/70 hover:bg-white/12">Open <ExternalLink size={12} /></button>}<button type="button" onClick={() => removeFile(file)} className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg bg-white/6 text-white/55 hover:bg-rose-400/15 hover:text-rose-300" aria-label={`Remove ${file.title}`}><Trash2 size={14} /></button></div></div></div>
               </GlassCard>
             ))}
           </div> : <GlassCard hover={false} className="flex min-h-[260px] flex-col items-center justify-center text-center"><div className="grid h-12 w-12 place-items-center rounded-xl bg-[var(--accent-muted)] text-[var(--accent-solid)]"><FileText size={21} /></div><h3 className="mt-4 font-display font-semibold">This folder is ready for notes.</h3><p className="mt-2 max-w-sm text-sm leading-6 text-white/45">Upload one or more PDFs, or create an editable PDF note from scratch.</p></GlassCard>}

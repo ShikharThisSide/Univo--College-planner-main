@@ -203,8 +203,9 @@ export default function ClassRepresentativePage() {
 
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
-                <button type="button" onClick={() => editingRoster ? saveRoster() : rosterInput.current?.click()} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10">{editingRoster ? <Check size={15} /> : students.length ? <Pencil size={15} /> : <Upload size={15} />} {editingRoster ? 'Save list' : students.length ? 'Edit list' : 'Upload roster'}</button>
+                <button type="button" onClick={() => rosterInput.current?.click()} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10"><Upload size={15} /> Upload list</button>
                 <input ref={rosterInput} type="file" accept=".csv,.txt,text/csv,text/plain" className="hidden" onChange={importRoster} />
+                <button type="button" onClick={() => editingRoster ? saveRoster() : setEditingRoster(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10">{editingRoster ? <Check size={15} /> : <Pencil size={15} />} {editingRoster ? 'Save list' : 'Edit list'}</button>
                 {editingRoster && <button type="button" onClick={addStudent} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--accent-solid)]/25 bg-[var(--accent-muted)] px-3 py-2 text-xs font-semibold text-[var(--accent-solid)] hover:opacity-90"><Plus size={15} /> Add person</button>}
                 <button type="button" onClick={() => setAllStatus('present')} className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-400/15"><UserCheck size={15} /> Mark all present</button>
                 <button type="button" onClick={() => setAllStatus('absent')} className="inline-flex items-center gap-2 rounded-lg border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-400/15"><UserX size={15} /> Mark all absent</button>
@@ -216,8 +217,8 @@ export default function ClassRepresentativePage() {
 
           <div className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
             <div className="relative w-full md:max-w-sm">
-              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} className="w-full rounded-xl border border-white/8 bg-white/4 py-2.5 pl-9 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[var(--accent-solid)]/50" placeholder="Search name or enrollment" />
+              <Search size={15} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/35" />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} className="w-full rounded-xl border border-white/8 bg-white/4 py-2.5 pl-10 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[var(--accent-solid)]/50" placeholder="Search name or enrollment" />
             </div>
             <span className="text-xs text-white/40">Showing {visibleStudents.length} of {students.length} students</span>
           </div>
