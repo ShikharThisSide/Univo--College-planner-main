@@ -156,6 +156,13 @@ body.univo-app {
   font-family: var(--font-display);
 }
 
+.univoLoadingOverlay { position:fixed; inset:0; z-index:100; display:grid; place-items:center; background:rgba(8,16,21,.78); backdrop-filter:blur(10px); }
+.univoLoadingCard { width:min(90vw,420px); padding:24px; border:1px solid rgba(255,255,255,.14); border-radius:22px; background:rgba(28,40,44,.92); box-shadow:0 24px 70px rgba(0,0,0,.35); text-align:center; }
+.univoLoadingOrb { display:grid; place-items:center; width:52px; height:52px; margin:0 auto 18px; border-radius:50%; background:rgba(196,240,77,.14); box-shadow:0 0 20px rgba(196,240,77,.24); animation:univoLoadingPulse 1.3s ease-in-out infinite; }
+.univoLoadingOrb span { width:20px; height:20px; border:3px solid rgba(196,240,77,.35); border-top-color:#c4f04d; border-radius:50%; animation:univoLoadingSpin .8s linear infinite; }
+.univoLoadingLines { display:flex; flex-direction:column; gap:8px; padding:18px; border-radius:12px; background:rgba(255,255,255,.05); }.univoLoadingLines i { display:block; height:8px; border-radius:8px; background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(196,240,77,.38),rgba(255,255,255,.08)); background-size:200% 100%; animation:univoLoadingShimmer 1.5s linear infinite; }.univoLoadingLines i:nth-child(2) { width:72%; }.univoLoadingLines i:nth-child(3) { width:48%; }.univoLoadingCard p { margin:16px 0 0; color:rgba(255,255,255,.58); font-size:12px; }
+@keyframes univoLoadingSpin { to { transform:rotate(360deg); } } @keyframes univoLoadingPulse { 50% { transform:scale(1.08); } } @keyframes univoLoadingShimmer { to { background-position:-200% 0; } }
+
 .univo-gradient-text {
   background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
   -webkit-background-clip: text;

@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="desktopNav">
               <div className="navPill">
                 {links.map((link) => (
-                    <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : '#'} className="navLink">
+                    <a key={link} href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : link === 'For Students' ? '/students' : link === 'For Universities' ? '/universities' : '#'} className="navLink">
                     {link}{link === 'For Universities' && <ChevronDown size={14} />}
                   </a>
                 ))}
@@ -165,7 +165,7 @@ export default function LandingPage() {
           <aside className={`drawer ${open ? 'open' : ''}`}>
             <div className="drawerLinks">
               {links.map((link, i) => (
-                  <a href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
+                  <a href={link === 'FAQ' ? '#faq' : link === 'Features' ? '/features' : link === 'Pricing' ? '/pricing' : link === 'For Students' ? '/students' : link === 'For Universities' ? '/universities' : '#'} key={link} onClick={() => setOpen(false)} style={{ transitionDelay: open ? `${(i + 1) * 60}ms` : '0ms' }}>
                   {link}{link === 'For Universities' && <ChevronDown size={18} />}
                 </a>
               ))}

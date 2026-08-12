@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { LogOut, Search, ChevronDown } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
@@ -9,6 +9,7 @@ import NotificationBell from '../ui/NotificationBell'
 import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
 import DashboardDock from '../ui/DashboardDock'
+import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth()
@@ -16,6 +17,12 @@ export default function DashboardLayout() {
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
   const [themeOpen, setThemeOpen] = useState(false)
   const [demoOpen, setDemoOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setIsLoading(false), 650)
+    return () => clearTimeout(timeout)
+  }, [])
 
   const navItems = NAV_BY_ROLE[user?.role] || []
 
@@ -28,6 +35,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="dashboard-shell min-h-screen noise-bg">
+      {isLoading && <AnimatedLoadingSkeleton label="Loading your campus workspace…" />}
       <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] pointer-events-none univo-gradient-bg" style={{ transform: 'translate(30%, -40%)' }} />
 
       <MagneticSidebar items={navItems} />

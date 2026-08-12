@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { AnimatePresence, m } from 'motion/react'
 import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
+import AnimatedLoadingSkeleton from '../../components/ui/AnimatedLoadingSkeleton'
 
 function OtpBoxes({ value, onChange }) {
   const inputRefs = useRef([])
@@ -81,6 +82,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('univoRememberMe') === 'true')
+  const [isLoading, setIsLoading] = useState(false)
 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
@@ -171,11 +173,13 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       }
     }
     const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: accounts[normalizedEmail]?.role || universityRole || undefined })
+    setIsLoading(true)
     navigate(path)
   }
 
   return (
     <div className={`login-page ${embedded ? 'login-page-embedded' : ''} min-h-screen text-white flex items-center justify-center p-4 noise-bg relative overflow-hidden`}>
+      {isLoading && <AnimatedLoadingSkeleton label="Opening your student workspace…" />}
       <div className="login-orb login-orb-primary absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-30 blur-[100px] univo-gradient-bg pointer-events-none" style={{ transform: 'translate(30%, -30%)' }} />
       <div className="login-orb login-orb-secondary absolute bottom-0 left-0 w-[420px] h-[420px] rounded-full opacity-25 blur-[110px] pointer-events-none" />
 

@@ -13,6 +13,7 @@ import ModulePlaceholder from './pages/modules/ModulePlaceholder'
 import ClassRepresentativePage from './pages/modules/ClassRepresentativePage'
 import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
+import StudentPlanPage from './pages/students/StudentPlanPage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
 import './app.css'
@@ -26,6 +27,8 @@ export default function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/pricing" element={<PricingSection />} />
             <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/students" element={<StudentPlanPage />} />
+            <Route path="/universities" element={<StudentPlanPage variant="university" />} />
             <Route path="/login" element={<LoginPage />} />
 
             {/* Individual student routes */}
