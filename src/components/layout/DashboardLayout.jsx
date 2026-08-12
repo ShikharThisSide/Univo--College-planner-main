@@ -14,7 +14,7 @@ import WelcomeOnboarding from '../ui/WelcomeOnboarding'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateProfile } = useAuth()
   const navigate = useNavigate()
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
   const [themeOpen, setThemeOpen] = useState(false)
@@ -26,6 +26,8 @@ export default function DashboardLayout() {
   const [autoHideDock, setAutoHideDock] = useState(() => localStorage.getItem('univoAutoHideDock') === 'true')
   const [sidebarHovered, setSidebarHovered] = useState(false)
   const [welcomeOpen, setWelcomeOpen] = useState(() => localStorage.getItem('univoPendingOnboarding') === 'true')
+  const [profileName, setProfileName] = useState('')
+  const [profileAvatar, setProfileAvatar] = useState('')
   const { mode, setMode, accent, setAccent, palettes } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
 
@@ -43,7 +45,9 @@ export default function DashboardLayout() {
 
   const openSettings = () => setSettingsOpen(true)
   const updatePreference = (key, value) => localStorage.setItem(key, String(value))
-  const initials = user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
+  const initials = user?.avatar || user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
+  const openProfileEditor = () => { setProfileName(user?.name || ''); setProfileAvatar(initials); setSettingsOpen(true) }
+  const saveProfile = (event) => { event.preventDefault(); const name = profileName.trim(); const avatar = profileAvatar.trim().slice(0, 3).toUpperCase(); if (!name) return; updateProfile({ name, avatar }); }
 
   const sidebarIsCollapsed = autoHideSidebar ? !sidebarHovered : sidebarCollapsed
 
@@ -84,7 +88,7 @@ export default function DashboardLayout() {
       {settingsOpen && <div className="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false) }}>
         <div className="settingsModal">
           <div className="settingsHeader"><div><p className="settingsEyebrow">PERSONAL WORKSPACE</p><h2 id="settings-title">Settings</h2><p>Shape your Univo workspace around the way you work.</p></div><button type="button" className="settingsClose" onClick={() => setSettingsOpen(false)} aria-label="Close settings"><X size={18} /></button></div>
-          <section className="settingsSection"><div className="settingsSectionTitle"><UserCircle size={17} /><div><strong>Profile</strong><span>Your account details</span></div></div><div className="settingsProfileRow"><span className="settingsAvatar">{initials}</span><div><strong>{user?.name}</strong><span>{user?.email}</span></div><span className="settingsRole">{getRoleLabel(user?.role)}</span></div></section>
+          <section className="settingsSection"><div className="settingsSectionTitle"><UserCircle size={17} /><div><strong>Profile</strong><span>Update your name and avatar</span></div></div><form className="settingsProfileEditor" onSubmit={saveProfile}><div className="settingsProfileRow"><span className="settingsAvatar">{profileAvatar || initials}</span><div><strong>{user?.name}</strong><span>{user?.email}</span></div><span className="settingsRole">{getRoleLabel(user?.role)}</span></div><label>Display name<input value={profileName} onChange={(event) => setProfileName(event.target.value)} /></label><label>Avatar initials<input value={profileAvatar} maxLength={3} onChange={(event) => setProfileAvatar(event.target.value.toUpperCase())} /></label><button type="submit" className="settingsProfileSave">Save profile</button></form></section>
           <section className="settingsSection"><div className="settingsSectionTitle"><LayoutDashboard size={17} /><div><strong>Workspace</strong><span>Control your dashboard experience</span></div></div><label className="settingsToggle"><span><b>Compact cards</b><small>Use tighter spacing on dashboard widgets.</small></span><input type="checkbox" checked={compactCards} onChange={(event) => { setCompactCards(event.target.checked); updatePreference('univoCompactCards', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Collapsed sidebar</b><small>Keep navigation icons-only by default.</small></span><input type="checkbox" checked={sidebarCollapsed} onChange={(event) => { setSidebarCollapsed(event.target.checked); updatePreference('univoSidebarCollapsed', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Automatically hide and show the Sidebar</b><small>Show the full navigation when you hover over the left edge.</small></span><input type="checkbox" checked={autoHideSidebar} onChange={(event) => { setAutoHideSidebar(event.target.checked); updatePreference('univoAutoHideSidebar', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Automatically hide and show the Dock</b><small>Reveal quick navigation when you hover near the bottom.</small></span><input type="checkbox" checked={autoHideDock} onChange={(event) => { setAutoHideDock(event.target.checked); updatePreference('univoAutoHideDock', event.target.checked) }} /><i /></label></section>
           <section className="settingsSection"><div className="settingsSectionTitle"><Bell size={17} /><div><strong>Notifications</strong><span>Choose how much activity you see</span></div></div><label className="settingsToggle"><span><b>In-app notifications</b><small>Show reminders and updates in your dashboard.</small></span><input type="checkbox" checked={notificationsEnabled} onChange={(event) => { setNotificationsEnabled(event.target.checked); updatePreference('univoNotifications', event.target.checked) }} /><i /></label></section>
           <section className="settingsSection"><div className="settingsSectionTitle"><PanelLeft size={17} /><div><strong>Appearance</strong><span>Choose your mode and Univo theme colour</span></div></div><div className="settingsChoiceRow"><button type="button" className={mode === 'light' ? 'settingsChoice active' : 'settingsChoice'} onClick={() => setMode('light')}>Light</button><button type="button" className={mode === 'dark' ? 'settingsChoice active' : 'settingsChoice'} onClick={() => setMode('dark')}>Dark</button></div><p className="settingsPaletteLabel">Theme colour</p><div className="settingsPaletteGrid">{palettes.map((palette) => <button key={palette.id} type="button" className={`settingsPalette ${accent === palette.id ? 'active' : ''}`} onClick={() => setAccent(palette.id)} aria-label={`Use ${palette.label} theme`} aria-pressed={accent === palette.id}><span style={{ background: `linear-gradient(135deg, ${palette.from}, ${palette.to})` }} /><b>{palette.label}</b></button>)}</div></section>

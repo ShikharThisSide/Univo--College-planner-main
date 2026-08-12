@@ -73,7 +73,7 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
           <Icons.Settings size={18} /><span className="dashboard-sidebar-label">Settings</span>
         </button>
         <div className={`dashboard-sidebar-account ${collapsed ? 'justify-center' : ''}`}>
-          <span className="dashboard-sidebar-avatar">{user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}</span>
+          <span className="dashboard-sidebar-avatar">{user?.avatar || user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}</span>
           <div className="dashboard-sidebar-account-copy"><strong>{user?.name || 'Univo student'}</strong><small>{user?.email || 'Personal account'}</small></div>
           <button type="button" onClick={onLogout} className="dashboard-sidebar-logout" aria-label="Sign out"><Icons.LogOut size={14} /></button>
         </div>

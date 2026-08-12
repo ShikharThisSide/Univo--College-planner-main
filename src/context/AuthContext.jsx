@@ -51,7 +51,16 @@ export function AuthProvider({ children }) {
     return getDashboardPath(nextUser.role)
   }, [])
 
-  const value = useMemo(() => ({ user, login, logout, switchDemoRole, isAuthenticated: !!user }), [user, login, logout, switchDemoRole])
+  const updateProfile = useCallback((changes) => {
+    setUser((current) => {
+      if (!current) return current
+      const nextUser = { ...current, ...changes }
+      localStorage.setItem('univoUser', JSON.stringify(nextUser))
+      return nextUser
+    })
+  }, [])
+
+  const value = useMemo(() => ({ user, login, logout, switchDemoRole, updateProfile, isAuthenticated: !!user }), [user, login, logout, switchDemoRole, updateProfile])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
