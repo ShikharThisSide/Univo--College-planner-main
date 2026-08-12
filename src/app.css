@@ -191,6 +191,8 @@ body.univo-app {
 .dashboard-sidebar-label, .dashboard-sidebar-workspace, .dashboard-sidebar-account-copy, .dashboard-sidebar-logout, .dashboard-sidebar-tip { opacity: 1; transform: translateX(0); transition: opacity .24s ease .12s, transform .38s cubic-bezier(.22,1,.36,1) .08s; }
 .dashboard-sidebar.w-\[72px\] .dashboard-sidebar-label, .dashboard-sidebar.w-\[72px\] .dashboard-sidebar-workspace, .dashboard-sidebar.w-\[72px\] .dashboard-sidebar-account-copy, .dashboard-sidebar.w-\[72px\] .dashboard-sidebar-logout, .dashboard-sidebar-tip.is-collapsed { opacity: 0; transform: translateX(-10px); pointer-events: none; }
 .dashboard-sidebar.w-\[72px\] .dashboard-sidebar-label { width: 0; overflow: hidden; white-space: nowrap; }
+.dashboard-sidebar.w-\[72px\] nav a { min-height: 52px; padding: 10px; }
+.dashboard-sidebar.w-\[72px\] nav { padding-left: 10px; padding-right: 10px; }
 .dashboard-sidebar.w-\[240px\] .dashboard-sidebar-label { width: auto; }
 .dashboard-sidebar nav a { transition: color .2s ease, background-color .2s ease, padding .42s cubic-bezier(.22,1,.36,1), gap .42s cubic-bezier(.22,1,.36,1); }
 .dashboard-sidebar-action { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; color: var(--text-muted); background: transparent; font-size: 13px; cursor: pointer; }
