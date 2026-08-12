@@ -46,7 +46,8 @@ export default function DashboardLayout() {
   const navItems = NAV_BY_ROLE[user?.role] || []
 
   const handleLogout = () => {
-    logout()
+    localStorage.removeItem('univoUser')
+    localStorage.removeItem('univoActiveUser')
     window.location.replace('/')
   }
 
