@@ -214,9 +214,9 @@ export default function ClassRepresentativePage() {
           </div>
 
           <div className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
-            <div className="relative w-full md:max-w-sm">
-              <Search size={15} aria-hidden="true" className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-white/35" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} className="w-full rounded-xl border border-white/8 bg-white/4 py-2.5 pl-10 pr-3 text-sm outline-none placeholder:text-white/25 focus:border-[var(--accent-solid)]/50" placeholder="Search name or enrollment" />
+            <div className="rosterSearchControl w-full md:max-w-sm">
+              <input value={query} onChange={(event) => setQuery(event.target.value)} className="rosterSearchInput" placeholder="Search name or enrollment" />
+              <Search size={16} aria-hidden="true" className="rosterSearchIcon" />
             </div>
             <span className="text-xs text-white/40">Showing {visibleStudents.length} of {students.length} students</span>
           </div>

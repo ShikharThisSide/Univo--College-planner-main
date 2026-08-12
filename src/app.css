@@ -735,6 +735,11 @@ body.univo-app {
 .settingsPalette { display: flex; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 11px; color: var(--text-muted); background: var(--surface-control); text-align: left; cursor: pointer; }
 .settingsPalette:hover, .settingsPalette.active { border-color: var(--accent-solid); color: var(--text-primary); background: var(--accent-muted); }
 .settingsPalette span { width: 19px; height: 19px; flex: 0 0 auto; border-radius: 50%; }.settingsPalette b { font-size: 11px; }
+.rosterSearchControl { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-control); }
+.rosterSearchInput { min-width: 0; flex: 1; padding: 10px 0; border: 0; outline: none; color: var(--text-primary); background: transparent; font-size: 13px; }
+.rosterSearchInput::placeholder { color: var(--text-subtle); }
+.rosterSearchIcon { flex: 0 0 auto; color: var(--text-muted); }
+.rosterSearchControl:focus-within { border-color: var(--accent-solid); box-shadow: 0 0 0 3px var(--accent-muted); }
 .login-page {
   --accent-from: #c4f04d;
   --accent-to: #96c93d;
