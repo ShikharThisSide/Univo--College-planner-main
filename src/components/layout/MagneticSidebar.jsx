@@ -56,7 +56,7 @@ export default function MagneticSidebar({ items, collapsed = false }) {
             end={item.path === items[0]?.path}
             className={({ isActive }) =>
               `relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors z-10 ${
-                isActive ? 'text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/4'
+                isActive ? 'dashboard-nav-active' : 'dashboard-nav-inactive'
               } ${collapsed ? 'justify-center' : ''}`
             }
             title={collapsed ? item.label : undefined}

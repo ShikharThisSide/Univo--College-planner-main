@@ -178,6 +178,18 @@ body.univo-app {
   color: var(--accent-solid);
 }
 
+.dashboard-nav-active { color: var(--text-primary); }
+.dashboard-nav-inactive { color: var(--text-muted); }
+.dashboard-nav-inactive:hover { color: var(--text-primary); background: var(--surface-hover); }
+.dashboard-search { color: var(--text-muted); background: var(--surface-control); border: 1px solid var(--border-subtle); }
+.dashboard-search:hover { color: var(--text-primary); border-color: var(--border-strong); }
+.dashboard-kbd { background: var(--surface-hover); color: var(--text-muted); }
+.dashboard-muted { color: var(--text-muted); }
+[data-theme="light"] .dashboard-shell .text-white\/40,
+[data-theme="light"] .dashboard-shell .text-white\/45,
+[data-theme="light"] .dashboard-shell .text-white\/50,
+[data-theme="light"] .dashboard-shell .text-white\/60 { color: var(--text-muted); }
+
 .dashboard-widget-stack {
   display: flex;
   flex-direction: column;

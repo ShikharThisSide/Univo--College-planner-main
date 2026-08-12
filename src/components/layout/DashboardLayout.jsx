@@ -56,11 +56,11 @@ export default function DashboardLayout() {
             <button
             type="button"
             onClick={() => setCmdOpen(true)}
-            className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/4 border border-white/8 text-sm text-white/40 hover:text-white/60 hover:border-white/12 transition-all max-w-md w-full"
+            className="dashboard-search flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all max-w-md w-full"
           >
             <Search size={16} />
             <span className="flex-1 text-left">Search or jump to…</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-white/8 text-[10px] font-mono">⌘K</kbd>
+            <kbd className="dashboard-kbd px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>
             </button>
 
           <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function DashboardLayout() {
               >
                 <div className="text-left hidden sm:block">
                   <p className="dashboard-light-accent-heading text-sm font-medium leading-tight">{user?.name}</p>
-                  <p className="text-[10px] text-white/40">{user?.email || getRoleLabel(user?.role)}</p>
+                  <p className="dashboard-muted text-[10px]">{user?.email || getRoleLabel(user?.role)}</p>
                 </div>
                 <span className="profileDropdownAvatar">{initials}</span>
                 <ChevronDown size={14} className="text-white/40" />
