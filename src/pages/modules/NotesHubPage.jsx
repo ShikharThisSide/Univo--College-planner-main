@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowLeft,
   BookOpen,
@@ -19,6 +19,7 @@ import {
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { downloadPdf } from '../../lib/pdfExport'
+import { useAuth } from '../../context/AuthContext'
 
 const STARTER_SUBJECTS = [
   { id: 'data-structures', name: 'Data Structures', accent: 'from-violet-500/35 to-indigo-500/10', files: [{ id: 'ds-1', title: 'Trees and Graphs Revision', fileName: 'trees-and-graphs.pdf', size: '1.2 MB', updated: 'Today', kind: 'upload' }] },
@@ -34,14 +35,25 @@ function humanFileSize(bytes) {
 }
 
 export default function NotesHubPage() {
+  const { user } = useAuth()
+  const notesStorageKey = `univoNotesHub:${user?.id || user?.email || 'guest'}`
   const fileInput = useRef(null)
-  const [subjects, setSubjects] = useState(STARTER_SUBJECTS)
+  const [subjects, setSubjects] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(`univoNotesHub:${user?.id || user?.email || 'guest'}`) || 'null')
+      return Array.isArray(saved) ? saved : []
+    } catch { return [] }
+  })
   const [activeSubjectId, setActiveSubjectId] = useState(null)
   const [subjectDialog, setSubjectDialog] = useState(false)
   const [subjectName, setSubjectName] = useState('')
   const [editingSubjectId, setEditingSubjectId] = useState(null)
   const [editor, setEditor] = useState(null)
   const [notice, setNotice] = useState('')
+
+  useEffect(() => {
+    try { localStorage.setItem(notesStorageKey, JSON.stringify(subjects)) } catch { /* Keep editing usable if storage is unavailable. */ }
+  }, [notesStorageKey, subjects])
 
   const activeSubject = useMemo(() => subjects.find((subject) => subject.id === activeSubjectId) || null, [activeSubjectId, subjects])
 
@@ -69,7 +81,7 @@ export default function NotesHubPage() {
     setEditingSubjectId(null)
   }
 
-  const uploadFiles = (event) => {
+  const uploadFiles = async (event) => {
     if (!activeSubjectId) return
     const selectedFiles = Array.from(event.target.files || [])
     const pdfs = selectedFiles.filter((file) => file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))
@@ -79,15 +91,15 @@ export default function NotesHubPage() {
       return
     }
 
-    const newFiles = pdfs.map((file) => ({
+    const newFiles = await Promise.all(pdfs.map(async (file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       title: file.name.replace(/\.pdf$/i, ''),
       fileName: file.name,
       size: humanFileSize(file.size),
       updated: 'Just now',
       kind: 'upload',
-      url: URL.createObjectURL(file),
-    }))
+      url: await new Promise((resolve) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.readAsDataURL(file) }),
+    })))
     setSubjects((current) => current.map((subject) => (subject.id === activeSubjectId ? { ...subject, files: [...subject.files, ...newFiles] } : subject)))
     showNotice(`${newFiles.length} PDF${newFiles.length === 1 ? '' : 's'} added to ${activeSubject?.name}.`)
     event.target.value = ''
@@ -141,7 +153,6 @@ export default function NotesHubPage() {
 
   const removeFile = (file) => {
     if (!activeSubject || !window.confirm(`Remove “${file.title}” from ${activeSubject.name}? This cannot be undone.`)) return
-    if (file.url) URL.revokeObjectURL(file.url)
     setSubjects((current) => current.map((subject) => (
       subject.id === activeSubject.id
         ? { ...subject, files: subject.files.filter((item) => item.id !== file.id) }

@@ -58,8 +58,10 @@ export default function ClassRepresentativePage() {
   const rosterInput = useRef(null)
   const { user } = useAuth()
   const rosterStorageKey = `univoClassRoster:${user?.id || user?.email || 'guest'}`
-  const [className, setClassName] = useState('Data Structures')
-  const [sessionDate, setSessionDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const attendanceMetaKey = `univoAttendanceMeta:${user?.id || user?.email || 'guest'}`
+  const storedMeta = (() => { try { return JSON.parse(localStorage.getItem(attendanceMetaKey) || 'null') || {} } catch { return {} } })()
+  const [className, setClassName] = useState(storedMeta.className || 'Data Structures')
+  const [sessionDate, setSessionDate] = useState(storedMeta.sessionDate || new Date().toISOString().slice(0, 10))
   const [students, setStudents] = useState(() => getStoredRoster(`univoClassRoster:${user?.id || user?.email || 'guest'}`))
   const [editingRoster, setEditingRoster] = useState(false)
   const [query, setQuery] = useState('')
@@ -68,6 +70,12 @@ export default function ClassRepresentativePage() {
   const [showPdfDialog, setShowPdfDialog] = useState(false)
   const [pdfSubject, setPdfSubject] = useState(className)
   const [pdfDate, setPdfDate] = useState(sessionDate)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(attendanceMetaKey, JSON.stringify({ className, sessionDate }))
+    } catch { /* Keep attendance usable if storage is unavailable. */ }
+  }, [className, sessionDate, attendanceMetaKey])
 
   useEffect(() => {
     try {
