@@ -38,7 +38,7 @@ export default function DashboardLayout() {
 
   const handleLogout = () => {
     logout()
-    navigate('/')
+    navigate('/', { replace: true })
   }
 
   const openSettings = () => setSettingsOpen(true)
