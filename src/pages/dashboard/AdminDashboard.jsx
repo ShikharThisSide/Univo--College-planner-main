@@ -3,6 +3,7 @@ import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import AnimatedProgress from '../../components/ui/AnimatedProgress'
 import { adminData } from '../../lib/mockData'
+import { getTimeGreeting } from '../../lib/timeGreeting'
 
 function StatCard({ icon: Icon, label, value, sub, delay = 0 }) {
   return (
@@ -22,7 +23,7 @@ export default function AdminDashboard() {
   return (
     <PageTransition>
       <div className="mb-8">
-        <p className="text-sm text-white/45">{data.greeting}</p>
+        <p className="text-sm text-white/45">{getTimeGreeting()}</p>
         <h1 className="font-display text-4xl font-bold tracking-tight mt-1">
           {data.university} <span className="text-white/30 text-2xl">Command Center</span>
         </h1>

@@ -3,6 +3,7 @@ import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import AttendanceRing from '../../components/ui/AttendanceRing'
 import { institutionalStudentData } from '../../lib/mockData'
+import { getTimeGreeting } from '../../lib/timeGreeting'
 
 export default function InstitutionalStudentDashboard() {
   const data = institutionalStudentData
@@ -10,7 +11,7 @@ export default function InstitutionalStudentDashboard() {
   return (
     <PageTransition>
       <div className="mb-8">
-        <p className="text-sm text-white/45">{data.greeting}, {data.name}</p>
+        <p className="text-sm text-white/45">{getTimeGreeting()}, {data.name}</p>
         <h1 className="font-display text-4xl font-bold tracking-tight mt-1">
           {data.university}
         </h1>

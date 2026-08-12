@@ -10,6 +10,7 @@ import { SkeletonDashboard } from '../../components/ui/Skeleton'
 import { individualStudentData } from '../../lib/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { getTimeGreeting } from '../../lib/timeGreeting'
 
 const DASHBOARD_LAYOUT_VERSION = 'bunk-after-details-v1'
 const DEFAULT_WIDGET_ORDER = ['schedule', 'details', 'bunk']
@@ -99,7 +100,7 @@ export default function IndividualStudentDashboard() {
           animate={{ opacity: 1, y: 0 }}
           className="text-sm text-white/45 mb-1"
         >
-          {data.greeting}
+          {getTimeGreeting()}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
