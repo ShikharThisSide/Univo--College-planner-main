@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Flame, Coffee, Clock, ArrowRight, Zap, BookOpen, MessageSquare } from 'lucide-react'
+import { Flame, Coffee, Clock, ArrowRight, Zap, BookOpen, MessageSquare, Plus, X } from 'lucide-react'
 import confetti from 'canvas-confetti'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -20,6 +20,9 @@ function PriorityBadge({ priority }) {
 
 export default function IndividualStudentDashboard() {
   const [loading, setLoading] = useState(true)
+  const [scheduleOpen, setScheduleOpen] = useState(false)
+  const [schedule, setSchedule] = useState(() => { try { return JSON.parse(localStorage.getItem(`univoSchedule:${localStorage.getItem('univoUser') ? JSON.parse(localStorage.getItem('univoUser')).email : 'guest'}`) || '[]') } catch { return [] } })
+  const [scheduleForm, setScheduleForm] = useState({ time: '', subject: '', room: '' })
   const [widgetOrder, setWidgetOrder] = useState(() => {
     try {
       if (localStorage.getItem('univoDashboardWidgetLayoutVersion') !== DASHBOARD_LAYOUT_VERSION) {
@@ -33,9 +36,11 @@ export default function IndividualStudentDashboard() {
   })
   const [draggingWidget, setDraggingWidget] = useState(null)
   const { user } = useAuth()
+  const freshAccount = Boolean(user?.email && localStorage.getItem(`univoFreshAccount:${user.email}`) === 'true')
   const data = {
     ...individualStudentData,
     name: user?.name?.split(' ')[0] || individualStudentData.name,
+    ...(freshAccount ? { bunkableClasses: 0, attendance: [], todaySchedule: schedule, assignments: [], notes: [], forumActivity: [], streak: 0, completionRate: 0 } : {}),
   }
 
   useEffect(() => {
@@ -46,6 +51,16 @@ export default function IndividualStudentDashboard() {
   useEffect(() => {
     localStorage.setItem('univoDashboardWidgetOrder', JSON.stringify(widgetOrder))
   }, [widgetOrder])
+
+  const saveSchedule = (event) => {
+    event.preventDefault()
+    if (!scheduleForm.time || !scheduleForm.subject.trim()) return
+    const next = [...schedule, { ...scheduleForm, subject: scheduleForm.subject.trim(), room: scheduleForm.room.trim() || 'Room not set', status: 'upcoming' }].sort((a, b) => a.time.localeCompare(b.time))
+    setSchedule(next)
+    localStorage.setItem(`univoSchedule:${user.email}`, JSON.stringify(next))
+    setScheduleForm({ time: '', subject: '', room: '' })
+    setScheduleOpen(false)
+  }
 
   const moveWidget = (targetWidget) => {
     if (!draggingWidget || draggingWidget === targetWidget) return
@@ -136,9 +151,10 @@ export default function IndividualStudentDashboard() {
               <Clock size={16} className="text-[var(--accent-solid)]" />
               <h2 className="font-display font-semibold">Today's schedule</h2>
             </div>
-            <span className="text-xs text-white/35">{new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })}</span>
+            <div className="flex items-center gap-3"><span className="text-xs text-white/35">{new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })}</span><button type="button" onClick={() => setScheduleOpen(true)} className="inline-flex items-center gap-1 rounded-lg univo-gradient-bg px-2.5 py-1.5 text-[11px] font-bold text-[#182027]"><Plus size={13} /> Add schedule</button></div>
           </div>
           <div className="space-y-3">
+            {!data.todaySchedule.length && <div className="dashboardEmptyState"><Clock size={22} /><strong>No schedule added yet</strong><span>Add your first class to see today’s plan here.</span><button type="button" onClick={() => setScheduleOpen(true)}>Add your first class <ArrowRight size={13} /></button></div>}
             {data.todaySchedule.map((slot, i) => (
               <motion.div
                 key={slot.time}
@@ -167,7 +183,7 @@ export default function IndividualStudentDashboard() {
         {/* Attendance rings */}
         <GlassCard delay={0.2}>
           <h2 className="font-display font-semibold mb-5">Attendance</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">{!data.attendance.length && <div className="dashboardEmptyState col-span-2"><strong>No attendance data yet</strong><span>Attendance will appear after you record your first class.</span></div>}
             {data.attendance.map((a, i) => (
               <AttendanceRing key={a.subject} percent={a.percent} label={a.subject} delay={i} size={76} />
             ))}
@@ -184,7 +200,7 @@ export default function IndividualStudentDashboard() {
               View all <ArrowRight size={12} />
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-3">{!data.assignments.length && <div className="dashboardEmptyState"><strong>No assignments yet</strong><span>Your assignment list will appear here once you add work.</span></div>}
             {data.assignments.map((a, i) => (
               <motion.div
                 key={a.id}
@@ -216,7 +232,7 @@ export default function IndividualStudentDashboard() {
               <BookOpen size={16} className="text-[var(--accent-solid)]" />
               <h2 className="font-display font-semibold">Recent notes</h2>
             </div>
-            {data.notes.map((note) => (
+            {!data.notes.length && <div className="dashboardEmptyState"><strong>No notes yet</strong><span>Upload or create notes from Notes Hub.</span></div>}{data.notes.map((note) => (
               <div key={note.id} className="flex items-center justify-between py-3 border-b border-white/6 last:border-0 cursor-pointer hover:bg-white/3 -mx-2 px-2 rounded-lg transition-colors">
                 <div>
                   <p className="text-sm font-medium">{note.title}</p>
@@ -236,7 +252,7 @@ export default function IndividualStudentDashboard() {
               <MessageSquare size={16} className="text-[var(--accent-solid)]" />
               <h2 className="font-display font-semibold">Forum activity</h2>
             </div>
-            {data.forumActivity.map((thread) => (
+            {!data.forumActivity.length && <div className="dashboardEmptyState"><strong>No forum activity yet</strong><span>Join the conversation when you’re ready.</span></div>}{data.forumActivity.map((thread) => (
               <div key={thread.id} className="flex items-center justify-between py-3 border-b border-white/6 last:border-0 cursor-pointer hover:bg-white/3 -mx-2 px-2 rounded-lg transition-colors">
                 <p className="text-sm">{thread.title}</p>
                 <div className="flex items-center gap-2 shrink-0">
@@ -269,6 +285,7 @@ export default function IndividualStudentDashboard() {
           Simulate assignment submitted on time 🎉
         </button>
       </motion.div>
+      {scheduleOpen && <div className="scheduleOverlay" role="dialog" aria-modal="true"><form className="scheduleModal" onSubmit={saveSchedule}><button type="button" className="scheduleClose" onClick={() => setScheduleOpen(false)} aria-label="Close"><X size={18} /></button><p className="settingsEyebrow">TODAY’S SCHEDULE</p><h2>Add a class</h2><p>Build your personal Univo timetable.</p><label>Time<input type="time" value={scheduleForm.time} onChange={(event) => setScheduleForm({ ...scheduleForm, time: event.target.value })} required /></label><label>Subject<input placeholder="e.g. Data Structures" value={scheduleForm.subject} onChange={(event) => setScheduleForm({ ...scheduleForm, subject: event.target.value })} required /></label><label>Room<input placeholder="e.g. Lab 204" value={scheduleForm.room} onChange={(event) => setScheduleForm({ ...scheduleForm, room: event.target.value })} /></label><button type="submit" className="scheduleSubmit">Add to schedule</button></form></div>}
     </PageTransition>
   )
 }

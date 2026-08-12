@@ -139,6 +139,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       }
       accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+      localStorage.setItem(`univoFreshAccount:${normalizedEmail}`, 'true')
       localStorage.setItem('univoPendingOnboarding', 'true')
       setNotice('Account created successfully. Signing you in…')
     } else if (mode === 'reset') {
