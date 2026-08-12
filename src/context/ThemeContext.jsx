@@ -4,7 +4,7 @@ import { ACCENT_PALETTES } from '../lib/constants'
 const ThemeContext = createContext(null)
 
 const DEFAULT_ACCENT = 'forest-lime'
-const DEFAULT_MODE = 'dark'
+const DEFAULT_MODE = 'light'
 
 function readPreference(key, fallback, allowedValues) {
   try {

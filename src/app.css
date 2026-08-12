@@ -174,6 +174,49 @@ body.univo-app {
   background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
 }
 
+.dashboard-user-name {
+  color: var(--accent-solid);
+}
+
+.dashboard-widget-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-widget {
+  position: relative;
+  cursor: grab;
+  border-radius: 18px;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.dashboard-widget::before {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  z-index: 2;
+  padding: 4px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  color: var(--text-subtle);
+  background: var(--surface-control);
+  content: 'Drag to move';
+  font-size: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.dashboard-widget:hover::before { opacity: 1; }
+.dashboard-widget:active { cursor: grabbing; }
+.dashboard-widget.is-dragging { opacity: .45; transform: scale(.99); }
+.dashboard-compact .glass-card { padding: 1rem !important; }
+.dashboard-compact main { padding-top: 1rem; padding-bottom: 1rem; }
+
+.settingsOverlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 20px; background: var(--overlay); backdrop-filter: blur(12px); }
+.settingsModal { width: min(100%, 620px); max-height: min(88vh, 760px); overflow: auto; padding: 28px; border: 1px solid var(--border-strong); border-radius: 24px; color: var(--text-primary); background: var(--surface-modal); box-shadow: 0 30px 100px rgb(0 0 0 / .28); }
+.settingsHeader { display: flex; justify-content: space-between; gap: 20px; padding-bottom: 22px; border-bottom: 1px solid var(--border-subtle); }.settingsEyebrow { margin: 0 0 7px; color: var(--accent-solid); font-size: 10px; font-weight: 800; letter-spacing: .14em; }.settingsHeader h2 { margin: 0; font: 700 30px var(--font-display); }.settingsHeader p:last-child { margin: 7px 0 0; color: var(--text-muted); font-size: 13px; }.settingsClose { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--border-subtle); border-radius: 10px; color: var(--text-muted); background: var(--surface-control); cursor: pointer; }.settingsSection { padding: 22px 0; border-bottom: 1px solid var(--border-subtle); }.settingsSectionTitle { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; color: var(--accent-solid); }.settingsSectionTitle div { display: grid; gap: 3px; }.settingsSectionTitle strong { color: var(--text-primary); font-size: 14px; }.settingsSectionTitle span { color: var(--text-muted); font-size: 11px; }.settingsProfileRow { display: flex; align-items: center; gap: 12px; padding: 13px; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface-subtle); }.settingsAvatar { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; color: #fff; background: var(--accent-from); font-size: 12px; font-weight: 800; }.settingsProfileRow div { display: grid; gap: 4px; flex: 1; }.settingsProfileRow div span { color: var(--text-muted); font-size: 11px; }.settingsRole { color: var(--accent-solid); font-size: 10px; font-weight: 800; text-transform: uppercase; }.settingsToggle { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 0; cursor: pointer; }.settingsToggle span { display: grid; gap: 4px; }.settingsToggle b { font-size: 13px; }.settingsToggle small { color: var(--text-muted); font-size: 11px; }.settingsToggle input { display: none; }.settingsToggle i { position: relative; width: 38px; height: 22px; flex: 0 0 auto; border-radius: 99px; background: var(--surface-hover); }.settingsToggle i::after { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-muted); content: ''; transition: transform .2s, background .2s; }.settingsToggle input:checked + i { background: var(--accent-muted); }.settingsToggle input:checked + i::after { background: var(--accent-solid); transform: translateX(16px); }.settingsChoiceRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }.settingsChoice { padding: 11px; border: 1px solid var(--border-subtle); border-radius: 11px; color: var(--text-muted); background: var(--surface-control); cursor: pointer; }.settingsChoice.active { border-color: var(--accent-solid); color: var(--accent-solid); background: var(--accent-muted); }.settingsReset { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; padding: 10px 13px; border: 1px solid var(--border-subtle); border-radius: 10px; color: var(--text-muted); background: transparent; font-size: 12px; cursor: pointer; }.settingsReset:hover { color: var(--accent-solid); border-color: var(--accent-solid); }
+
 .glass-panel {
   background: var(--color-glass);
   border: 1px solid var(--color-glass-border);
@@ -713,6 +756,19 @@ body.univo-app {
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(30px) saturate(115%);
   -webkit-backdrop-filter: blur(30px) saturate(115%);
+}
+
+/* The public Notes Hub link opens this as a roomy workspace demo. */
+.login-demo-card {
+  width: min(100%, 560px);
+  max-width: 560px;
+  padding: 42px 48px 36px;
+}
+
+@media (max-width: 640px) {
+  .login-demo-card {
+    padding: 32px 24px 28px;
+  }
 }
 
 .login-page .univo-gradient-bg {

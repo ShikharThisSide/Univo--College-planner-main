@@ -10,6 +10,9 @@ import { SkeletonDashboard } from '../../components/ui/Skeleton'
 import { individualStudentData } from '../../lib/mockData'
 import { useAuth } from '../../context/AuthContext'
 
+const DASHBOARD_LAYOUT_VERSION = 'bunk-after-details-v1'
+const DEFAULT_WIDGET_ORDER = ['schedule', 'details', 'bunk']
+
 function PriorityBadge({ priority }) {
   const colors = { high: 'text-red-400 bg-red-400/10', medium: 'text-amber-400 bg-amber-400/10', low: 'text-emerald-400 bg-emerald-400/10' }
   return <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold ${colors[priority]}`}>{priority}</span>
@@ -17,6 +20,18 @@ function PriorityBadge({ priority }) {
 
 export default function IndividualStudentDashboard() {
   const [loading, setLoading] = useState(true)
+  const [widgetOrder, setWidgetOrder] = useState(() => {
+    try {
+      if (localStorage.getItem('univoDashboardWidgetLayoutVersion') !== DASHBOARD_LAYOUT_VERSION) {
+        localStorage.setItem('univoDashboardWidgetLayoutVersion', DASHBOARD_LAYOUT_VERSION)
+        localStorage.setItem('univoDashboardWidgetOrder', JSON.stringify(DEFAULT_WIDGET_ORDER))
+        return DEFAULT_WIDGET_ORDER
+      }
+      const saved = JSON.parse(localStorage.getItem('univoDashboardWidgetOrder') || 'null')
+      return Array.isArray(saved) && saved.length === 3 ? saved : DEFAULT_WIDGET_ORDER
+    } catch { return DEFAULT_WIDGET_ORDER }
+  })
+  const [draggingWidget, setDraggingWidget] = useState(null)
   const { user } = useAuth()
   const data = {
     ...individualStudentData,
@@ -27,6 +42,33 @@ export default function IndividualStudentDashboard() {
     const timer = setTimeout(() => setLoading(false), 900)
     return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem('univoDashboardWidgetOrder', JSON.stringify(widgetOrder))
+  }, [widgetOrder])
+
+  const moveWidget = (targetWidget) => {
+    if (!draggingWidget || draggingWidget === targetWidget) return
+    setWidgetOrder((current) => {
+      const next = [...current]
+      const from = next.indexOf(draggingWidget)
+      const to = next.indexOf(targetWidget)
+      next.splice(from, 1)
+      next.splice(to, 0, draggingWidget)
+      return next
+    })
+    setDraggingWidget(null)
+  }
+
+  const widgetProps = (id) => ({
+    className: `dashboard-widget dashboard-widget-${id} ${draggingWidget === id ? 'is-dragging' : ''}`,
+    style: { order: widgetOrder.indexOf(id) },
+    draggable: true,
+    onDragStart: () => setDraggingWidget(id),
+    onDragOver: (event) => event.preventDefault(),
+    onDrop: () => moveWidget(id),
+    onDragEnd: () => setDraggingWidget(null),
+  })
 
   if (loading) return <SkeletonDashboard />
 
@@ -45,7 +87,7 @@ export default function IndividualStudentDashboard() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="font-display text-4xl md:text-5xl font-bold tracking-tight"
+          className="dashboard-user-name font-display text-4xl md:text-5xl font-bold tracking-tight"
         >
           {data.name} <span className="inline-block animate-[wave_2s_ease-in-out_infinite]">👋</span>
         </motion.h1>
@@ -59,8 +101,9 @@ export default function IndividualStudentDashboard() {
         </motion.p>
       </div>
 
+      <div className="dashboard-widget-stack" aria-label="Customisable dashboard widgets">
       {/* Bunk counter — front and center */}
-      <GlassCard className="mb-6 !p-0 overflow-hidden" delay={0.1}>
+      <div {...widgetProps('bunk')}><GlassCard className="mb-6 !p-0 overflow-hidden" delay={0.1}>
         <div className="flex flex-col md:flex-row items-stretch">
           <div className="flex-1 p-6 md:p-8">
             <div className="flex items-center gap-2 mb-3">
@@ -83,9 +126,9 @@ export default function IndividualStudentDashboard() {
             </div>
           </div>
         </div>
-      </GlassCard>
+      </GlassCard></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div {...widgetProps('schedule')}><div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Today's schedule */}
         <GlassCard className="lg:col-span-2" delay={0.15}>
           <div className="flex items-center justify-between mb-5">
@@ -130,9 +173,9 @@ export default function IndividualStudentDashboard() {
             ))}
           </div>
         </GlassCard>
-      </div>
+      </div></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div {...widgetProps('details')}><div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Assignments */}
         <GlassCard delay={0.25}>
           <div className="flex items-center justify-between mb-5">
@@ -208,6 +251,7 @@ export default function IndividualStudentDashboard() {
             ))}
           </GlassCard>
         </div>
+      </div></div>
       </div>
 
       {/* Success moment demo button */}

@@ -81,22 +81,10 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
-  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem('univoRememberMe') === 'true')
   const [isLoading, setIsLoading] = useState(false)
 
   const isUniversity = signupPath === 'university'
   const loginHref = (path) => embedded ? `/?login=${path}` : `/login?path=${path}`
-
-  useEffect(() => {
-    if (mode !== 'login') return
-    try {
-      const stored = JSON.parse(localStorage.getItem('univoRememberedCredentials') || 'null')
-      if (stored) {
-        setEmail(stored.email || '')
-        setPassword(stored.password || '')
-      }
-    } catch { /* Ignore malformed remembered credentials. */ }
-  }, [mode])
 
   useEffect(() => {
     const googleEmail = searchParams.get('google_email')
@@ -164,13 +152,6 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     } else {
       if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
       if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
-      if (rememberMe) {
-        localStorage.setItem('univoRememberMe', 'true')
-        localStorage.setItem('univoRememberedCredentials', JSON.stringify({ email: normalizedEmail, password }))
-      } else {
-        localStorage.removeItem('univoRememberMe')
-        localStorage.removeItem('univoRememberedCredentials')
-      }
     }
     const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: accounts[normalizedEmail]?.role || universityRole || undefined })
     setIsLoading(true)
@@ -187,7 +168,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="login-card w-full max-w-md glass-panel rounded-3xl p-8 relative"
+        className={`login-card ${embedded ? 'login-demo-card' : ''} w-full max-w-md glass-panel rounded-3xl p-8 relative`}
       >
         <Link to="/" className="login-back mb-5">
           <ArrowLeft size={15} />
@@ -259,12 +240,6 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-          )}
-          {mode === 'login' && (
-            <label className="!ml-auto !flex !w-fit !flex-none cursor-pointer items-center justify-end gap-2 text-xs text-white/50">
-              <span className="whitespace-nowrap">Remember me on this device</span>
-              <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="!m-0 shrink-0 accent-[var(--accent-solid)]" />
-            </label>
           )}
           {mode === 'reset' && otp && (
             <OtpBoxes value={enteredOtp} onChange={setEnteredOtp} />

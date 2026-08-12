@@ -139,17 +139,7 @@ export default function ClassRepresentativePage() {
       filename: fileName,
       title: 'Class Representative Attendance Register',
       subtitle: `${subject} | ${formatDate(pdfDate)} | Present: ${presentCount} | Absent: ${absentCount}`,
-      lines: [
-        'Class attendance report',
-        '',
-        'No.   Student name                         Enrollment          Status',
-        '--------------------------------------------------------------------------',
-        ...students.map((student, index) => `${String(index + 1).padEnd(5)} ${student.name.padEnd(36)} ${student.enrollment.padEnd(20)} ${student.status.toUpperCase()}`),
-        '',
-        `Total students: ${students.length}`,
-        `Present: ${presentCount}`,
-        `Absent: ${absentCount}`,
-      ],
+      attendance: { total: students.length, present: presentCount, absent: absentCount, rows: students.map((student, index) => ({ ...student, index: index + 1 })) },
     })
     setShowPdfDialog(false)
     showNotice('Attendance PDF generated and downloaded.')
