@@ -716,6 +716,11 @@ body.univo-app {
   background: var(--border-strong);
 }
 
+.dashboardDockAutoHide { padding-top: 18px; padding-bottom: 0; }
+.dashboardDockAutoHide .dashboardDockInner { opacity: 0; transform: translateY(12px); transition: opacity .22s ease, transform .22s ease; }
+.dashboardDockAutoHide:hover .dashboardDockInner,
+.dashboardDockAutoHide:focus-within .dashboardDockInner { opacity: 1; transform: translateY(0); }
+
 @media (max-width: 700px) {
   .dashboardDock { bottom: 12px; }
   .dashboardDockInner { gap: 5px; padding: 7px; }

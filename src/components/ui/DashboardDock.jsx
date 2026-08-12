@@ -12,11 +12,11 @@ function DockIcon({ item, onClick }) {
   )
 }
 
-export default function DashboardDock({ items = [], onSearch, onSettings }) {
+export default function DashboardDock({ items = [], onSearch, onSettings, autoHide = false }) {
   const navigate = useNavigate()
   const visibleItems = items.slice(0, 5)
   return (
-    <nav className="dashboardDock" aria-label="Quick navigation">
+    <nav className={`dashboardDock ${autoHide ? 'dashboardDockAutoHide' : ''}`} aria-label="Quick navigation">
       <div className="dashboardDockInner">
         {visibleItems.map((item) => <DockIcon key={item.id} item={item} onClick={() => navigate(item.path)} />)}
         <span className="dashboardDockDivider" />
