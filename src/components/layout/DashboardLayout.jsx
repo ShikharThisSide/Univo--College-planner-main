@@ -38,7 +38,7 @@ export default function DashboardLayout() {
 
   const handleLogout = () => {
     logout()
-    navigate('/', { replace: true })
+    window.location.replace('/')
   }
 
   const openSettings = () => setSettingsOpen(true)
