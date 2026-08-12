@@ -151,10 +151,10 @@ export default function IndividualStudentDashboard() {
               <Clock size={16} className="text-[var(--accent-solid)]" />
               <h2 className="font-display font-semibold">Today's schedule</h2>
             </div>
-            <div className="flex items-center gap-3"><span className="text-xs text-white/35">{new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })}</span><button type="button" onClick={() => setScheduleOpen(true)} className="inline-flex items-center gap-1 rounded-lg univo-gradient-bg px-2.5 py-1.5 text-[11px] font-bold text-[#182027]"><Plus size={13} /> Add schedule</button></div>
+            <div className="flex items-center gap-3"><span className="text-xs text-white/35">{new Date().toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' })}</span><button type="button" onClick={() => setScheduleOpen(true)} className="inline-flex cursor-pointer items-center gap-1 rounded-lg univo-gradient-bg px-2.5 py-1.5 text-[11px] font-bold text-[#182027]"><Plus size={13} /> Add schedule</button></div>
           </div>
           <div className="space-y-3">
-            {!data.todaySchedule.length && <div className="dashboardEmptyState"><Clock size={22} /><strong>No schedule added yet</strong><span>Add your first class to see today’s plan here.</span><button type="button" onClick={() => setScheduleOpen(true)}>Add your first class <ArrowRight size={13} /></button></div>}
+            {!data.todaySchedule.length && <div className="dashboardEmptyState"><Clock size={22} /><strong>No schedule added yet</strong><span>Add your first class to see today’s plan here.</span><button type="button" className="cursor-pointer" onClick={() => setScheduleOpen(true)}>Add your first class <ArrowRight size={13} /></button></div>}
             {data.todaySchedule.map((slot, i) => (
               <motion.div
                 key={slot.time}
@@ -196,7 +196,7 @@ export default function IndividualStudentDashboard() {
         <GlassCard delay={0.25}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display font-semibold">Assignments</h2>
-            <button type="button" className="text-xs text-[var(--accent-solid)] flex items-center gap-1 hover:opacity-80">
+            <button type="button" className="cursor-pointer text-xs text-[var(--accent-solid)] flex items-center gap-1 hover:opacity-80">
               View all <ArrowRight size={12} />
             </button>
           </div>
