@@ -36,11 +36,12 @@ export default function IndividualStudentDashboard() {
   })
   const [draggingWidget, setDraggingWidget] = useState(null)
   const { user } = useAuth()
-  const freshAccount = Boolean(user?.email && localStorage.getItem(`univoFreshAccount:${user.email}`) === 'true')
+  // Sample content is reserved for explicit demo accounts. Real accounts start empty.
+  const isDemoAccount = user?.id?.startsWith('demo-')
   const data = {
     ...individualStudentData,
     name: user?.name?.split(' ')[0] || individualStudentData.name,
-    ...(freshAccount ? { bunkableClasses: 0, attendance: [], todaySchedule: schedule, assignments: [], notes: [], forumActivity: [], streak: 0, completionRate: 0 } : {}),
+    ...(!isDemoAccount ? { bunkableClasses: 0, attendance: [], todaySchedule: schedule, assignments: [], notes: [], forumActivity: [], streak: 0, completionRate: 0 } : {}),
   }
 
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function IndividualStudentDashboard() {
           transition={{ delay: 0.15 }}
           className="text-white/45 mt-2 text-sm"
         >
-          You've got {data.assignments.filter((a) => a.status === 'pending').length} assignments pending · {data.streak}-day streak 🔥
+          {isDemoAccount ? `You've got ${data.assignments.filter((a) => a.status === 'pending').length} assignments pending · ${data.streak}-day streak 🔥` : 'Start by adding your schedule, assignments, notes, and attendance.'}
         </motion.p>
       </div>
 
@@ -125,18 +126,17 @@ export default function IndividualStudentDashboard() {
               <Coffee size={18} className="text-[var(--accent-solid)]" />
               <span className="text-xs uppercase tracking-wider text-white/40 font-semibold">Bunk budget</span>
             </div>
-            <p className="font-display text-5xl md:text-6xl font-bold univo-gradient-text">{data.bunkableClasses}</p>
-            <p className="text-white/50 text-sm mt-2 max-w-xs">classes you can still skip without dropping below 75% attendance. Spend wisely 😏</p>
+            {isDemoAccount ? <><p className="font-display text-5xl md:text-6xl font-bold univo-gradient-text">{data.bunkableClasses}</p><p className="text-white/50 text-sm mt-2 max-w-xs">classes you can still skip without dropping below 75% attendance. Spend wisely 😏</p></> : <div className="dashboardEmptyState"><strong>No attendance data yet</strong><span>Add attendance records to calculate your bunk budget.</span></div>}
           </div>
           <div className="flex items-center gap-6 p-6 md:p-8 border-t md:border-t-0 md:border-l border-white/8 bg-white/2">
             <div className="text-center">
               <Flame size={24} className="mx-auto text-orange-400 mb-1" />
-              <p className="font-display text-2xl font-bold">{data.streak}</p>
+              <p className="font-display text-2xl font-bold">{isDemoAccount ? data.streak : '—'}</p>
               <p className="text-[10px] text-white/40 uppercase tracking-wider">Day streak</p>
             </div>
             <div className="text-center">
               <Zap size={24} className="mx-auto text-[var(--accent-solid)] mb-1" />
-              <p className="font-display text-2xl font-bold">{data.completionRate}%</p>
+              <p className="font-display text-2xl font-bold">{isDemoAccount ? `${data.completionRate}%` : '—'}</p>
               <p className="text-[10px] text-white/40 uppercase tracking-wider">Completion</p>
             </div>
           </div>
