@@ -9,7 +9,7 @@ function NavIcon({ name, size = 18 }) {
   return Icon ? <Icon size={size} /> : null
 }
 
-export default function MagneticSidebar({ items, collapsed = false }) {
+export default function MagneticSidebar({ items, collapsed = false, onSettings, user, onLogout }) {
   const location = useLocation()
   const navRef = useRef(null)
   const [indicator, setIndicator] = useState({ top: 0, height: 0 })
@@ -29,6 +29,7 @@ export default function MagneticSidebar({ items, collapsed = false }) {
     <aside className={`fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}>
       <div className={`p-5 ${collapsed ? 'px-4' : ''}`}>
         <Logo to="/" showText={!collapsed} size={collapsed ? 28 : 32} />
+        {!collapsed && <p className="dashboard-sidebar-workspace">PERSONAL CAMPUS WORKSPACE</p>}
       </div>
 
       <nav ref={navRef} className="relative flex-1 px-3 py-2 space-y-1">
@@ -66,6 +67,17 @@ export default function MagneticSidebar({ items, collapsed = false }) {
           </NavLink>
         ))}
       </nav>
+
+      <div className="dashboard-sidebar-bottom">
+        <button type="button" onClick={onSettings} className={`dashboard-sidebar-action ${collapsed ? 'justify-center' : ''}`} title="Settings">
+          <Icons.Settings size={18} />{!collapsed && <span>Settings</span>}
+        </button>
+        <div className={`dashboard-sidebar-account ${collapsed ? 'justify-center' : ''}`}>
+          <span className="dashboard-sidebar-avatar">{user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}</span>
+          {!collapsed && <div><strong>{user?.name || 'Univo student'}</strong><small>{user?.email || 'Personal account'}</small></div>}
+          {!collapsed && <button type="button" onClick={onLogout} className="dashboard-sidebar-logout" aria-label="Sign out"><Icons.LogOut size={14} /></button>}
+        </div>
+      </div>
 
       {!collapsed && (
         <div className="p-4 mx-3 mb-4 rounded-xl bg-white/4 border border-white/6">

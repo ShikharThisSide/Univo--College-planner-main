@@ -49,7 +49,7 @@ export default function DashboardLayout() {
       {isLoading && <AnimatedLoadingSkeleton label="Loading your campus workspace…" />}
       <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-20 blur-[120px] pointer-events-none univo-gradient-bg" style={{ transform: 'translate(30%, -40%)' }} />
 
-      <MagneticSidebar items={navItems} collapsed={sidebarCollapsed} />
+      <MagneticSidebar items={navItems} collapsed={sidebarCollapsed} onSettings={openSettings} user={user} onLogout={handleLogout} />
 
       <div className={`${sidebarCollapsed ? 'pl-[72px]' : 'pl-[240px]'} min-h-screen flex flex-col transition-[padding] duration-300`}>
         <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 glass-panel border-b border-white/8">
