@@ -15,13 +15,12 @@ import {
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { downloadPdf } from '../../lib/pdfExport'
+import { useAuth } from '../../context/AuthContext'
 
 const INITIAL_STUDENTS = []
-const ROSTER_STORAGE_KEY = 'univoClassRoster'
-
-function getStoredRoster() {
+function getStoredRoster(storageKey) {
   try {
-    const roster = JSON.parse(localStorage.getItem(ROSTER_STORAGE_KEY) || '[]')
+    const roster = JSON.parse(localStorage.getItem(storageKey) || '[]')
     return Array.isArray(roster) ? roster : INITIAL_STUDENTS
   } catch {
     return INITIAL_STUDENTS
@@ -57,9 +56,11 @@ function getRosterFromText(text) {
 
 export default function ClassRepresentativePage() {
   const rosterInput = useRef(null)
+  const { user } = useAuth()
+  const rosterStorageKey = `univoClassRoster:${user?.id || user?.email || 'guest'}`
   const [className, setClassName] = useState('Data Structures')
   const [sessionDate, setSessionDate] = useState(() => new Date().toISOString().slice(0, 10))
-  const [students, setStudents] = useState(getStoredRoster)
+  const [students, setStudents] = useState(() => getStoredRoster(`univoClassRoster:${user?.id || user?.email || 'guest'}`))
   const [editingRoster, setEditingRoster] = useState(false)
   const [query, setQuery] = useState('')
   const [notice, setNotice] = useState('')
@@ -71,9 +72,9 @@ export default function ClassRepresentativePage() {
   useEffect(() => {
     try {
       const validStudents = students.filter((student) => student.name.trim() && student.enrollment.trim())
-      localStorage.setItem(ROSTER_STORAGE_KEY, JSON.stringify(validStudents))
+      localStorage.setItem(rosterStorageKey, JSON.stringify(validStudents))
     } catch { /* Keep the roster usable if browser storage is unavailable. */ }
-  }, [students])
+  }, [students, rosterStorageKey])
 
   const visibleStudents = useMemo(() => {
     const normalized = query.trim().toLowerCase()
