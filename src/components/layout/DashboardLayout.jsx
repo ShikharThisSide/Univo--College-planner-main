@@ -43,6 +43,7 @@ export default function DashboardLayout() {
 
   const openSettings = () => setSettingsOpen(true)
   const updatePreference = (key, value) => localStorage.setItem(key, String(value))
+  const initials = user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
 
   const sidebarIsCollapsed = autoHideSidebar ? !sidebarHovered : sidebarCollapsed
 
