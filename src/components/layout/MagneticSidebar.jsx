@@ -29,7 +29,7 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
     <aside onMouseEnter={() => autoHide && onHoverChange?.(true)} onMouseLeave={() => autoHide && onHoverChange?.(false)} className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}>
       <div className={`p-5 ${collapsed ? 'px-4' : ''}`}>
         <Logo to="/" showText={!collapsed} size={collapsed ? 28 : 32} />
-        {!collapsed && <p className="dashboard-sidebar-workspace">PERSONAL CAMPUS WORKSPACE</p>}
+        <p className="dashboard-sidebar-workspace">PERSONAL CAMPUS WORKSPACE</p>
       </div>
 
       <nav ref={navRef} className="relative flex-1 px-3 py-2 space-y-1">
@@ -63,28 +63,26 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
             title={collapsed ? item.label : undefined}
           >
             <NavIcon name={item.icon} size={collapsed ? 22 : 18} />
-            {!collapsed && <span>{item.label}</span>}
+            <span className="dashboard-sidebar-label">{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
       <div className="dashboard-sidebar-bottom">
         <button type="button" onClick={onSettings} className={`dashboard-sidebar-action ${collapsed ? 'justify-center' : ''}`} title="Settings">
-          <Icons.Settings size={18} />{!collapsed && <span>Settings</span>}
+          <Icons.Settings size={18} /><span className="dashboard-sidebar-label">Settings</span>
         </button>
         <div className={`dashboard-sidebar-account ${collapsed ? 'justify-center' : ''}`}>
           <span className="dashboard-sidebar-avatar">{user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}</span>
-          {!collapsed && <div><strong>{user?.name || 'Univo student'}</strong><small>{user?.email || 'Personal account'}</small></div>}
-          {!collapsed && <button type="button" onClick={onLogout} className="dashboard-sidebar-logout" aria-label="Sign out"><Icons.LogOut size={14} /></button>}
+          <div className="dashboard-sidebar-account-copy"><strong>{user?.name || 'Univo student'}</strong><small>{user?.email || 'Personal account'}</small></div>
+          <button type="button" onClick={onLogout} className="dashboard-sidebar-logout" aria-label="Sign out"><Icons.LogOut size={14} /></button>
         </div>
       </div>
 
-      {!collapsed && (
-        <div className="p-4 mx-3 mb-4 rounded-xl bg-white/4 border border-white/6">
+      <div className={`dashboard-sidebar-tip p-4 mx-3 mb-4 rounded-xl bg-white/4 border border-white/6 ${collapsed ? 'is-collapsed' : ''}`}>
           <p className="text-[10px] uppercase tracking-wider text-white/35 mb-1">Pro tip</p>
           <p className="text-xs text-white/50 leading-relaxed">Press <kbd className="px-1 py-0.5 rounded bg-white/10 font-mono text-[10px]">⌘K</kbd> to jump anywhere instantly.</p>
-        </div>
-      )}
+      </div>
     </aside>
   )
 }
