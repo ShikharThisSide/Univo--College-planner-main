@@ -10,6 +10,7 @@ import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
 import DashboardDock from '../ui/DashboardDock'
 import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
+import WelcomeOnboarding from '../ui/WelcomeOnboarding'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
@@ -22,6 +23,7 @@ export default function DashboardLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('univoSidebarCollapsed') === 'true')
   const [compactCards, setCompactCards] = useState(() => localStorage.getItem('univoCompactCards') === 'true')
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('univoNotifications') !== 'false')
+  const [welcomeOpen, setWelcomeOpen] = useState(() => localStorage.getItem('univoPendingOnboarding') === 'true')
   const { mode, setMode } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
 
@@ -101,6 +103,7 @@ export default function DashboardLayout() {
 
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onThemeOpen={() => setThemeOpen(true)} />
       <DashboardDock items={navItems} onSearch={() => setCmdOpen(true)} onSettings={openSettings} />
+      {welcomeOpen && <WelcomeOnboarding onComplete={() => setWelcomeOpen(false)} />}
       {settingsOpen && <div className="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false) }}>
         <div className="settingsModal">
           <div className="settingsHeader"><div><p className="settingsEyebrow">PERSONAL WORKSPACE</p><h2 id="settings-title">Settings</h2><p>Shape your Univo workspace around the way you work.</p></div><button type="button" className="settingsClose" onClick={() => setSettingsOpen(false)} aria-label="Close settings"><X size={18} /></button></div>

@@ -90,6 +90,9 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     const googleEmail = searchParams.get('google_email')
     if (!googleEmail) return
     const path = searchParams.get('path') || signupPath
+    const normalizedGoogleEmail = googleEmail.trim().toLowerCase()
+    const existingAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
+    if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem('univoPendingOnboarding', 'true')
     const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path, roleOverride: universityRole || undefined })
     navigate(dashboardPath, { replace: true })
   }, [login, navigate, searchParams, signupPath])
@@ -136,6 +139,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       }
       accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+      localStorage.setItem('univoPendingOnboarding', 'true')
       setNotice('Account created successfully. Signing you in…')
     } else if (mode === 'reset') {
       if (!accounts[normalizedEmail]) return setError('No account found for this email')
