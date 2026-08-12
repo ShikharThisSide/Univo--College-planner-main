@@ -729,6 +729,11 @@ body.univo-app {
 }
 
 /* Login surfaces keep the ambient colour visible behind the glass card. */
+.settingsPaletteLabel { margin: 18px 0 9px; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.settingsPaletteGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.settingsPalette { display: flex; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--border-subtle); border-radius: 11px; color: var(--text-muted); background: var(--surface-control); text-align: left; cursor: pointer; }
+.settingsPalette:hover, .settingsPalette.active { border-color: var(--accent-solid); color: var(--text-primary); background: var(--accent-muted); }
+.settingsPalette span { width: 19px; height: 19px; flex: 0 0 auto; border-radius: 50%; }.settingsPalette b { font-size: 11px; }
 .login-page {
   --accent-from: #c4f04d;
   --accent-to: #96c93d;
