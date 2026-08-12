@@ -190,14 +190,18 @@ body.univo-app {
 .dashboard-sidebar-auto { width: 72px; overflow: hidden; box-shadow: 8px 0 28px rgb(20 45 55 / .04); }
 .dashboard-sidebar-auto-expanded { width: 240px; box-shadow: 14px 0 42px rgb(20 45 55 / .12); }
 .dashboard-sidebar-auto .dashboard-sidebar-workspace,
+.dashboard-sidebar-auto .dashboard-sidebar-label,
 .dashboard-sidebar-auto .dashboard-sidebar-bottom > * span:not(.dashboard-sidebar-avatar),
 .dashboard-sidebar-auto .dashboard-sidebar-account > div,
 .dashboard-sidebar-auto .dashboard-sidebar-account > button { opacity: 0; transform: translateX(-8px); transition: opacity .16s ease, transform .25s ease; pointer-events: none; }
 .dashboard-sidebar-auto-expanded .dashboard-sidebar-workspace,
+.dashboard-sidebar-auto-expanded .dashboard-sidebar-label,
 .dashboard-sidebar-auto-expanded .dashboard-sidebar-bottom > * span:not(.dashboard-sidebar-avatar),
 .dashboard-sidebar-auto-expanded .dashboard-sidebar-account > div,
 .dashboard-sidebar-auto-expanded .dashboard-sidebar-account > button { opacity: 1; transform: translateX(0); transition-delay: .12s; pointer-events: auto; }
 .dashboard-sidebar-auto nav a { transition: color .2s ease, background-color .2s ease, padding .38s cubic-bezier(.22, 1, .36, 1); }
+.dashboard-sidebar-auto .dashboard-sidebar-label { display: block; width: 0; overflow: hidden; white-space: nowrap; }
+.dashboard-sidebar-auto-expanded .dashboard-sidebar-label { width: auto; }
 .dashboard-sidebar-bottom { display: grid; gap: 10px; padding: 12px; border-top: 1px solid var(--border-subtle); }
 .dashboard-sidebar-action { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; color: var(--text-muted); background: transparent; font-size: 13px; cursor: pointer; }
 .dashboard-sidebar-action:hover { color: var(--text-primary); background: var(--surface-hover); }

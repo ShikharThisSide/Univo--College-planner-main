@@ -63,7 +63,7 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
             title={collapsed ? item.label : undefined}
           >
             <NavIcon name={item.icon} />
-            {!collapsed && <span>{item.label}</span>}
+            <span className="dashboard-sidebar-label">{item.label}</span>
           </NavLink>
         ))}
       </nav>
