@@ -26,7 +26,7 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
   }, [activeIndex, location.pathname, collapsed])
 
   return (
-    <aside onMouseEnter={() => autoHide && onHoverChange?.(true)} onMouseLeave={() => autoHide && onHoverChange?.(false)} className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${autoHide ? `dashboard-sidebar-auto ${collapsed ? '' : 'dashboard-sidebar-auto-expanded'}` : collapsed ? 'w-[72px]' : 'w-[240px]'}`}>
+    <aside onMouseEnter={() => autoHide && onHoverChange?.(true)} onMouseLeave={() => autoHide && onHoverChange?.(false)} className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}>
       <div className={`p-5 ${collapsed ? 'px-4' : ''}`}>
         <Logo to="/" showText={!collapsed} size={collapsed ? 28 : 32} />
         {!collapsed && <p className="dashboard-sidebar-workspace">PERSONAL CAMPUS WORKSPACE</p>}
@@ -62,8 +62,8 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
             }
             title={collapsed ? item.label : undefined}
           >
-            <NavIcon name={item.icon} />
-            <span className="dashboard-sidebar-label">{item.label}</span>
+            <NavIcon name={item.icon} size={collapsed ? 22 : 18} />
+            {!collapsed && <span>{item.label}</span>}
           </NavLink>
         ))}
       </nav>
