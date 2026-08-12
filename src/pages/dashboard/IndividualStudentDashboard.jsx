@@ -9,6 +9,7 @@ import AnimatedProgress from '../../components/ui/AnimatedProgress'
 import { SkeletonDashboard } from '../../components/ui/Skeleton'
 import { individualStudentData } from '../../lib/mockData'
 import { useAuth } from '../../context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 const DASHBOARD_LAYOUT_VERSION = 'bunk-after-details-v1'
 const DEFAULT_WIDGET_ORDER = ['schedule', 'details', 'bunk']
@@ -36,6 +37,7 @@ export default function IndividualStudentDashboard() {
   })
   const [draggingWidget, setDraggingWidget] = useState(null)
   const { user } = useAuth()
+  const navigate = useNavigate()
   // Sample content is reserved for explicit demo accounts. Real accounts start empty.
   const isDemoAccount = user?.id?.startsWith('demo-')
   const data = {
@@ -196,7 +198,7 @@ export default function IndividualStudentDashboard() {
         <GlassCard delay={0.25}>
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-display font-semibold">Assignments</h2>
-            <button type="button" className="cursor-pointer text-xs text-[var(--accent-solid)] flex items-center gap-1 hover:opacity-80">
+            <button type="button" onClick={() => navigate('/dashboard/me/assignments')} className="cursor-pointer text-xs text-[var(--accent-solid)] flex items-center gap-1 hover:opacity-80">
               View all <ArrowRight size={12} />
             </button>
           </div>
