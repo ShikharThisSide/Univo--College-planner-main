@@ -22,8 +22,7 @@ function buildAttendancePage({ title, subtitle, rows, pageNumber, pageCount, tot
   rect(commands, 0, 692, 612, 100, '#123a43')
   rect(commands, 0, 692, 612, 7, '#c4f04d')
   text(commands, 'UNIVO', '42', '753', 12, '#c4f04d', 'F2')
-  text(commands, 'Attendance report', '42', '720', 24, '#ffffff', 'F2')
-  text(commands, title, '42', '700', 10, '#d4e5e4')
+  text(commands, title || 'Attendance report', '42', '720', 24, '#ffffff', 'F2')
   text(commands, subtitle, '42', '674', 10, '#46636a')
   text(commands, `PAGE ${pageNumber} OF ${pageCount}`, '503', '753', 8, '#d4e5e4', 'F2')
 

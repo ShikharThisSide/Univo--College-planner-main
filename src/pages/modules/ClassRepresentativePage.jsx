@@ -138,8 +138,8 @@ export default function ClassRepresentativePage() {
     const fileName = `${subject.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'class'}-attendance-${pdfDate}`
     downloadPdf({
       filename: fileName,
-      title: 'Class Representative Attendance Register',
-      subtitle: `${subject} | ${formatDate(pdfDate)} | Present: ${presentCount} | Absent: ${absentCount}`,
+      title: subject,
+      subtitle: `${formatDate(pdfDate)} | Present: ${presentCount} | Absent: ${absentCount}`,
       attendance: { total: students.length, present: presentCount, absent: absentCount, rows: students.map((student, index) => ({ ...student, index: index + 1 })) },
     })
     setShowPdfDialog(false)
