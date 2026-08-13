@@ -355,14 +355,14 @@ export default function GroupsPage() {
 
         <div className="relative w-full sm:w-72">
           <div className="relative flex items-center w-full">
-            <Search size={15} className="absolute left-3.5 text-[var(--accent-solid)] pointer-events-none shrink-0" />
             <input
               type="text"
               placeholder="Search groups..."
               value={groupSearch}
               onChange={(e) => setGroupSearch(e.target.value)}
-              className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-medium"
+              className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-4 pr-10 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-medium"
             />
+            <Search size={15} className="absolute right-3.5 text-[var(--accent-solid)] pointer-events-none shrink-0" />
           </div>
         </div>
       </div>
