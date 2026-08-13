@@ -313,25 +313,29 @@ export default function GroupsPage() {
       )}
 
       {/* DOPE HERO BANNER */}
-      <GlassCard className="mb-6 !p-0 overflow-hidden relative" delay={0.1}>
+      <GlassCard className="mb-6 !p-0 overflow-hidden relative border border-[var(--border-subtle)]" delay={0.1}>
+        <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
         <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-4 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-xs font-bold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-xs font-extrabold uppercase tracking-wider">
               <Sparkles size={14} /> LEADER-APPROVED CAMPUS SQUADS
             </div>
 
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
-              Build your campus circle.
+            <h2 className="font-display text-3xl md:text-5xl font-extrabold text-[var(--text-primary)] leading-tight">
+              Build your <span className="univo-gradient-text text-[var(--accent-solid)]">campus circle.</span>
             </h2>
 
-            <p className="text-sm text-[var(--text-muted)] leading-relaxed">
+            <p className="text-sm text-[var(--text-muted)] leading-relaxed font-medium">
               Join real campus groups, send join requests to group leaders, share course PDFs, and chat with team members in real-time.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-semibold text-[var(--text-secondary)]">
-              <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-[var(--accent-solid)]" /> Leader Verification Required</span>
+            <div className="flex flex-wrap items-center gap-4 pt-1 text-xs font-bold text-[var(--text-secondary)]">
+              <span className="flex items-center gap-1.5"><ShieldCheck size={15} className="text-[var(--accent-solid)]" /> Leader Verification Required</span>
               <span>&middot;</span>
-              <span className="flex items-center gap-1.5"><FileText size={14} className="text-emerald-400" /> PDF Document Vault</span>
+              <span className="flex items-center gap-1.5"><FileText size={15} className="text-emerald-400" /> PDF Document Vault</span>
+              <span>&middot;</span>
+              <span className="flex items-center gap-1.5"><MessageCircle size={15} className="text-[var(--accent-solid)]" /> Group Chat</span>
             </div>
           </div>
 
@@ -355,9 +359,9 @@ export default function GroupsPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
+                className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap border ${
                   isActive
-                    ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] shadow-sm scale-105'
+                    ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] shadow-md scale-105'
                     : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
                 }`}
               >
@@ -386,23 +390,37 @@ export default function GroupsPage() {
         <AnimatePresence mode="popLayout">
           {filteredGroups.length === 0 ? (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="col-span-full p-10 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl glass-card space-y-3 bg-[var(--surface-control)]"
+              className="col-span-full p-12 text-center border border-dashed border-[var(--accent-solid)]/30 rounded-3xl glass-card space-y-4 bg-[var(--surface-control)] shadow-xl relative overflow-hidden"
             >
-              <Users size={36} className="mx-auto text-[var(--accent-solid)]" />
-              <p className="text-base font-bold text-[var(--text-primary)]">No campus groups yet</p>
-              <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
-                {groupSearch ? 'No groups matched your search term.' : 'Click "+ Create Real Group" to start the first squad on campus.'}
-              </p>
-              <button
-                type="button"
-                onClick={() => setOpenCreate(true)}
-                className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer mt-2 shadow-md"
-              >
-                <Plus size={16} /> Create Real Group
-              </button>
+              <div className="absolute top-0 left-0 right-0 h-1 univo-gradient-bg" />
+
+              <div className="w-16 h-16 rounded-2xl univo-gradient-bg grid place-items-center text-black mx-auto shadow-lg">
+                <Users size={32} />
+              </div>
+
+              <div className="space-y-1.5 max-w-md mx-auto">
+                <h3 className="text-xl font-extrabold font-display text-[var(--text-primary)]">
+                  {groupSearch ? 'No matching campus groups found' : 'No campus groups created yet'}
+                </h3>
+                <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                  {groupSearch
+                    ? `We couldn't find any squad matching "${groupSearch}". Try another search term or create a new group.`
+                    : 'Be the first to launch a real campus squad! Create a group for lab prep, project builds, or exam study rooms.'}
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setOpenCreate(true)}
+                  className="px-6 py-3 rounded-2xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
+                >
+                  <Plus size={16} /> Create Real Group & Become Leader
+                </button>
+              </div>
             </motion.div>
           ) : (
             filteredGroups.map((group) => {

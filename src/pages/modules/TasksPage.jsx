@@ -466,7 +466,7 @@ export default function TasksPage() {
             <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">TASK LOG</p>
             <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Add Task</h2>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold text-[var(--text-secondary)] mb-1">Task Title</label>
                 <input
@@ -476,8 +476,32 @@ export default function TasksPage() {
                   placeholder="e.g. Finish Data Structures Lab 3, Buy notebooks, Submit OS Assignment..."
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
                 />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block font-semibold text-[var(--text-secondary)]">Priority Level</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'high', label: '🔴 High', color: 'bg-red-500/20 border-red-500/50 text-red-400' },
+                    { id: 'medium', label: '🟡 Medium', color: 'bg-amber-500/20 border-amber-500/50 text-amber-400' },
+                    { id: 'low', label: '🟢 Low', color: 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' }
+                  ].map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, priority: p.id })}
+                      className={`py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                        form.priority === p.id
+                          ? `${p.color} ring-2 ring-[var(--accent-solid)]/30 scale-105 shadow-sm`
+                          : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
