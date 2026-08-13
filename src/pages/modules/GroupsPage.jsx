@@ -39,50 +39,6 @@ import {
 } from '../../lib/social'
 import UnivoGlobe from '../../components/ui/UnivoGlobe'
 
-// Initial Seed Real Campus Groups (Used if global registry is empty)
-const INITIAL_REAL_GROUPS = [
-  {
-    id: 'real-ds-squad',
-    name: 'CS301 Data Structures & Algorithms Squad',
-    description: 'Official campus study group for CS301 lab prep, LeetCode algorithms, and exam revision.',
-    category: 'Study Group',
-    iconTag: '📚',
-    creatorEmail: 'prof.kumar@xyzuniversity.edu',
-    members: ['Dr. Raj Kumar', 'Priya Mehta', 'Aarav Sharma'],
-    createdAt: Date.now() - 86400000 * 5
-  },
-  {
-    id: 'real-hackathon-team',
-    name: 'Univo Hackathon 2026 Build Team',
-    description: 'Building AI web apps, prototypes, and competing in inter-college innovation hackathons.',
-    category: 'Project Team',
-    iconTag: '🚀',
-    creatorEmail: 'priya@xyzuniversity.edu',
-    members: ['Priya Mehta', 'Aarav Sharma'],
-    createdAt: Date.now() - 86400000 * 3
-  },
-  {
-    id: 'real-exam-prep',
-    name: 'Mid-Term Exam Crunch Room',
-    description: 'Late night problem solving, formula cheat sheet revision, and past year question discussion.',
-    category: 'Exam Prep',
-    iconTag: '🎯',
-    creatorEmail: 'aarav@personal.com',
-    members: ['Aarav Sharma', 'Priya Mehta'],
-    createdAt: Date.now() - 86400000 * 2
-  },
-  {
-    id: 'real-dev-guild',
-    name: 'Univo Open Source & Web Guild',
-    description: 'Open source contributions, React workshops, Git collaboration, and student networking.',
-    category: 'Campus Club',
-    iconTag: '🎉',
-    creatorEmail: 'admin@xyzuniversity.edu',
-    members: ['Neha Kapoor', 'Aarav Sharma'],
-    createdAt: Date.now() - 86400000 * 7
-  }
-]
-
 function readPeople(currentUser) {
   let accounts = {}
   try { accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}') || {} } catch { accounts = {} }
@@ -107,7 +63,7 @@ export default function GroupsPage() {
   const [userGroups, setUserGroups] = useState([])
   const [pendingJoinRequests, setPendingJoinRequests] = useState([])
 
-  const [activeTab, setActiveTab] = useState('all') // 'all', 'my_groups', 'discover', 'leader_requests'
+  const [activeTab, setActiveTab] = useState('all') // 'all', 'my_groups', 'discover'
   const [groupSearch, setGroupSearch] = useState('')
 
   // Modals
@@ -129,13 +85,9 @@ export default function GroupsPage() {
 
   const people = useMemo(() => readPeople(user), [user])
 
-  // Load & Seed Real Groups
+  // Load Real Groups Only
   const loadGroups = () => {
-    let globals = readGlobalGroups()
-    if (!globals || globals.length === 0) {
-      INITIAL_REAL_GROUPS.forEach((g) => saveGlobalGroup(g))
-      globals = readGlobalGroups()
-    }
+    const globals = readGlobalGroups()
     setGlobalGroups(globals)
     setUserGroups(readSocial(key, []))
 
@@ -418,7 +370,7 @@ export default function GroupsPage() {
               className="col-span-full p-10 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl glass-card space-y-3 bg-[var(--surface-control)]"
             >
               <Users size={36} className="mx-auto text-[var(--accent-solid)]" />
-              <p className="text-base font-bold text-[var(--text-primary)]">No groups found</p>
+              <p className="text-base font-bold text-[var(--text-primary)]">No campus groups yet</p>
               <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
                 {groupSearch ? 'No groups matched your search term.' : 'Click "+ Create Real Group" to start the first squad on campus.'}
               </p>
@@ -456,14 +408,14 @@ export default function GroupsPage() {
                           {group.iconTag || '👥'}
                         </div>
                         <div>
-                          <h3 className="font-display font-bold text-base text-[var(--text-primary)] leading-snug">
-                            {group.name}
+                          <h3 className="font-display font-extrabold text-base leading-snug">
+                            <span className="univo-gradient-text text-[var(--accent-solid)]">{group.name}</span>
                           </h3>
                           <span className="text-xs text-[var(--text-secondary)] font-medium flex items-center gap-1 mt-0.5">
                             {isLeader ? (
                               <span className="text-[var(--accent-solid)] font-bold flex items-center gap-1"><Crown size={13} /> Group Leader (You)</span>
                             ) : (
-                              <span>Leader: {group.creatorEmail?.split('@')[0]}</span>
+                              <span className="text-[var(--text-secondary)] font-semibold">Leader: {group.creatorEmail?.split('@')[0]}</span>
                             )}
                           </span>
                         </div>
