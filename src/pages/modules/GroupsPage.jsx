@@ -86,11 +86,25 @@ export default function GroupsPage() {
 
   const people = useMemo(() => readPeople(user), [user])
 
-  // Load Real Groups Only
+  // Load Real Groups Only (Purges any legacy demo groups from localStorage)
   const loadGroups = () => {
     const globals = readGlobalGroups()
-    setGlobalGroups(globals)
-    setUserGroups(readSocial(key, []))
+    const demoIds = new Set(['real-ds-squad', 'real-hackathon-team', 'real-exam-prep', 'real-dev-guild'])
+    const realOnly = globals.filter(
+      (g) =>
+        !demoIds.has(g.id) &&
+        g.creatorEmail !== 'prof.kumar@xyzuniversity.edu' &&
+        g.creatorEmail !== 'priya@xyzuniversity.edu' &&
+        g.creatorEmail !== 'aarav@personal.com' &&
+        g.creatorEmail !== 'admin@xyzuniversity.edu'
+    )
+
+    if (realOnly.length !== globals.length) {
+      writeSocial('all_groups', realOnly)
+    }
+
+    setGlobalGroups(realOnly)
+    setUserGroups(readSocial(key, []).filter((g) => !demoIds.has(g.id)))
 
     // Read join requests sent to current user as group leader
     const reqs = readSocial(`joinRequests:${myEmail}`, [])
