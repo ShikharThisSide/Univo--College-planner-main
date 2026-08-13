@@ -133,7 +133,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-8 py-6">
+        <main className="flex-1 px-8 pt-6 pb-32">
           <Outlet />
         </main>
       </div>

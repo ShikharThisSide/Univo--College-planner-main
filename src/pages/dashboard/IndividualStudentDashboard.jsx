@@ -22,7 +22,11 @@ import {
   Trash2,
   Calendar,
   AlertCircle,
-  Check
+  Check,
+  Target,
+  Percent,
+  PenTool,
+  Bookmark
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -69,6 +73,9 @@ export default function IndividualStudentDashboard() {
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [taskOpen, setTaskOpen] = useState(false)
   const [focusModalOpen, setFocusModalOpen] = useState(false)
+  const [quickNoteOpen, setQuickNoteOpen] = useState(false)
+  const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
+  const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [showCompletedTasks, setShowCompletedTasks] = useState(false)
 
   // Schedules state
@@ -95,7 +102,7 @@ export default function IndividualStudentDashboard() {
   })
   const [taskForm, setTaskForm] = useState({ title: '', subject: '', due: 'Tomorrow', priority: 'medium' })
 
-  // Attendance simulation state
+  // Attendance state
   const [attendanceData, setAttendanceData] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(`univoAttendance:${storageKey}`) || 'null')
@@ -112,6 +119,15 @@ export default function IndividualStudentDashboard() {
       ]
     }
   })
+  const [newSubjectForm, setNewSubjectForm] = useState({ subject: '', attended: 15, total: 18 })
+
+  // Target Goal / Exam state
+  const [targetGoal, setTargetGoal] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(`univoTargetGoal:${storageKey}`) || 'null')
+    } catch { return null }
+  })
+  const [goalForm, setGoalForm] = useState({ title: '', date: '' })
 
   // Focus Timer State
   const [timerSeconds, setTimerSeconds] = useState(25 * 60)
@@ -144,6 +160,13 @@ export default function IndividualStudentDashboard() {
     return () => clearInterval(interval)
   }, [timerActive, timerSeconds, completedSessions, storageKey])
 
+  // Target Days Left Calculation
+  const daysLeft = useMemo(() => {
+    if (!targetGoal || !targetGoal.date) return null
+    const diff = new Date(targetGoal.date).getTime() - new Date().setHours(0,0,0,0)
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
+  }, [targetGoal])
+
   // Combined Data source (Demo or User created)
   const isDemoActive = useDemoData || user?.id?.startsWith('demo-')
   const displaySchedule = useMemo(() => {
@@ -158,29 +181,10 @@ export default function IndividualStudentDashboard() {
     return []
   }, [userTasks, isDemoActive])
 
-  // Filter tasks to display: by default only incomplete tasks stay in view until ticked
+  // Filter tasks to display
   const activePendingTasks = useMemo(() => allTasks.filter((t) => t.status !== 'completed'), [allTasks])
   const completedTasks = useMemo(() => allTasks.filter((t) => t.status === 'completed'), [allTasks])
   const displayTasks = showCompletedTasks ? allTasks : activePendingTasks
-
-  // Calculate Bunk Budget
-  const bunkStats = useMemo(() => {
-    if (!attendanceData.length) return { bunkable: 0, overall: 0 }
-    let totalAttended = 0
-    let totalClasses = 0
-    let totalBunkable = 0
-
-    attendanceData.forEach((item) => {
-      totalAttended += item.attended
-      totalClasses += item.total
-      const maxTotal = Math.floor(item.attended / 0.75)
-      const bunkable = Math.max(0, maxTotal - item.total)
-      totalBunkable += bunkable
-    })
-
-    const overall = totalClasses > 0 ? Math.round((totalAttended / totalClasses) * 100) : 0
-    return { bunkable: totalBunkable, overall }
-  }, [attendanceData])
 
   // Save Schedule Handler
   const saveSchedule = (e) => {
@@ -226,21 +230,22 @@ export default function IndividualStudentDashboard() {
     setTaskOpen(false)
   }
 
-  // Toggle Task Completion (Ticking a task causes it to fade out and leave remaining tasks)
+  // Toggle Task Completion
   const toggleTaskDone = (id) => {
     const next = userTasks.map((t) => t.id === id ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed' } : t)
     setUserTasks(next)
     localStorage.setItem(`univoAssignments:${storageKey}`, JSON.stringify(next))
   }
 
-  // Add Scratchpad Note
-  const addNote = (e) => {
+  // Save Quick Note
+  const saveQuickNoteModal = (e) => {
     e.preventDefault()
     if (!newNoteInput.trim()) return
     const next = [{ id: `${Date.now()}`, text: newNoteInput.trim(), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }, ...notesList]
     setNotesList(next)
     localStorage.setItem(`univoDashboardNotes:${storageKey}`, JSON.stringify(next))
     setNewNoteInput('')
+    setQuickNoteOpen(false)
   }
 
   const deleteNote = (id) => {
@@ -249,7 +254,38 @@ export default function IndividualStudentDashboard() {
     localStorage.setItem(`univoDashboardNotes:${storageKey}`, JSON.stringify(next))
   }
 
-  // Simulate Attendance Change (+1 attended or +1 skip)
+  // Add New Attendance Subject
+  const saveNewSubject = (e) => {
+    e.preventDefault()
+    if (!newSubjectForm.subject.trim()) return
+    const newEntry = {
+      subject: newSubjectForm.subject.trim(),
+      attended: Number(newSubjectForm.attended) || 0,
+      total: Math.max(Number(newSubjectForm.attended) || 0, Number(newSubjectForm.total) || 1)
+    }
+    const next = [...attendanceData, newEntry]
+    setAttendanceData(next)
+    localStorage.setItem(`univoAttendance:${storageKey}`, JSON.stringify(next))
+    setNewSubjectForm({ subject: '', attended: 15, total: 18 })
+    setAttendanceModalOpen(false)
+  }
+
+  // Save Target Goal
+  const saveGoal = (e) => {
+    e.preventDefault()
+    if (!goalForm.title.trim() || !goalForm.date) return
+    const newGoal = { title: goalForm.title.trim(), date: goalForm.date }
+    setTargetGoal(newGoal)
+    localStorage.setItem(`univoTargetGoal:${storageKey}`, JSON.stringify(newGoal))
+    setGoalModalOpen(false)
+  }
+
+  const clearGoal = () => {
+    setTargetGoal(null)
+    localStorage.removeItem(`univoTargetGoal:${storageKey}`)
+  }
+
+  // Simulate Attendance Change
   const adjustAttendance = (idx, deltaAttended, deltaTotal) => {
     const next = [...attendanceData]
     const item = { ...next[idx] }
@@ -272,7 +308,7 @@ export default function IndividualStudentDashboard() {
   return (
     <PageTransition>
       {/* HERO BANNER & GREETING */}
-      <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-semibold text-white/50 uppercase tracking-widest flex items-center gap-1.5">
             <Sparkles size={14} className="text-[var(--accent-solid)]" /> {getTimeGreeting()}
@@ -287,6 +323,7 @@ export default function IndividualStudentDashboard() {
 
         {/* QUICK ACTION BAR */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-2">
+          {/* Option 1: Focus Mode */}
           <button
             type="button"
             onClick={() => setFocusModalOpen(true)}
@@ -295,6 +332,7 @@ export default function IndividualStudentDashboard() {
             <Zap size={15} className="text-amber-400" /> Focus Mode ({completedSessions} done)
           </button>
           
+          {/* Option 2: Add Schedule */}
           <button
             type="button"
             onClick={() => setScheduleOpen(true)}
@@ -303,34 +341,50 @@ export default function IndividualStudentDashboard() {
             <Plus size={15} /> Add Schedule
           </button>
 
+          {/* Option 3: Add Task */}
           <button
             type="button"
             onClick={() => setTaskOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <Plus size={15} /> Add Task
           </button>
 
+          {/* Option 4: Quick Note */}
           <button
             type="button"
-            onClick={() => {
-              const next = !useDemoData
-              setUseDemoData(next)
-              localStorage.setItem(`univoUseDemoData:${storageKey}`, `${next}`)
-            }}
-            className={`px-3 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all ${
-              useDemoData ? 'bg-[var(--accent-solid)]/20 border-[var(--accent-solid)] text-[var(--accent-solid)]' : 'bg-white/5 border-white/10 text-white/60 hover:text-white'
-            }`}
-            title="Toggle sample preview data"
+            onClick={() => setQuickNoteOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
-            <Sparkles size={13} /> {useDemoData ? 'Demo Mode ON' : 'Preview Data'}
+            <PenTool size={14} className="text-emerald-400" /> Quick Note
           </button>
+
+          {/* Option 5: Track Subject */}
+          <button
+            type="button"
+            onClick={() => setAttendanceModalOpen(true)}
+            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+          >
+            <Percent size={14} className="text-cyan-400" /> Track Subject
+          </button>
+
+          {/* Option 6: Target Goal / Exam Countdown */}
+          <button
+            type="button"
+            onClick={() => setGoalModalOpen(true)}
+            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 ${
+              targetGoal ? 'bg-purple-500/20 border-purple-500/40 text-purple-300' : 'bg-white/5 border-white/10 text-white/80'
+            }`}
+          >
+            <Target size={14} className={targetGoal ? 'text-purple-400' : 'text-purple-300'} />
+            {targetGoal ? `${targetGoal.title} (${daysLeft < 0 ? 'Passed' : daysLeft === 0 ? 'Today!' : `${daysLeft}d left`})` : 'Target Goal'}
+          </button>
+
         </motion.div>
       </div>
 
-
       {/* MAIN WIDGET GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         
         {/* TODAY'S SCHEDULE TIMELINE */}
         <GlassCard className="lg:col-span-2" delay={0.15}>
@@ -399,7 +453,12 @@ export default function IndividualStudentDashboard() {
         {/* ATTENDANCE TRACKER & SIMULATOR */}
         <GlassCard delay={0.2}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-semibold text-lg">Attendance Tracker</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="font-display font-semibold text-lg">Attendance Tracker</h2>
+              <button type="button" onClick={() => setAttendanceModalOpen(true)} className="text-xs text-[var(--accent-solid)] hover:underline cursor-pointer">
+                + Add
+              </button>
+            </div>
             <span className="text-[11px] text-[var(--accent-solid)] font-semibold font-mono">Target &ge; 75%</span>
           </div>
 
@@ -408,7 +467,7 @@ export default function IndividualStudentDashboard() {
               const pct = item.total > 0 ? Math.round((item.attended / item.total) * 100) : 0
               const isSafe = pct >= 75
               return (
-                <div key={item.subject} className="p-3 rounded-xl bg-white/5 border border-white/8 space-y-2">
+                <div key={item.subject + idx} className="p-3 rounded-xl bg-white/5 border border-white/8 space-y-2">
                   <div className="flex items-center justify-between text-xs font-semibold">
                     <span className="text-white truncate max-w-[140px]">{item.subject}</span>
                     <span className={`font-mono px-2 py-0.5 rounded-md ${isSafe ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
@@ -447,7 +506,7 @@ export default function IndividualStudentDashboard() {
       </div>
 
       {/* SECONDARY ROW: TASKS TO COMPLETE & QUICK SCRATCHPAD */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
 
         {/* TASKS TO COMPLETE WIDGET */}
         <GlassCard delay={0.25}>
@@ -546,11 +605,13 @@ export default function IndividualStudentDashboard() {
               <StickyNote size={18} className="text-amber-400" />
               <h2 className="font-display font-semibold text-lg">Dashboard Scratchpad</h2>
             </div>
-            <span className="text-[11px] text-white/40">Saved automatically</span>
+            <button type="button" onClick={() => setQuickNoteOpen(true)} className="text-[11px] text-[var(--accent-solid)] font-semibold hover:underline cursor-pointer">
+              + New Note
+            </button>
           </div>
 
           {/* ADD SCRATCHPAD NOTE FORM */}
-          <form onSubmit={addNote} className="flex items-center gap-2 mb-3">
+          <form onSubmit={saveQuickNoteModal} className="flex items-center gap-2 mb-3">
             <input
               type="text"
               placeholder="Drop a quick thought or reminder..."
@@ -691,6 +752,133 @@ export default function IndividualStudentDashboard() {
             <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
               <Plus size={15} /> Save Task
             </button>
+          </form>
+        </div>
+      )}
+
+      {/* QUICK NOTE MODAL */}
+      {quickNoteOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setQuickNoteOpen(false)}>
+          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveQuickNoteModal}>
+            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setQuickNoteOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+            <p className="settingsEyebrow">QUICK NOTE</p>
+            <h2 className="text-xl font-bold font-display">Add Scratchpad Note</h2>
+
+            <div className="space-y-3 text-xs">
+              <label className="block font-semibold text-white/70">Note / Thought</label>
+              <textarea
+                autoFocus
+                required
+                rows={4}
+                placeholder="Type your quick study note, reminder, or snippet..."
+                value={newNoteInput}
+                onChange={(e) => setNewNoteInput(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-solid)] resize-none"
+              />
+            </div>
+
+            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
+              <PenTool size={15} /> Save to Scratchpad
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ATTENDANCE SUBJECT MODAL */}
+      {attendanceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setAttendanceModalOpen(false)}>
+          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveNewSubject}>
+            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setAttendanceModalOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+            <p className="settingsEyebrow">ATTENDANCE TRACKER</p>
+            <h2 className="text-xl font-bold font-display">Track New Subject</h2>
+
+            <div className="space-y-3 text-xs">
+              <label className="block font-semibold text-white/70">Subject Name</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Artificial Intelligence, Web Dev..."
+                value={newSubjectForm.subject}
+                onChange={(e) => setNewSubjectForm({ ...newSubjectForm, subject: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-semibold text-white/70 mb-1">Attended Classes</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newSubjectForm.attended}
+                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, attended: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-white/70 mb-1">Total Classes</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newSubjectForm.total}
+                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, total: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
+              <Percent size={15} /> Add Subject Tracker
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* TARGET GOAL / EXAM COUNTDOWN MODAL */}
+      {goalModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setGoalModalOpen(false)}>
+          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveGoal}>
+            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setGoalModalOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+            <p className="settingsEyebrow">TARGET MILESTONE</p>
+            <h2 className="text-xl font-bold font-display">Target Goal / Exam Countdown</h2>
+
+            <div className="space-y-3 text-xs">
+              <label className="block font-semibold text-white/70">Goal / Exam Name</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. DBMS Midterm Exam, Major Project Presentation..."
+                value={goalForm.title}
+                onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+              />
+
+              <label className="block font-semibold text-white/70">Target Date</label>
+              <input
+                type="date"
+                required
+                value={goalForm.date}
+                onChange={(e) => setGoalForm({ ...goalForm, date: e.target.value })}
+                className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+              />
+            </div>
+
+            <div className="flex gap-2 mt-2">
+              <button type="submit" className="flex-1 univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <Target size={15} /> Set Target Goal
+              </button>
+              {targetGoal && (
+                <button type="button" onClick={clearGoal} className="px-3 py-2.5 rounded-xl bg-red-500/20 text-red-300 text-xs font-semibold cursor-pointer">
+                  Remove
+                </button>
+              )}
+            </div>
           </form>
         </div>
       )}
