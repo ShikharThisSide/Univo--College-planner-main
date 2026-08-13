@@ -23,6 +23,7 @@ export const ROLE_DASHBOARD_PATHS = {
 export const NAV_BY_ROLE = {
   [ROLES.STUDENT_INDIVIDUAL]: [
     { id: 'home', label: 'Home', path: '/dashboard/me', icon: 'Home' },
+    { id: 'attendance-tracker', label: 'Attendance Tracker', path: '/dashboard/me/attendance-tracker', icon: 'Percent' },
     { id: 'attendance', label: 'Class Representative', path: '/dashboard/me/attendance', icon: 'CalendarCheck' },
     { id: 'assignments', label: 'Tasks', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
     { id: 'expenses', label: 'Expense Tracker', path: '/dashboard/me/expenses', icon: 'Wallet' },
@@ -32,6 +33,7 @@ export const NAV_BY_ROLE = {
   ],
   [ROLES.STUDENT_INSTITUTIONAL]: [
     { id: 'home', label: 'Home', path: '/dashboard/student', icon: 'Home' },
+    { id: 'attendance-tracker', label: 'Attendance Tracker', path: '/dashboard/student/attendance-tracker', icon: 'Percent' },
     { id: 'assignments', label: 'Tasks', path: '/dashboard/student/assignments', icon: 'ClipboardList' },
     { id: 'expenses', label: 'Expense Tracker', path: '/dashboard/student/expenses', icon: 'Wallet' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/student/notes', icon: 'BookOpen' },

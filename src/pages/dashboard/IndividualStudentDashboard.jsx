@@ -266,9 +266,22 @@ export default function IndividualStudentDashboard() {
     const next = [...attendanceData, newEntry]
     setAttendanceData(next)
     localStorage.setItem(`univoAttendance:${storageKey}`, JSON.stringify(next))
+    window.dispatchEvent(new Event('univo-attendance-updated'))
     setNewSubjectForm({ subject: '', attended: 15, total: 18 })
     setAttendanceModalOpen(false)
   }
+
+  // Sync attendance with external updates
+  useEffect(() => {
+    const handleSync = () => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(`univoAttendance:${storageKey}`) || 'null')
+        if (saved && Array.isArray(saved)) setAttendanceData(saved)
+      } catch {}
+    }
+    window.addEventListener('univo-attendance-updated', handleSync)
+    return () => window.removeEventListener('univo-attendance-updated', handleSync)
+  }, [storageKey])
 
   // Save Target Goal
   const saveGoal = (e) => {
@@ -294,6 +307,7 @@ export default function IndividualStudentDashboard() {
     next[idx] = item
     setAttendanceData(next)
     localStorage.setItem(`univoAttendance:${storageKey}`, JSON.stringify(next))
+    window.dispatchEvent(new Event('univo-attendance-updated'))
   }
 
   // Format Timer
