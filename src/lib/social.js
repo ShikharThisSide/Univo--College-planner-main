@@ -9,8 +9,32 @@ export function writeSocial(key, value) {
 
 export function requestFriend(from, to) {
   const requests = readSocial(`requests:${to.email}`)
-  if (requests.some((item) => item.fromEmail === from.email && item.status === 'pending')) return
-  writeSocial(`requests:${to.email}`, [...requests, { id: `${from.email}-${Date.now()}`, fromEmail: from.email, fromName: from.name, fromAvatar: from.avatar, status: 'pending', createdAt: Date.now() }])
+  if (requests.some((item) => item.fromEmail === from.email && item.status === 'pending')) return null
+
+  const newRequest = { id: `${from.email}-${Date.now()}`, fromEmail: from.email, fromName: from.name || from.email.split('@')[0], fromAvatar: from.avatar, status: 'pending', createdAt: Date.now() }
+  writeSocial(`requests:${to.email}`, [...requests, newRequest])
+
+  // Professional Email Notification Record
+  const emailNotification = {
+    id: `email-${Date.now()}`,
+    toEmail: to.email,
+    toName: to.name || to.email.split('@')[0],
+    fromEmail: from.email,
+    fromName: from.name || from.email.split('@')[0],
+    subject: `👋 ${from.name || 'A classmate'} sent you a friend request on Univo!`,
+    sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    type: 'friend_request'
+  }
+
+  // Store in recipient inbox & sender outbound logs
+  const recipientEmails = readSocial(`inbox:${to.email}`)
+  writeSocial(`inbox:${to.email}`, [emailNotification, ...recipientEmails])
+
+  const senderEmails = readSocial(`outbound:${from.email}`)
+  writeSocial(`outbound:${from.email}`, [emailNotification, ...senderEmails])
+
+  window.dispatchEvent(new CustomEvent('univo-email-sent', { detail: emailNotification }))
+  return emailNotification
 }
 
 export function areFriends(a, b) {
