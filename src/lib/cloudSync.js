@@ -25,6 +25,12 @@ export function restoreUserDataToDevice(cloudData) {
       const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}') || {}
       accounts[email] = { ...(accounts[email] || {}), ...cloudData.account }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+
+      const currentStored = JSON.parse(localStorage.getItem('univoUser') || '{}') || {}
+      if (currentStored.email?.toLowerCase() === email) {
+        const updatedUser = { ...currentStored, ...cloudData.account }
+        localStorage.setItem('univoUser', JSON.stringify(updatedUser))
+      }
     } catch {}
   }
 
