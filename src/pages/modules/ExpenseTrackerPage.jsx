@@ -275,14 +275,14 @@ export default function ExpenseTrackerPage() {
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
-            <div className="relative flex-1 md:w-56">
-              <Search size={14} className="absolute left-3 top-2.5 text-[var(--text-subtle)]" />
+            <div className="relative flex-1 md:w-56 flex items-center">
+              <Search size={14} className="absolute left-3.5 pointer-events-none text-[var(--text-subtle)]" />
               <input
                 type="text"
                 placeholder="Search expense..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
               />
             </div>
 

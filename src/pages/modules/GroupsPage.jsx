@@ -278,7 +278,7 @@ export default function GroupsPage() {
               </div>
 
               <div className="relative">
-                <Search size={14} className="absolute left-3 top-3 text-white/40" />
+                <Search size={14} className="absolute left-3.5 top-2.5 pointer-events-none text-white/40" />
                 <input
                   type="text"
                   placeholder="Search people by name or email..."
