@@ -291,12 +291,12 @@ export default function AttendanceTrackerPage() {
                       </div>
 
                       {/* Smart Bunk Advisor Pill */}
-                      <div className={`p-2.5 rounded-xl border text-xs font-medium flex items-center gap-2 ${
+                      <div className={`p-2.5 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
                         advice.type === 'safe'
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
-                          : 'bg-amber-500/10 border-amber-500/20 text-amber-300'
+                          ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-300'
+                          : 'bg-red-500/15 border-red-500/35 text-red-400'
                       }`}>
-                        <Zap size={14} className="shrink-0" />
+                        <Zap size={14} className={`shrink-0 ${advice.type === 'safe' ? 'text-emerald-400' : 'text-red-400'}`} />
                         <span>{advice.message}</span>
                       </div>
                     </div>
