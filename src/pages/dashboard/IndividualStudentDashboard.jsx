@@ -328,44 +328,6 @@ export default function IndividualStudentDashboard() {
         </motion.div>
       </div>
 
-      {/* TOP METRICS & BUNK BUDGET BANNER */}
-      <GlassCard className="mb-6 !p-0 overflow-hidden" delay={0.1}>
-        <div className="flex flex-col lg:flex-row items-stretch">
-          <div className="flex-1 p-6 lg:p-8">
-            <div className="flex items-center gap-2 mb-2">
-              <Coffee size={18} className="text-[var(--accent-solid)]" />
-              <span className="text-xs uppercase tracking-wider text-white/50 font-semibold">Smart Bunk Budget</span>
-            </div>
-            <div className="flex items-baseline gap-3">
-              <span className="font-display text-5xl lg:text-6xl font-bold univo-gradient-text">
-                {bunkStats.bunkable}
-              </span>
-              <span className="text-sm font-semibold text-white/60">classes safe to bunk</span>
-            </div>
-            <p className="text-white/50 text-xs mt-2 max-w-md">
-              Calculated dynamically from your attendance entries to keep all subjects safely above 75% attendance.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 items-center gap-4 p-6 lg:p-8 border-t lg:border-t-0 lg:border-l border-white/10 bg-white/3">
-            <div className="text-center">
-              <Flame size={22} className="mx-auto text-orange-400 mb-1 animate-pulse" />
-              <p className="font-display text-2xl font-bold">5</p>
-              <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Day Streak</p>
-            </div>
-            <div className="text-center">
-              <Zap size={22} className="mx-auto text-[var(--accent-solid)] mb-1" />
-              <p className="font-display text-2xl font-bold">{bunkStats.overall}%</p>
-              <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold font-mono">Overall %</p>
-            </div>
-            <div className="text-center">
-              <CheckCircle2 size={22} className="mx-auto text-emerald-400 mb-1" />
-              <p className="font-display text-2xl font-bold">{completedSessions}</p>
-              <p className="text-[10px] text-white/40 uppercase tracking-wider font-semibold">Focus XP</p>
-            </div>
-          </div>
-        </div>
-      </GlassCard>
 
       {/* MAIN WIDGET GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
