@@ -268,7 +268,7 @@ export default function TasksPage() {
                   onClick={() => setSelectedPriority(p)}
                   className={`px-2.5 py-1 rounded-lg font-semibold uppercase text-[10px] tracking-wider transition-all cursor-pointer ${
                     selectedPriority === p
-                      ? 'univo-gradient-bg text-black'
+                      ? 'bg-[var(--accent-muted)] border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] font-extrabold'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                   }`}
                 >

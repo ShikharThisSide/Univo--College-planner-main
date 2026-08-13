@@ -207,17 +207,17 @@ export default function TimetablePage() {
               onClick={() => setSelectedDay(day)}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 border ${
                 isSelected
-                  ? 'univo-gradient-bg text-black border-transparent shadow-lg scale-105'
+                  ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] font-extrabold shadow-sm scale-105'
                   : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
               }`}
             >
               <span>{day}</span>
               {isToday && (
-                <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase ${isSelected ? 'bg-black/20 text-black' : 'bg-[var(--accent-solid)]/20 text-[var(--accent-solid)]'}`}>
+                <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold uppercase bg-[var(--accent-solid)]/20 text-[var(--accent-solid)]">
                   Today
                 </span>
               )}
-              <span className={`font-mono text-[10px] ${isSelected ? 'text-black/70' : 'text-[var(--text-subtle)]'}`}>
+              <span className={`font-mono text-[10px] ${isSelected ? 'text-[var(--accent-solid)] font-bold' : 'text-[var(--text-subtle)]'}`}>
                 ({count})
               </span>
             </button>
