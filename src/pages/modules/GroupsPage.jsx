@@ -439,20 +439,26 @@ export default function GroupsPage() {
                     </p>
 
                     {/* MEMBERS STACK */}
-                    <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5">
-                        <div className="flex -space-x-2 overflow-hidden">
-                          {(group.members || []).slice(0, 4).map((mName, i) => (
-                            <span
-                              key={i}
-                              className="inline-block w-7 h-7 rounded-full univo-gradient-bg text-black font-extrabold text-[10px] grid place-items-center ring-2 ring-black"
-                              title={mName}
-                            >
-                              {mName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()}
-                            </span>
-                          ))}
+                    <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center -space-x-2 overflow-visible">
+                          {(group.members || []).slice(0, 4).map((mName, i) => {
+                            const initials = mName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()
+                            return (
+                              <div
+                                key={i}
+                                className="w-8 h-8 rounded-full univo-gradient-bg text-black font-extrabold text-xs flex items-center justify-center border-2 border-[var(--surface-modal)] shadow-md hover:scale-110 hover:z-20 transition-all cursor-pointer relative group/avatar shrink-0"
+                                title={mName}
+                              >
+                                {initials}
+                                <span className="absolute bottom-full mb-2 hidden group-hover/avatar:block px-2.5 py-1 bg-black/90 text-white text-[10px] rounded-lg font-bold whitespace-nowrap shadow-xl z-30 pointer-events-none border border-white/20">
+                                  {mName}
+                                </span>
+                              </div>
+                            )
+                          })}
                         </div>
-                        <span className="text-xs text-[var(--text-secondary)] font-bold font-mono pl-1">
+                        <span className="text-xs text-[var(--text-secondary)] font-bold">
                           {(group.members || []).length} active member{(group.members || []).length === 1 ? '' : 's'}
                         </span>
                       </div>
