@@ -25,22 +25,36 @@ export default function NotificationBell() {
   const storageKey = user?.email || 'guest'
   const [open, setOpen] = useState(false)
   const [requests, setRequests] = useState(() => readSocial(`requests:${storageKey}`))
-  const [groupRequests, setGroupRequests] = useState(() => readSocial(`groupRequests:${storageKey}`))
-  const [dismissed, setDismissed] = useState(() => readSocial(`dismissed-notifications:${storageKey}`))
-  const account = (() => { try { return JSON.parse(localStorage.getItem('univoAccounts') || '{}')[storageKey] } catch { return null } })()
+  const [inAppNotifs, setInAppNotifs] = useState(() => readSocial(`notifications:${storageKey}`))
 
   useEffect(() => {
     const refresh = () => {
       setRequests(readSocial(`requests:${storageKey}`))
       setGroupRequests(readSocial(`groupRequests:${storageKey}`))
+      setInAppNotifs(readSocial(`notifications:${storageKey}`))
     }
+    refresh()
     window.addEventListener('univo-social-updated', refresh)
-    return () => window.removeEventListener('univo-social-updated', refresh)
+    window.addEventListener('univo-live-message', refresh)
+    return () => {
+      window.removeEventListener('univo-social-updated', refresh)
+      window.removeEventListener('univo-live-message', refresh)
+    }
   }, [storageKey])
 
   const updateNotifications = useMemo(() => PRODUCT_UPDATES.filter((item) => !dismissed.includes(item.id)), [dismissed])
   const welcome = account?.createdAt && !dismissed.includes(`welcome-${storageKey}`) ? [{ id: `welcome-${storageKey}`, title: `Welcome ${account.name || user?.name || ''} to UNIVO`, body: 'Explore the features, connect with your people, and enjoy your time here.', createdAt: account.createdAt, kind: 'welcome' }] : []
   
+  const messageNotifs = inAppNotifs
+    .filter((item) => !dismissed.includes(item.id))
+    .map((item) => ({
+      id: item.id,
+      title: item.title,
+      body: item.body,
+      createdAt: item.createdAt,
+      kind: 'message'
+    }))
+
   const pendingRequests = requests.filter((item) => item.status === 'pending').map((item) => ({
     id: `request-${item.id}`,
     requestId: item.id,
@@ -60,7 +74,7 @@ export default function NotificationBell() {
     request: item
   }))
 
-  const items = [...pendingGroupRequests, ...pendingRequests, ...welcome, ...updateNotifications]
+  const items = [...messageNotifs, ...pendingGroupRequests, ...pendingRequests, ...welcome, ...updateNotifications]
   const unreadCount = items.length
 
   const dismiss = (id) => {

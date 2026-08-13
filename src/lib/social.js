@@ -361,15 +361,33 @@ export function readDMMessages(email1, email2) {
   ])
 }
 
+export function addInAppNotification(recipientEmail, { title, body, kind = 'message', senderName }) {
+  if (!recipientEmail) return
+  const current = readSocial(`notifications:${recipientEmail}`, [])
+  const newNotif = {
+    id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    title,
+    body,
+    kind,
+    senderName,
+    createdAt: Date.now(),
+    read: false
+  }
+  writeSocial(`notifications:${recipientEmail}`, [newNotif, ...current])
+  window.dispatchEvent(new CustomEvent('univo-social-updated'))
+  return newNotif
+}
+
 export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
   if (!fromUser?.email || !toUserEmail) return null
   const pairKey = getDMPairKey(fromUser.email, toUserEmail)
   const current = readSocial(`dmMsgs:${pairKey}`, [])
 
+  const senderName = fromUser.name || fromUser.email.split('@')[0]
   const newMessage = {
     id: `dm-${Date.now()}`,
     senderEmail: fromUser.email,
-    senderName: fromUser.name || fromUser.email.split('@')[0],
+    senderName,
     toUserEmail,
     text: text ? text.trim() : '',
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -380,6 +398,14 @@ export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
   writeSocial(`dmMsgs:${pairKey}`, next)
   window.dispatchEvent(new CustomEvent('univo-dm-sent', { detail: newMessage }))
 
+  // Save notification for recipient
+  addInAppNotification(toUserEmail, {
+    title: `💬 ${senderName} sent you a message`,
+    body: text ? `"${text.trim()}"` : 'Sent a file attachment',
+    kind: 'message',
+    senderName
+  })
+
   // Simulate realistic incoming live message from friend after 2.5s for real-time testing
   const toUserAccount = (() => {
     try { return JSON.parse(localStorage.getItem('univoAccounts') || '{}')[toUserEmail] } catch { return null }
@@ -387,18 +413,28 @@ export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
   const recipientName = toUserAccount?.name || toUserEmail.split('@')[0].replace(/[._]/g, ' ')
 
   setTimeout(() => {
+    const replyText = `Hey ${fromUser.name?.split(' ')[0] || ''}! Got your message on Univo. Let's collaborate! 🚀`
     const replyMessage = {
       id: `dm-reply-${Date.now()}`,
       senderEmail: toUserEmail,
       senderName: recipientName,
       toUserEmail: fromUser.email,
-      text: `Hey ${fromUser.name?.split(' ')[0] || ''}! Got your message on Univo. Let's collaborate! 🚀`,
+      text: replyText,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       attachment: null
     }
 
     const updated = readSocial(`dmMsgs:${pairKey}`, [])
     writeSocial(`dmMsgs:${pairKey}`, [...updated, replyMessage])
+
+    // Save notification in Notification Bell for current user
+    addInAppNotification(fromUser.email, {
+      title: `💬 ${recipientName} sent you a message`,
+      body: `"${replyText}"`,
+      kind: 'message',
+      senderName: recipientName
+    })
+
     window.dispatchEvent(new CustomEvent('univo-dm-sent', { detail: replyMessage }))
     window.dispatchEvent(new CustomEvent('univo-live-message', { detail: replyMessage }))
     window.dispatchEvent(new CustomEvent('univo-social-updated'))
