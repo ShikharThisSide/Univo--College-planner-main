@@ -9,12 +9,8 @@ import {
   MapPin,
   User,
   BookOpen,
-  CheckCircle2,
   Printer,
-  Sparkles,
-  ChevronLeft,
-  ChevronRight,
-  Zap
+  Sparkles
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -22,35 +18,13 @@ import { useAuth } from '../../context/AuthContext'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const DEFAULT_TIMETABLE = {
-  Monday: [
-    { id: 'tt-m1', subject: 'Data Structures & Algorithms', time: '09:00 AM - 10:30 AM', room: 'Hall 102', professor: 'Prof. A. Sharma', type: 'Lecture' },
-    { id: 'tt-m2', subject: 'Operating Systems', time: '11:00 AM - 12:30 PM', room: 'Room 204', professor: 'Dr. K. Verma', type: 'Lecture' },
-    { id: 'tt-m3', subject: 'Database Systems Lab', time: '02:00 PM - 04:00 PM', room: 'CS Lab 3', professor: 'Prof. S. Gupta', type: 'Lab' }
-  ],
-  Tuesday: [
-    { id: 'tt-t1', subject: 'Computer Networks', time: '09:30 AM - 11:00 AM', room: 'Hall 105', professor: 'Dr. R. Mehta', type: 'Lecture' },
-    { id: 'tt-t2', subject: 'Discrete Mathematics', time: '11:30 AM - 01:00 PM', room: 'Room 101', professor: 'Prof. N. Kapoor', type: 'Lecture' },
-    { id: 'tt-t3', subject: 'Web Engineering', time: '02:30 PM - 04:00 PM', room: 'IT Lab 1', professor: 'Dr. V. Joshi', type: 'Lab' }
-  ],
-  Wednesday: [
-    { id: 'tt-w1', subject: 'Operating Systems', time: '09:00 AM - 10:30 AM', room: 'Room 204', professor: 'Dr. K. Verma', type: 'Lecture' },
-    { id: 'tt-w2', subject: 'Data Structures & Algorithms', time: '11:00 AM - 12:30 PM', room: 'Hall 102', professor: 'Prof. A. Sharma', type: 'Lecture' },
-    { id: 'tt-w3', subject: 'Computer Networks Lab', time: '02:00 PM - 04:00 PM', room: 'CS Lab 1', professor: 'Dr. R. Mehta', type: 'Lab' }
-  ],
-  Thursday: [
-    { id: 'tt-th1', subject: 'Database Management Systems', time: '09:30 AM - 11:00 AM', room: 'Hall 201', professor: 'Prof. S. Gupta', type: 'Lecture' },
-    { id: 'tt-th2', subject: 'Machine Learning Fundamentals', time: '11:30 AM - 01:00 PM', room: 'Seminar Hall B', professor: 'Dr. P. Nair', type: 'Lecture' },
-    { id: 'tt-th3', subject: 'Technical Communication', time: '02:00 PM - 03:30 PM', room: 'Room 302', professor: 'Prof. E. Roy', type: 'Seminar' }
-  ],
-  Friday: [
-    { id: 'tt-f1', subject: 'Computer Networks', time: '09:00 AM - 10:30 AM', room: 'Hall 105', professor: 'Dr. R. Mehta', type: 'Lecture' },
-    { id: 'tt-f2', subject: 'Project Development Session', time: '11:00 AM - 01:00 PM', room: 'Innovation Hub', professor: 'Faculty Mentor Team', type: 'Project' },
-    { id: 'tt-f3', subject: 'Web Engineering', time: '02:00 PM - 03:30 PM', room: 'IT Lab 1', professor: 'Dr. V. Joshi', type: 'Lab' }
-  ],
-  Saturday: [
-    { id: 'tt-s1', subject: 'Special Guest Seminar & Placement Talk', time: '10:00 AM - 12:00 PM', room: 'Main Auditorium', professor: 'Guest Speaker', type: 'Seminar' }
-  ]
+const EMPTY_TIMETABLE = {
+  Monday: [],
+  Tuesday: [],
+  Wednesday: [],
+  Thursday: [],
+  Friday: [],
+  Saturday: []
 }
 
 export default function TimetablePage() {
@@ -65,13 +39,17 @@ export default function TimetablePage() {
 
   const [selectedDay, setSelectedDay] = useState(currentDayName)
 
-  // Timetable State initialized from localStorage
+  // Timetable State initialized from localStorage — Default is EMPTY (0 classes)
   const [timetable, setTimetable] = useState(() => {
     try {
       const saved = localStorage.getItem(`univoFullTimetable:${storageKey}`)
-      if (saved !== null) return JSON.parse(saved)
-      return DEFAULT_TIMETABLE
-    } catch { return DEFAULT_TIMETABLE }
+      if (saved !== null) {
+        const parsed = JSON.parse(saved)
+        const isLegacyDemo = parsed?.Monday?.length === 3 && parsed?.Monday[0]?.subject === 'Data Structures & Algorithms'
+        if (!isLegacyDemo && typeof parsed === 'object') return parsed
+      }
+      return EMPTY_TIMETABLE
+    } catch { return EMPTY_TIMETABLE }
   })
 
   // Modal & Form State
@@ -85,14 +63,25 @@ export default function TimetablePage() {
     day: selectedDay
   })
 
-  // Listen to external updates
+  // Sanitize legacy demo timetable on mount & listen to updates
   useEffect(() => {
     const handleSync = () => {
       try {
         const saved = localStorage.getItem(`univoFullTimetable:${storageKey}`)
-        if (saved !== null) setTimetable(JSON.parse(saved))
+        if (saved !== null) {
+          const parsed = JSON.parse(saved)
+          const isLegacyDemo = parsed?.Monday?.length === 3 && parsed?.Monday[0]?.subject === 'Data Structures & Algorithms'
+          if (isLegacyDemo) {
+            localStorage.setItem(`univoFullTimetable:${storageKey}`, JSON.stringify(EMPTY_TIMETABLE))
+            setTimetable(EMPTY_TIMETABLE)
+          } else if (typeof parsed === 'object') {
+            setTimetable(parsed)
+          }
+        }
       } catch {}
     }
+
+    handleSync()
     window.addEventListener('univo-timetable-updated', handleSync)
     return () => window.removeEventListener('univo-timetable-updated', handleSync)
   }, [storageKey])
@@ -152,8 +141,8 @@ export default function TimetablePage() {
     updateTimetableState(nextTable)
   }
 
-  const handleResetDefault = () => {
-    updateTimetableState(DEFAULT_TIMETABLE)
+  const handleClearAll = () => {
+    updateTimetableState(EMPTY_TIMETABLE)
   }
 
   const daySchedule = timetable[selectedDay] || []
@@ -173,13 +162,15 @@ export default function TimetablePage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleResetDefault}
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all text-[var(--text-primary)]"
-          >
-            Reset Default Schedule
-          </button>
+          {daySchedule.length > 0 && (
+            <button
+              type="button"
+              onClick={handleClearAll}
+              className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all text-[var(--text-primary)]"
+            >
+              Clear Schedule
+            </button>
+          )}
 
           <button
             type="button"
@@ -257,7 +248,7 @@ export default function TimetablePage() {
               >
                 <Clock size={32} className="mx-auto text-[var(--text-subtle)]" />
                 <p className="text-sm font-semibold text-[var(--text-secondary)]">No classes scheduled for {selectedDay}</p>
-                <p className="text-xs text-[var(--text-subtle)]">Enjoy your free day or add a lecture slot to your schedule.</p>
+                <p className="text-xs text-[var(--text-subtle)]">Click "+ Add Class Slot" to add your lecture or lab schedule for {selectedDay}.</p>
                 <button
                   type="button"
                   onClick={() => {
@@ -277,7 +268,7 @@ export default function TimetablePage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="p-4 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+                  className="p-4 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all text-[var(--text-primary)]"
                 >
                   <div className="flex items-start md:items-center gap-4 min-w-0 flex-1">
                     <div className="p-3 rounded-xl bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] shrink-0 font-mono text-xs font-bold flex items-center gap-1.5">
@@ -299,13 +290,13 @@ export default function TimetablePage() {
                         </span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--text-subtle)]">
+                      <div className="flex flex-wrap items-center gap-4 text-xs text-[var(--text-secondary)]">
                         <span className="flex items-center gap-1">
                           <MapPin size={13} className="text-[var(--accent-solid)]" /> {cls.room}
                         </span>
                         <span>&middot;</span>
                         <span className="flex items-center gap-1">
-                          <User size={13} className="text-[var(--text-muted)]" /> {cls.professor}
+                          <User size={13} className="text-[var(--text-secondary)]" /> {cls.professor}
                         </span>
                       </div>
                     </div>
