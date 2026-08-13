@@ -38,23 +38,28 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
                 className={({ isActive }) =>
                   `relative flex min-h-[48px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'text-[var(--accent-solid)] font-bold'
+                      ? collapsed
+                        ? 'text-[var(--accent-solid)] font-bold'
+                        : 'text-[var(--accent-solid)] font-bold bg-transparent'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                   } ${collapsed ? 'justify-center' : ''}`
                 }
                 title={collapsed ? item.label : undefined}
               >
-                {isItemActive && (
+                {/* Left accent indicator bar ONLY for expanded view */}
+                {!collapsed && isItemActive && (
                   <motion.div
-                    layoutId="sidebar-active-pill"
-                    className="absolute inset-0 rounded-xl univo-gradient-bg opacity-15 pointer-events-none z-0"
+                    layoutId="sidebar-active-bar"
+                    className="absolute left-0 top-2.5 bottom-2.5 w-[3.5px] rounded-r-full univo-gradient-bg pointer-events-none z-10"
                     transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   />
                 )}
-                {isItemActive && (
+
+                {/* Highlight background pill ONLY for collapsed / auto-hide sidebar view */}
+                {collapsed && isItemActive && (
                   <motion.div
-                    layoutId="sidebar-active-bar"
-                    className="absolute left-0 top-2 bottom-2 w-[3.5px] rounded-r-full univo-gradient-bg pointer-events-none z-10"
+                    layoutId="sidebar-active-pill-collapsed"
+                    className="absolute inset-0 rounded-xl univo-gradient-bg opacity-20 pointer-events-none z-0"
                     transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   />
                 )}

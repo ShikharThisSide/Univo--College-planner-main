@@ -369,28 +369,6 @@ export default function IndividualStudentDashboard() {
           >
             <PenTool size={14} className="text-emerald-400" /> Quick Note
           </button>
-
-          {/* Option 5: Track Subject */}
-          <button
-            type="button"
-            onClick={() => setAttendanceModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
-          >
-            <Percent size={14} className="text-cyan-400" /> Track Subject
-          </button>
-
-          {/* Option 6: Target Goal / Exam Countdown */}
-          <button
-            type="button"
-            onClick={() => setGoalModalOpen(true)}
-            className={`px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 ${
-              targetGoal ? 'bg-purple-500/20 border-purple-500/40 text-purple-300' : 'bg-white/5 border-white/10 text-white/80'
-            }`}
-          >
-            <Target size={14} className={targetGoal ? 'text-purple-400' : 'text-purple-300'} />
-            {targetGoal ? `${targetGoal.title} (${daysLeft < 0 ? 'Passed' : daysLeft === 0 ? 'Today!' : `${daysLeft}d left`})` : 'Target Goal'}
-          </button>
-
         </motion.div>
       </div>
 
