@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Search, Settings } from 'lucide-react'
 import * as Icons from 'lucide-react'
 
@@ -14,18 +15,30 @@ function DockIcon({ item, onClick }) {
 
 export default function DashboardDock({ items = [], onSearch, onSettings, autoHide = false }) {
   const navigate = useNavigate()
-  const visibleItems = items.slice(0, 5)
+  const location = useLocation()
+  const [mouseX, setMouseX] = useState(null)
+  const visibleItems = items
+  const iconSize = 46
+  const gap = 8
+  const effectWidth = 210
+  const scales = useMemo(() => visibleItems.map((_, index) => {
+    if (mouseX === null) return 1
+    const center = 12 + index * (iconSize + gap) + iconSize / 2
+    const distance = Math.abs(mouseX - center)
+    return distance > effectWidth / 2 ? 1 : 1 + (1.55 - 1) * (1 + Math.cos(distance / (effectWidth / 2) * Math.PI)) / 2
+  }), [mouseX, visibleItems.length])
+  const go = (item) => navigate(item.path)
   return (
-    <nav className={`dashboardDock ${autoHide ? 'dashboardDockAutoHide' : ''}`} aria-label="Quick navigation">
+    <nav className={`dashboardDock ${autoHide ? 'dashboardDockAutoHide' : ''}`} aria-label="Quick navigation" onMouseMove={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setMouseX(event.clientX - rect.left) }} onMouseLeave={() => setMouseX(null)}>
       <div className="dashboardDockInner">
-        {visibleItems.map((item) => <DockIcon key={item.id} item={item} onClick={() => navigate(item.path)} />)}
+        {visibleItems.map((item, index) => <div key={item.id} className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${scales[index]})` }}><DockIcon item={item} onClick={() => go(item)} /><span className={`dashboardDockActiveDot ${location.pathname === item.path ? 'is-active' : ''}`} /></div>)}
         <span className="dashboardDockDivider" />
-        <button type="button" className="dashboardDockIcon group" onClick={onSearch} aria-label="Search">
+        <div className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${mouseX === null ? 1 : 1.05})` }}><button type="button" className="dashboardDockIcon group" onClick={onSearch} aria-label="Search">
           <Search size={18} /><span className="dashboardDockTooltip">Search</span>
-        </button>
-        <button type="button" className="dashboardDockIcon group" onClick={onSettings} aria-label="Settings">
+        </button></div>
+        <div className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${mouseX === null ? 1 : 1.05})` }}><button type="button" className="dashboardDockIcon group" onClick={onSettings} aria-label="Settings">
           <Settings size={18} /><span className="dashboardDockTooltip">Settings</span>
-        </button>
+        </button></div>
       </div>
     </nav>
   )
