@@ -26,7 +26,9 @@ import {
   Target,
   Percent,
   PenTool,
-  Bookmark
+  Bookmark,
+  Wallet,
+  CreditCard
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -125,6 +127,44 @@ export default function IndividualStudentDashboard() {
     } catch { return null }
   })
   const [goalForm, setGoalForm] = useState({ title: '', date: '' })
+
+  // Expense Tracker Preview State & Sync
+  const [dashboardExpenses, setDashboardExpenses] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`univoExpenses:${storageKey}`)
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
+
+  const [dashboardMonthlyBudget] = useState(() => {
+    try {
+      const saved = localStorage.getItem(`univoMonthlyBudget:${storageKey}`)
+      return saved ? parseInt(saved, 10) : 6000
+    } catch { return 6000 }
+  })
+
+  useEffect(() => {
+    const handleSyncExpenses = () => {
+      try {
+        const saved = localStorage.getItem(`univoExpenses:${storageKey}`)
+        if (saved !== null) setDashboardExpenses(JSON.parse(saved))
+      } catch {}
+    }
+    window.addEventListener('univo-expenses-updated', handleSyncExpenses)
+    return () => window.removeEventListener('univo-expenses-updated', handleSyncExpenses)
+  }, [storageKey])
+
+  const totalExpenseSpent = useMemo(() => {
+    const currentMonthKey = new Date().toISOString().slice(0, 7)
+    return dashboardExpenses
+      .filter((e) => !e.date || e.date.startsWith(currentMonthKey))
+      .reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+  }, [dashboardExpenses])
+
+  const expenseSpentPct = useMemo(() => {
+    if (dashboardMonthlyBudget <= 0) return 0
+    return Math.min(100, Math.round((totalExpenseSpent / dashboardMonthlyBudget) * 100))
+  }, [totalExpenseSpent, dashboardMonthlyBudget])
 
   // Focus Timer State
   const [timerSeconds, setTimerSeconds] = useState(25 * 60)
@@ -494,8 +534,8 @@ export default function IndividualStudentDashboard() {
         </GlassCard>
       </div>
 
-      {/* SECONDARY ROW: TASKS TO COMPLETE & QUICK SCRATCHPAD */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+      {/* SECONDARY ROW: TASKS TO COMPLETE, EXPENSE TRACKER PREVIEW, & QUICK SCRATCHPAD */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
 
         {/* TASKS TO COMPLETE WIDGET */}
         <GlassCard delay={0.25}>
@@ -584,6 +624,72 @@ export default function IndividualStudentDashboard() {
                 ))
               )}
             </AnimatePresence>
+          </div>
+        </GlassCard>
+
+        {/* EXPENSE TRACKER PREVIEW WIDGET */}
+        <GlassCard delay={0.28}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Wallet size={18} className="text-[var(--accent-solid)]" />
+              <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Expense Tracker</h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/me/expenses')}
+              className="text-[11px] text-[var(--accent-solid)] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              Open Tracker <ArrowRight size={12} />
+            </button>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-2 mb-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-[var(--text-muted)] font-medium">Monthly Spending</span>
+              <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold ${
+                totalExpenseSpent > dashboardMonthlyBudget
+                  ? 'bg-red-500/20 text-red-400'
+                  : 'bg-emerald-500/20 text-emerald-400'
+              }`}>
+                ₹{totalExpenseSpent.toLocaleString('en-IN')} / ₹{dashboardMonthlyBudget.toLocaleString('en-IN')}
+              </span>
+            </div>
+            <AnimatedProgress value={expenseSpentPct} height={6} delay={0.2} />
+            <div className="flex justify-between items-center text-[10px] text-[var(--text-subtle)] pt-0.5">
+              <span>{expenseSpentPct}% budget used</span>
+              <span>
+                {dashboardMonthlyBudget - totalExpenseSpent < 0
+                  ? `Over by ₹${Math.abs(dashboardMonthlyBudget - totalExpenseSpent).toLocaleString('en-IN')}`
+                  : `₹${(dashboardMonthlyBudget - totalExpenseSpent).toLocaleString('en-IN')} remaining`}
+              </span>
+            </div>
+          </div>
+
+          {/* Recent logged expenses list */}
+          <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+            {dashboardExpenses.length === 0 ? (
+              <div className="p-4 text-center border border-dashed border-[var(--border-subtle)] rounded-xl space-y-1">
+                <p className="text-xs font-semibold text-[var(--text-secondary)]">No expenses recorded</p>
+                <p className="text-[11px] text-[var(--text-subtle)]">Track your hostel rent, mess, & daily student spending.</p>
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard/me/expenses')}
+                  className="text-xs text-[var(--accent-solid)] font-bold underline cursor-pointer mt-1 inline-block"
+                >
+                  + Log First Expense
+                </button>
+              </div>
+            ) : (
+              dashboardExpenses.slice(0, 3).map((item) => (
+                <div key={item.id} className="p-2.5 rounded-lg bg-white/5 border border-white/8 flex items-center justify-between gap-2 text-xs">
+                  <div className="truncate min-w-0">
+                    <p className="font-semibold text-[var(--text-primary)] truncate">{item.title}</p>
+                    <p className="text-[10px] text-[var(--text-subtle)] capitalize">{item.category} &middot; {item.paymentMethod}</p>
+                  </div>
+                  <span className="font-bold text-[var(--text-primary)] font-mono shrink-0">-₹{Number(item.amount).toLocaleString('en-IN')}</span>
+                </div>
+              ))
+            )}
           </div>
         </GlassCard>
 
