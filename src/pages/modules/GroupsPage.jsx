@@ -32,6 +32,7 @@ import {
   readGlobalGroups,
   saveGlobalGroup,
   requestToJoinGroup,
+  cancelJoinRequest,
   respondToJoinRequest,
   readGroupMessages,
   sendGroupMessage,
@@ -134,6 +135,11 @@ export default function GroupsPage() {
   // Handlers
   const handleRequestJoin = (group) => {
     requestToJoinGroup(group, { email: myEmail, name: myName })
+    loadGroups()
+  }
+
+  const handleCancelJoin = (group) => {
+    cancelJoinRequest(group.id, myEmail, group.creatorEmail)
     loadGroups()
   }
 
@@ -478,10 +484,11 @@ export default function GroupsPage() {
                     ) : isPending ? (
                       <button
                         type="button"
-                        disabled
-                        className="w-full py-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                        onClick={() => handleCancelJoin(group)}
+                        className="w-full py-2.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/35 text-red-400 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-[1.01]"
+                        title="Click to cancel pending join request and revert button"
                       >
-                        <Clock size={15} /> Request Sent (Pending Leader Approval)
+                        <Clock size={15} /> Request Sent (Pending Leader Approval) &middot; Click to Cancel
                       </button>
                     ) : (
                       <button

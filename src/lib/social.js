@@ -60,6 +60,15 @@ export function requestToJoinGroup(group, requestingUser) {
   return newRequest
 }
 
+// Cancel Pending Join Request
+export function cancelJoinRequest(groupId, requesterEmail, leaderEmail) {
+  if (!leaderEmail) return
+  const key = `joinRequests:${leaderEmail}`
+  const requests = readSocial(key, [])
+  const next = requests.filter((r) => !(r.groupId === groupId && r.requesterEmail === requesterEmail && r.status === 'pending'))
+  writeSocial(key, next)
+}
+
 // Leader Approves or Rejects Join Request
 export function respondToJoinRequest(request, accept) {
   const key = `joinRequests:${request.leaderEmail}`
