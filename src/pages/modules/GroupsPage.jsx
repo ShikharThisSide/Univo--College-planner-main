@@ -451,8 +451,8 @@ export default function GroupsPage() {
                                 title={mName}
                               >
                                 {initials}
-                                <span className="absolute bottom-full mb-2 hidden group-hover/avatar:block px-2.5 py-1 bg-black/90 text-white text-[10px] rounded-lg font-bold whitespace-nowrap shadow-xl z-30 pointer-events-none border border-white/20">
-                                  {mName}
+                                <span className="absolute bottom-full mb-2 hidden group-hover/avatar:block px-2.5 py-1.5 bg-[var(--surface-modal)] border border-[var(--accent-solid)]/40 shadow-2xl z-50 pointer-events-none rounded-xl whitespace-nowrap text-xs font-extrabold text-[var(--text-primary)]">
+                                  <span className="text-[var(--accent-solid)] font-bold">{mName}</span>
                                 </span>
                               </div>
                             )

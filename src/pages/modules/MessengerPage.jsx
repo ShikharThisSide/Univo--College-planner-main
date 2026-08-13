@@ -283,79 +283,80 @@ export default function MessengerPage() {
         {/* PRO EMAIL PREVIEW MODAL */}
         {previewEmail && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md"
             onMouseDown={(event) => event.target === event.currentTarget && setPreviewEmail(null)}
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="glass-panel w-full max-w-xl rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl max-h-[90vh] overflow-y-auto"
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="glass-panel w-full max-w-xl rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
             >
+              <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
               <button
                 type="button"
-                className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer z-10"
+                className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1 z-10"
                 onClick={() => setPreviewEmail(null)}
                 aria-label="Close email preview"
               >
                 <X size={18} />
               </button>
 
-              <div className="flex items-center gap-2">
-                <Mail size={18} className="text-[var(--accent-solid)]" />
-                <div>
-                  <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">DELIVERED EMAIL PREVIEW</p>
-                  <h3 className="text-lg font-bold font-display">
-                    {previewEmail.type === 'otp_verification'
+              <div>
+                <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">DELIVERED EMAIL PREVIEW</p>
+                <h3 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-0.5">
+                  {previewEmail.emailRecord?.subject ||
+                    (previewEmail.type === 'otp_verification'
                       ? 'OTP Verification Email'
                       : previewEmail.type === 'password_reset'
                       ? 'Password Reset Email'
                       : previewEmail.type === 'product_update'
                       ? 'Product Updates Email'
-                      : 'Friend Request Notification'}
-                  </h3>
-                </div>
+                      : 'Friend Request Notification')}
+                </h3>
               </div>
 
-              {/* EMAIL CONTENT CONTAINER */}
-              {previewEmail.htmlContent ? (
-                <div className="rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-white">
+              {/* EMAIL METADATA CARD */}
+              <div className="p-4 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-2 text-xs">
+                <div className="flex items-center justify-between text-[var(--text-secondary)] font-medium">
+                  <span><strong>From:</strong> <span className="text-[var(--accent-solid)] font-bold">Univo Notifications &lt;notifications@univo.edu&gt;</span></span>
+                  <span className="font-mono text-[10px] text-[var(--text-subtle)]">Just now</span>
+                </div>
+                <div className="text-[var(--text-secondary)]"><strong>To:</strong> <span className="text-[var(--text-primary)] font-bold">{previewEmail.recipientName} &lt;{previewEmail.recipientEmail}&gt;</span></div>
+                <div className="text-[var(--text-secondary)]"><strong>Subject:</strong> <span className="text-[var(--text-primary)] font-semibold">👋 {previewEmail.senderName || 'Classmate'} sent you a friend request on Univo!</span></div>
+              </div>
+
+              {/* RICH HTML / FALLBACK CONTENT FRAME */}
+              {previewEmail.emailRecord?.htmlContent || previewEmail.htmlContent ? (
+                <div className="rounded-2xl overflow-hidden border border-[var(--border-subtle)] bg-white shadow-inner">
                   <iframe
                     title="Email Preview"
-                    srcDoc={previewEmail.htmlContent}
-                    className="w-full h-[380px] border-0"
+                    srcDoc={previewEmail.emailRecord?.htmlContent || previewEmail.htmlContent}
+                    className="w-full h-[360px] border-0"
                   />
                 </div>
               ) : (
-                <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4 text-xs font-sans">
-                  <div className="space-y-1.5 pb-3 border-b border-white/10 text-white/60">
-                    <div className="flex justify-between">
-                      <span><strong>From:</strong> Univo Notifications &lt;notifications@univo.edu&gt;</span>
-                      <span className="font-mono text-[10px] text-white/40">Just now</span>
-                    </div>
-                    <div><strong>To:</strong> {previewEmail.recipientName} &lt;{previewEmail.recipientEmail}&gt;</div>
-                    <div><strong>Subject:</strong> 👋 {previewEmail.senderName} sent you a friend request on Univo!</div>
-                  </div>
-
-                  <div className="space-y-3 text-white/90 leading-relaxed text-xs">
-                    <p className="font-semibold text-sm">Hey {previewEmail.recipientName}! 👋</p>
-                    <p>
-                      <strong className="text-[var(--accent-solid)]">{previewEmail.senderName}</strong> ({previewEmail.senderEmail}) has sent you a friend request on Univo.
-                    </p>
-                  </div>
+                <div className="p-5 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-3 text-xs leading-relaxed text-[var(--text-primary)]">
+                  <p className="font-bold text-sm text-[var(--text-primary)]">Hey {previewEmail.recipientName}! 👋</p>
+                  <p className="text-[var(--text-secondary)]">
+                    <strong className="text-[var(--accent-solid)]">{previewEmail.senderName}</strong> ({previewEmail.senderEmail}) has sent you a friend request on Univo.
+                  </p>
                 </div>
               )}
 
+              {/* FOOTER BADGES */}
               <div className="flex items-center justify-between pt-1">
-                <span className="px-3 py-1.5 rounded-xl bg-[var(--accent-solid)] text-black font-bold text-xs inline-flex items-center gap-1.5 cursor-default">
+                <span className="px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-extrabold text-xs inline-flex items-center gap-1.5 cursor-default">
                   <CheckCircle2 size={14} /> Delivered to Inbox
                 </span>
-                <span className="text-[10px] text-[var(--text-subtle)] font-mono">Status: 200 OK</span>
+                <span className="text-[11px] text-[var(--text-subtle)] font-mono font-semibold">Status: 200 OK</span>
               </div>
 
               <button
                 type="button"
                 onClick={() => setPreviewEmail(null)}
-                className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold cursor-pointer"
+                className="w-full py-3 rounded-2xl univo-gradient-bg text-black text-xs font-extrabold cursor-pointer shadow-lg hover:scale-[1.01] transition-all mt-1"
               >
                 Close Preview
               </button>
