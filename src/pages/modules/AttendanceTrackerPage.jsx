@@ -32,7 +32,8 @@ export default function AttendanceTrackerPage() {
       const saved = localStorage.getItem(`univoAttendance:${storageKey}`)
       if (saved !== null) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) return parsed
+        const isLegacyDemo = Array.isArray(parsed) && parsed.some((s) => s.subject === 'Data Structures' || s.subject === 'Data Structures & Algorithms')
+        if (!isLegacyDemo && Array.isArray(parsed)) return parsed
       }
       return []
     } catch {
@@ -44,17 +45,26 @@ export default function AttendanceTrackerPage() {
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [form, setForm] = useState({ subject: '', attended: '', total: '' })
 
-  // Listen to sync events from other tabs / components
+  // Listen to sync events & sanitize legacy demo subjects on mount
   useEffect(() => {
     const handleSync = () => {
       try {
         const saved = localStorage.getItem(`univoAttendance:${storageKey}`)
         if (saved !== null) {
           const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed)) setSubjects(parsed)
+          const isLegacyDemo = Array.isArray(parsed) && parsed.some((s) => s.subject === 'Data Structures' || s.subject === 'Data Structures & Algorithms')
+          if (isLegacyDemo) {
+            localStorage.setItem(`univoAttendance:${storageKey}`, JSON.stringify([]))
+            setSubjects([])
+            window.dispatchEvent(new Event('univo-attendance-updated'))
+          } else if (Array.isArray(parsed)) {
+            setSubjects(parsed)
+          }
         }
       } catch {}
     }
+
+    handleSync()
     window.addEventListener('univo-attendance-updated', handleSync)
     return () => window.removeEventListener('univo-attendance-updated', handleSync)
   }, [storageKey])

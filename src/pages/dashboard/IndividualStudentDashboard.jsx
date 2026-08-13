@@ -102,13 +102,14 @@ export default function IndividualStudentDashboard() {
   })
   const [taskForm, setTaskForm] = useState({ title: '', subject: '', due: 'Tomorrow', priority: 'medium' })
 
-  // Attendance state — Default to [] when no subjects are saved
+  // Attendance state — Default to [] (0 subjects)
   const [attendanceData, setAttendanceData] = useState(() => {
     try {
       const saved = localStorage.getItem(`univoAttendance:${storageKey}`)
       if (saved !== null) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed)) return parsed
+        const isLegacyDemo = Array.isArray(parsed) && parsed.some((s) => s.subject === 'Data Structures' || s.subject === 'Data Structures & Algorithms')
+        if (!isLegacyDemo && Array.isArray(parsed)) return parsed
       }
       return []
     } catch {
