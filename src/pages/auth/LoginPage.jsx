@@ -137,7 +137,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       } catch {
         return setError('Unable to verify the code. Please try again.')
       }
-      accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined }
+      accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined, createdAt: Date.now() }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
       localStorage.setItem(`univoFreshAccount:${normalizedEmail}`, 'true')
       localStorage.setItem('univoPendingOnboarding', 'true')
