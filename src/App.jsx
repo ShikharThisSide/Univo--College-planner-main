@@ -14,6 +14,7 @@ import ClassRepresentativePage from './pages/modules/ClassRepresentativePage'
 import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
 import StudentPlanPage from './pages/students/StudentPlanPage'
+import MessengerPage from './pages/modules/MessengerPage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
 import './app.css'
@@ -47,7 +48,7 @@ export default function App() {
               <Route path="marketplace" element={<ModulePlaceholder />} />
               <Route path="forum" element={<ModulePlaceholder />} />
               <Route path="confessions" element={<ModulePlaceholder />} />
-              <Route path="messenger" element={<ModulePlaceholder />} />
+              <Route path="messenger" element={<MessengerPage />} />
             </Route>
 
             {/* Institutional student routes */}
@@ -65,7 +66,7 @@ export default function App() {
               <Route path="attendance" element={<ClassRepresentativePage />} />
               <Route path="notes" element={<NotesHubPage />} />
               <Route path="forum" element={<ModulePlaceholder />} />
-              <Route path="messenger" element={<ModulePlaceholder />} />
+              <Route path="messenger" element={<MessengerPage />} />
             </Route>
 
             {/* Teacher routes */}
