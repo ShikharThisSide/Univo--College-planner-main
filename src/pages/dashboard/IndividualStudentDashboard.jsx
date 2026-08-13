@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Flame, Coffee, Clock, ArrowRight, Zap, BookOpen, MessageSquare, Plus, X } from 'lucide-react'
-import confetti from 'canvas-confetti'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import AttendanceRing from '../../components/ui/AttendanceRing'
@@ -273,21 +272,6 @@ export default function IndividualStudentDashboard() {
       </div></div>
       </div>
 
-      {/* Success moment demo button */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="mt-8 text-center"
-      >
-        <button
-          type="button"
-          onClick={() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.7 }, colors: ['#8b5cf6', '#f97316', '#14b8a6'] })}
-          className="text-xs text-white/30 hover:text-white/50 transition-colors underline underline-offset-4"
-        >
-          Simulate assignment submitted on time 🎉
-        </button>
-      </motion.div>
       {scheduleOpen && <div className="scheduleOverlay" role="dialog" aria-modal="true"><form className="scheduleModal" onSubmit={saveSchedule}><button type="button" className="scheduleClose" onClick={() => setScheduleOpen(false)} aria-label="Close"><X size={18} /></button><p className="settingsEyebrow">TODAY’S SCHEDULE</p><h2>Add a class</h2><p>Build your personal Univo timetable.</p><label>Time<input type="time" value={scheduleForm.time} onChange={(event) => setScheduleForm({ ...scheduleForm, time: event.target.value })} required /></label><label>Subject<input placeholder="e.g. Data Structures" value={scheduleForm.subject} onChange={(event) => setScheduleForm({ ...scheduleForm, subject: event.target.value })} required /></label><label>Room<input placeholder="e.g. Lab 204" value={scheduleForm.room} onChange={(event) => setScheduleForm({ ...scheduleForm, room: event.target.value })} /></label><button type="submit" className="scheduleSubmit">Add to schedule</button></form></div>}
     </PageTransition>
   )

@@ -71,8 +71,8 @@ export default function DashboardLayout() {
       const outputSize = 512
       const scale = Math.max(outputSize / image.naturalWidth, outputSize / image.naturalHeight)
       const cropSize = Math.min(image.naturalWidth, image.naturalHeight) / zoom
-      const centerX = image.naturalWidth / 2 - offset.x / scale / zoom
-      const centerY = image.naturalHeight / 2 - offset.y / scale / zoom
+      const centerX = image.naturalWidth / 2 - offset.x / (scale * zoom)
+      const centerY = image.naturalHeight / 2 - offset.y / (scale * zoom)
       const maxX = image.naturalWidth - cropSize
       const maxY = image.naturalHeight - cropSize
       const sourceX = Math.min(maxX, Math.max(0, centerX - cropSize / 2))
@@ -96,7 +96,13 @@ export default function DashboardLayout() {
   const removeProfileImage = () => { setProfileImage(''); updateProfile({ avatarImage: '' }); setPendingProfileImage(''); setAvatarZoom(1); setAvatarOffset({ x: 0, y: 0 }); setAvatarUploadOpen(false) }
   const handleAvatarWheel = (event) => { event.preventDefault(); setAvatarZoom((value) => Math.min(3, Math.max(1, +(value - event.deltaY * .001).toFixed(2)))) }
   const handleAvatarPointerDown = (event) => { event.currentTarget.setPointerCapture(event.pointerId); setAvatarDragging(true); avatarDrag.current = { x: event.clientX, y: event.clientY, offset: avatarOffset } }
-  const handleAvatarPointerMove = (event) => { if (!avatarDrag.current) return; setAvatarOffset({ x: avatarDrag.current.offset.x + event.clientX - avatarDrag.current.x, y: avatarDrag.current.offset.y + event.clientY - avatarDrag.current.y }) }
+  const handleAvatarPointerMove = (event) => {
+    if (!avatarDrag.current) return
+    const limit = Math.max(0, event.currentTarget.clientWidth * (avatarZoom - 1) / 2)
+    const x = avatarDrag.current.offset.x + event.clientX - avatarDrag.current.x
+    const y = avatarDrag.current.offset.y + event.clientY - avatarDrag.current.y
+    setAvatarOffset({ x: Math.max(-limit, Math.min(limit, x)), y: Math.max(-limit, Math.min(limit, y)) })
+  }
   const stopAvatarDrag = () => { avatarDrag.current = null; setAvatarDragging(false) }
 
   const sidebarIsCollapsed = autoHideSidebar ? !sidebarHovered : sidebarCollapsed
