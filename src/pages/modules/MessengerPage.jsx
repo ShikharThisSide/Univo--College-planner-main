@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
-import { Check, MessageCircle, Search, UserPlus, Users, X, Mail, Send, CheckCircle2, ArrowRight, RotateCcw } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { Check, MessageCircle, Search, UserPlus, Users, X, Mail, Send, CheckCircle2, ArrowRight, RotateCcw, Paperclip, FileText, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_USERS } from '../../lib/constants'
-import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest } from '../../lib/social'
+import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest, readDMMessages, sendDMMessage } from '../../lib/social'
 
 function readPeople(currentUser) {
   let accounts = {}
@@ -38,12 +38,56 @@ export default function MessengerPage() {
   const [emailNotice, setEmailNotice] = useState(null)
   const [previewEmail, setPreviewEmail] = useState(null)
 
+  // 1-on-1 Direct Chat State
+  const [activeChatFriend, setActiveChatFriend] = useState(null)
+  const [dmMessages, setDmMessages] = useState([])
+  const [dmText, setDmText] = useState('')
+  const [dmPdfFile, setDmPdfFile] = useState(null)
+
   const [friends] = useState(() => readSocial(`friends:${user?.email}`))
   const people = useMemo(() => readPeople(user), [user])
   const friendPeople = people.filter((person) => friends.includes(person.email))
   const results = people.filter((person) => `${person.name} ${person.email} ${person.username || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
 
   const openProfile = (person) => setSelected(person)
+
+  const openChatWithFriend = (person) => {
+    setActiveChatFriend(person)
+    if (user?.email && person?.email) {
+      setDmMessages(readDMMessages(user.email, person.email))
+    }
+  }
+
+  useEffect(() => {
+    if (!activeChatFriend || !user?.email) return
+    const refreshDM = () => {
+      setDmMessages(readDMMessages(user.email, activeChatFriend.email))
+    }
+    refreshDM()
+    window.addEventListener('univo-dm-sent', refreshDM)
+    return () => window.removeEventListener('univo-dm-sent', refreshDM)
+  }, [activeChatFriend, user?.email])
+
+  const handleSendDM = (e) => {
+    e.preventDefault()
+    if (!activeChatFriend || (!dmText.trim() && !dmPdfFile)) return
+
+    sendDMMessage(user, activeChatFriend.email, dmText.trim(), dmPdfFile)
+    setDmText('')
+    setDmPdfFile(null)
+  }
+
+  const handleDmPdfUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setDmPdfFile({
+      name: file.name,
+      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      type: file.type || 'application/pdf',
+      url: URL.createObjectURL(file)
+    })
+  }
 
   const sendRequest = async (targetPerson) => {
     const recipient = targetPerson || selected
@@ -169,21 +213,34 @@ export default function MessengerPage() {
 
         {/* MY FRIENDS LIST */}
         <section className="messengerResults">
-          <p className="messengerResultCount flex items-center gap-2">
-            <Users size={15} /> My friends
+          <p className="messengerResultCount flex items-center justify-between">
+            <span className="flex items-center gap-2">
+              <Users size={15} className="text-[var(--accent-solid)]" /> My friends ({friendPeople.length})
+            </span>
+            <span className="text-[11px] text-[var(--text-subtle)] font-medium">Click any friend to open chat box</span>
           </p>
           {friendPeople.length ? (
             <div className="messengerPeopleGrid">
-              {friendPeople.map((person, index) => (
-                <button type="button" className="messengerPersonCard text-left" key={person.email} onClick={() => openProfile(person)}>
-                  <PersonAvatar person={person} index={index} />
-                  <span className="messengerPersonCopy">
-                    <strong>{person.name}</strong>
-                    <small>@{person.username || person.email.split('@')[0]}</small>
-                  </span>
-                  <Check size={17} />
-                </button>
-              ))}
+              {friendPeople.map((person, index) => {
+                const isSelected = activeChatFriend?.email === person.email
+                return (
+                  <button
+                    type="button"
+                    className={`messengerPersonCard text-left transition-all ${
+                      isSelected ? 'border-[var(--accent-solid)] bg-[var(--accent-muted)] shadow-md scale-[1.02]' : 'hover:border-[var(--accent-solid)]/40'
+                    }`}
+                    key={person.email}
+                    onClick={() => openChatWithFriend(person)}
+                  >
+                    <PersonAvatar person={person} index={index} />
+                    <span className="messengerPersonCopy">
+                      <strong className="text-[var(--text-primary)]">{person.name}</strong>
+                      <small>@{person.username || person.email.split('@')[0]}</small>
+                    </span>
+                    <MessageCircle size={18} className="text-[var(--accent-solid)]" />
+                  </button>
+                )
+              })}
             </div>
           ) : (
             <GlassCard>
@@ -247,12 +304,135 @@ export default function MessengerPage() {
               </GlassCard>
             )}
           </div>
+        ) : activeChatFriend ? (
+          /* 1-ON-1 DIRECT MESSAGE CHAT BOX */
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+            <GlassCard className="!p-0 overflow-hidden relative border border-[var(--border-subtle)] shadow-2xl">
+              <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+              {/* CHAT HEADER */}
+              <div className="p-4 border-b border-[var(--border-subtle)] flex items-center justify-between bg-[var(--surface-modal)]">
+                <div className="flex items-center gap-3">
+                  <PersonAvatar person={activeChatFriend} large />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-display font-extrabold text-base text-[var(--text-primary)]">{activeChatFriend.name}</h3>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active Now" />
+                    </div>
+                    <p className="text-xs text-[var(--text-subtle)] font-medium">@{activeChatFriend.username || activeChatFriend.email.split('@')[0]}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openProfile(activeChatFriend)}
+                    className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] cursor-pointer"
+                  >
+                    View Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveChatFriend(null)}
+                    className="text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1"
+                    aria-label="Close Chat"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              {/* CHAT STREAM */}
+              <div className="p-4 space-y-3 max-h-[380px] min-h-[260px] overflow-y-auto bg-[var(--surface-control)]">
+                {dmMessages.map((msg) => {
+                  const isMe = msg.senderEmail === user?.email
+
+                  return (
+                    <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1`}>
+                      <span className="text-[10px] text-[var(--text-subtle)] font-bold px-1">
+                        {msg.senderName} &middot; {msg.timestamp}
+                      </span>
+
+                      <div className={`p-3.5 rounded-2xl max-w-[85%] text-xs leading-relaxed ${
+                        isMe
+                          ? 'univo-gradient-bg text-black font-semibold rounded-tr-none shadow-md'
+                          : 'bg-[var(--surface-modal)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-tl-none shadow-sm'
+                      }`}>
+                        {msg.text && <p>{msg.text}</p>}
+
+                        {/* ATTACHMENT CARD */}
+                        {msg.attachment && (
+                          <div className={`mt-2 p-2.5 rounded-xl border flex items-center justify-between gap-3 ${
+                            isMe ? 'bg-black/10 border-black/20 text-black' : 'bg-white/5 border-white/10 text-[var(--text-primary)]'
+                          }`}>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <FileText size={18} className={isMe ? 'text-black' : 'text-emerald-400'} />
+                              <div className="truncate">
+                                <p className="font-bold truncate text-[11px]">{msg.attachment.name}</p>
+                                <span className="text-[10px] opacity-75 font-mono">{msg.attachment.size}</span>
+                              </div>
+                            </div>
+
+                            <a
+                              href={msg.attachment.url}
+                              download={msg.attachment.name}
+                              className={`p-1.5 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 ${
+                                isMe ? 'bg-black text-white' : 'bg-[var(--accent-solid)] text-black'
+                              }`}
+                            >
+                              <Download size={12} /> Save PDF
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* PENDING ATTACHMENT PREVIEW */}
+              {dmPdfFile && (
+                <div className="px-4 py-2 bg-emerald-500/15 border-t border-emerald-500/30 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText size={16} className="text-emerald-400 shrink-0" />
+                    <span className="font-bold text-[var(--text-primary)] truncate">{dmPdfFile.name} ({dmPdfFile.size})</span>
+                  </div>
+                  <button type="button" onClick={() => setDmPdfFile(null)} className="text-red-400 hover:text-red-300 p-0.5">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
+
+              {/* DM INPUT FORM */}
+              <form onSubmit={handleSendDM} className="p-3 border-t border-[var(--border-subtle)] bg-[var(--surface-modal)] flex items-center gap-2">
+                <label className="p-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--accent-solid)] cursor-pointer transition-colors" title="Attach PDF or File">
+                  <Paperclip size={18} />
+                  <input type="file" accept="application/pdf,image/*,.doc,.docx" onChange={handleDmPdfUpload} className="hidden" />
+                </label>
+
+                <input
+                  type="text"
+                  placeholder={`Message ${activeChatFriend.name.split(' ')[0]}...`}
+                  value={dmText}
+                  onChange={(e) => setDmText(e.target.value)}
+                  className="flex-1 bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                />
+
+                <button
+                  type="submit"
+                  className="univo-gradient-bg text-black px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md hover:scale-105 transition-all"
+                >
+                  <Send size={15} /> Send
+                </button>
+              </form>
+            </GlassCard>
+          </motion.div>
         ) : (
           <GlassCard className="messengerEmptyCard">
             <div className="messengerEmpty">
-              <MessageCircle size={28} />
-              <strong>Search for a friend to start chatting</strong>
-              <span>Type a username above and their profile will appear here.</span>
+              <MessageCircle size={28} className="text-[var(--accent-solid)]" />
+              <strong>Select a friend above to start chatting</strong>
+              <span>Click any friend from your list to open real-time direct messages & share PDF files.</span>
             </div>
           </GlassCard>
         )}
@@ -274,8 +454,15 @@ export default function MessengerPage() {
               <p className="messengerProfileRole">{selected.role.replaceAll('_', ' ')}</p>
 
               {areFriends(user, selected) ? (
-                <button type="button" disabled className="messengerStartButton opacity-75 cursor-default">
-                  Already friends
+                <button
+                  type="button"
+                  onClick={() => {
+                    openChatWithFriend(selected)
+                    setSelected(null)
+                  }}
+                  className="messengerStartButton cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <MessageCircle size={16} /> Open Direct Chat
                 </button>
               ) : sent.includes(selected.email) ? (
                 <button

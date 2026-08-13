@@ -340,3 +340,43 @@ export function respondToGroupInvite(invite, accepted, currentUser) {
     }
   }
 }
+
+// 1-on-1 Direct Messaging Helpers
+export function getDMPairKey(email1, email2) {
+  return [email1, email2].sort().join('::')
+}
+
+export function readDMMessages(email1, email2) {
+  if (!email1 || !email2) return []
+  const pairKey = getDMPairKey(email1, email2)
+  return readSocial(`dmMsgs:${pairKey}`, [
+    {
+      id: 'welcome-dm-1',
+      senderEmail: 'system@univo.edu',
+      senderName: 'Univo Direct Chat',
+      text: '👋 You connected on Univo! Send messages, study notes, and PDF files directly.',
+      timestamp: 'Just now',
+      attachment: null
+    }
+  ])
+}
+
+export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
+  if (!fromUser?.email || !toUserEmail) return null
+  const pairKey = getDMPairKey(fromUser.email, toUserEmail)
+  const current = readSocial(`dmMsgs:${pairKey}`, [])
+
+  const newMessage = {
+    id: `dm-${Date.now()}`,
+    senderEmail: fromUser.email,
+    senderName: fromUser.name || fromUser.email.split('@')[0],
+    text: text ? text.trim() : '',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    attachment: attachment || null
+  }
+
+  const next = [...current, newMessage]
+  writeSocial(`dmMsgs:${pairKey}`, next)
+  window.dispatchEvent(new Event('univo-dm-sent'))
+  return newMessage
+}

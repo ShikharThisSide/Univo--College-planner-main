@@ -25,7 +25,7 @@ export default function DashboardDock({ items = [], onSearch, onSettings, autoHi
     if (mouseX === null) return 1
     const center = 12 + index * (iconSize + gap) + iconSize / 2
     const distance = Math.abs(mouseX - center)
-    return distance > effectWidth / 2 ? 1 : 1 + (1.55 - 1) * (1 + Math.cos(distance / (effectWidth / 2) * Math.PI)) / 2
+    return distance > effectWidth / 2 ? 1 : 1 + (1.10 - 1) * (1 + Math.cos(distance / (effectWidth / 2) * Math.PI)) / 2
   }), [mouseX, visibleItems.length])
   const go = (item) => navigate(item.path)
   return (

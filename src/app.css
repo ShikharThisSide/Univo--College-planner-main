@@ -694,7 +694,7 @@ body.univo-app {
   color: var(--accent-solid);
   background: var(--accent-muted);
   outline: none;
-  transform: translateY(-5px) scale(1.05);
+  transform: translateY(-2px);
 }
 
 .dashboardDockTooltip {
