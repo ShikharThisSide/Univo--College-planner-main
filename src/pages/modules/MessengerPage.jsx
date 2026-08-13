@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Check, MessageCircle, Search, UserPlus, Users, X, Mail, Send, CheckCircle2, ArrowRight } from 'lucide-react'
+import { Check, MessageCircle, Search, UserPlus, Users, X, Mail, Send, CheckCircle2, ArrowRight, RotateCcw } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_USERS } from '../../lib/constants'
-import { addFriend, areFriends, readSocial, requestFriend } from '../../lib/social'
+import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest } from '../../lib/social'
 
 function readPeople(currentUser) {
   let accounts = {}
@@ -19,7 +19,6 @@ function readPeople(currentUser) {
     avatar: account.avatar,
     avatarImage: account.avatarImage
   }))
-  Object.values(DEMO_USERS).forEach((person) => people.push({ ...person, id: `demo-${person.role}` }))
   return people.filter((person, index, list) => person.email !== currentUser?.email && list.findIndex((item) => item.email === person.email) === index)
 }
 
@@ -82,6 +81,14 @@ export default function MessengerPage() {
         /* Local email inbox notification saved */
       }
     }
+  }
+
+  const revertRequest = (targetPerson, e) => {
+    if (e) e.stopPropagation()
+    const recipient = targetPerson || selected
+    if (!recipient) return
+    cancelFriendRequest(user, recipient)
+    setSent((prev) => prev.filter((email) => email !== recipient.email))
   }
 
   return (
@@ -216,9 +223,14 @@ export default function MessengerPage() {
                     {areFriends(user, person) ? (
                       <Check size={17} />
                     ) : sent.includes(person.email) ? (
-                      <span className="text-xs text-emerald-400 font-medium flex items-center gap-1">
-                        <CheckCircle2 size={13} /> Sent
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => revertRequest(person, e)}
+                        className="px-2.5 py-1 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/35 text-red-400 font-extrabold text-xs flex items-center gap-1 cursor-pointer transition-all hover:scale-105 shrink-0 z-10"
+                        title="Click to cancel request & revert button to resend email"
+                      >
+                        <RotateCcw size={13} /> Revert & Resend
+                      </button>
                     ) : (
                       <UserPlus size={17} />
                     )}
@@ -261,21 +273,30 @@ export default function MessengerPage() {
               <p className="messengerProfileHandle">@{selected.username || selected.email.split('@')[0]}</p>
               <p className="messengerProfileRole">{selected.role.replaceAll('_', ' ')}</p>
 
-              <button
-                type="button"
-                className="messengerStartButton cursor-pointer flex items-center justify-center gap-2"
-                onClick={() => {
-                  sendRequest(selected)
-                  setSelected(null)
-                }}
-              >
-                <UserPlus size={16} />{' '}
-                {areFriends(user, selected)
-                  ? 'Already friends'
-                  : sent.includes(selected.email)
-                  ? 'Request & Email Sent'
-                  : 'Add Friend'}
-              </button>
+              {areFriends(user, selected) ? (
+                <button type="button" disabled className="messengerStartButton opacity-75 cursor-default">
+                  Already friends
+                </button>
+              ) : sent.includes(selected.email) ? (
+                <button
+                  type="button"
+                  onClick={() => revertRequest(selected)}
+                  className="messengerStartButton bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/40 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <RotateCcw size={16} /> Revert Request (Allows Resend)
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="messengerStartButton cursor-pointer flex items-center justify-center gap-2"
+                  onClick={() => {
+                    sendRequest(selected)
+                    setSelected(null)
+                  }}
+                >
+                  <UserPlus size={16} /> Add Friend (Sends Email)
+                </button>
+              )}
             </motion.div>
           </div>
         )}

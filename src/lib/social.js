@@ -145,6 +145,13 @@ function logAndBroadcastEmail(emailRecord) {
 }
 
 // 1. FRIEND REQUEST EMAIL NOTIFICATION
+export function cancelFriendRequest(from, to) {
+  if (!from?.email || !to?.email) return
+  const requests = readSocial(`requests:${to.email}`)
+  const next = requests.filter((item) => !(item.fromEmail === from.email && item.status === 'pending'))
+  writeSocial(`requests:${to.email}`, next)
+}
+
 export function requestFriend(from, to) {
   const requests = readSocial(`requests:${to.email}`)
   if (requests.some((item) => item.fromEmail === from.email && item.status === 'pending')) return null
