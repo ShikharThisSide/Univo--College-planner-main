@@ -20,43 +20,36 @@ import GlassCard from '../../components/ui/GlassCard'
 import AnimatedProgress from '../../components/ui/AnimatedProgress'
 import { useAuth } from '../../context/AuthContext'
 
-const INITIAL_SUBJECTS = [
-  { subject: 'Data Structures & Algorithms', attended: 31, total: 50 },
-  { subject: 'Operating Systems', attended: 14, total: 18 },
-  { subject: 'Database Management Systems', attended: 18, total: 20 },
-  { subject: 'Computer Networks', attended: 22, total: 25 }
-]
-
 export default function AttendanceTrackerPage() {
   const { user } = useAuth()
   const storageKey = user?.email || 'guest'
 
   const [targetPercentage, setTargetPercentage] = useState(75)
 
-  // Real attendance state loaded from localStorage
+  // Real attendance state loaded from localStorage — Default is [] (0 subjects)
   const [subjects, setSubjects] = useState(() => {
     try {
       const saved = localStorage.getItem(`univoAttendance:${storageKey}`)
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+        if (Array.isArray(parsed)) return parsed
       }
-      return INITIAL_SUBJECTS
+      return []
     } catch {
-      return INITIAL_SUBJECTS
+      return []
     }
   })
 
   // Modal states
   const [addModalOpen, setAddModalOpen] = useState(false)
-  const [form, setForm] = useState({ subject: '', attended: 15, total: 20 })
+  const [form, setForm] = useState({ subject: '', attended: '', total: '' })
 
   // Listen to sync events from other tabs / components
   useEffect(() => {
     const handleSync = () => {
       try {
         const saved = localStorage.getItem(`univoAttendance:${storageKey}`)
-        if (saved) {
+        if (saved !== null) {
           const parsed = JSON.parse(saved)
           if (Array.isArray(parsed)) setSubjects(parsed)
         }
@@ -112,7 +105,7 @@ export default function AttendanceTrackerPage() {
     const tot = Math.max(att, parseInt(form.total, 10) || 0)
     const next = [...subjects, { subject: form.subject.trim(), attended: att, total: tot }]
     updateSubjects(next)
-    setForm({ subject: '', attended: 15, total: 20 })
+    setForm({ subject: '', attended: '', total: '' })
     setAddModalOpen(false)
   }
 
@@ -123,14 +116,12 @@ export default function AttendanceTrackerPage() {
     const currentPct = (attended / total) * 100
 
     if (currentPct >= targetPct) {
-      // How many can bunk: attended / (total + b) >= targetRatio => b <= (attended - targetRatio * total) / targetRatio
       const safeBunks = Math.floor((attended - targetRatio * total) / targetRatio)
       if (safeBunks > 0) {
         return { type: 'safe', count: safeBunks, message: `Can safely bunk ${safeBunks} more ${safeBunks === 1 ? 'class' : 'classes'}` }
       }
       return { type: 'safe', count: 0, message: 'On track! Attend next class to stay safe' }
     } else {
-      // How many must attend: (attended + c) / (total + c) >= targetRatio => c >= (targetRatio * total - attended) / (1 - targetRatio)
       const requiredClasses = Math.ceil((targetRatio * total - attended) / (1 - targetRatio))
       return { type: 'critical', count: requiredClasses, message: `Need to attend ${requiredClasses} consecutive ${requiredClasses === 1 ? 'class' : 'classes'}` }
     }
@@ -232,16 +223,20 @@ export default function AttendanceTrackerPage() {
         </h2>
 
         {subjects.length === 0 ? (
-          <GlassCard className="text-center p-8 border border-dashed border-[var(--border-subtle)]">
-            <Percent size={32} className="mx-auto text-[var(--text-subtle)] mb-2" />
-            <p className="text-sm font-semibold text-[var(--text-secondary)]">No subjects tracked yet</p>
-            <p className="text-xs text-[var(--text-subtle)] mt-1">Add your real college subjects to start tracking your attendance and safe bunks.</p>
+          <GlassCard className="text-center p-8 border border-dashed border-[var(--border-subtle)] space-y-3">
+            <Percent size={32} className="mx-auto text-[var(--text-subtle)]" />
+            <div>
+              <p className="text-base font-bold text-[var(--text-primary)]">No subjects added yet</p>
+              <p className="text-xs text-[var(--text-subtle)] mt-1 max-w-md mx-auto">
+                Add your real college subjects to calculate your attendance %, track safe bunks, and get 75% target alerts.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setAddModalOpen(true)}
-              className="px-4 py-2 rounded-xl univo-gradient-bg text-black text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer mt-4"
+              className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer hover:scale-105 transition-all"
             >
-              <Plus size={14} /> Add First Subject
+              <Plus size={16} /> Track New Subject
             </button>
           </GlassCard>
         ) : (
