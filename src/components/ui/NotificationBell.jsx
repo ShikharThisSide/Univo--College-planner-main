@@ -1,11 +1,24 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bell } from 'lucide-react'
+import { Bell, Check, X } from 'lucide-react'
 import { notifications } from '../../lib/mockData'
+import { addFriend, readSocial, writeSocial } from '../../lib/social'
+import { useAuth } from '../../context/AuthContext'
 
 export default function NotificationBell() {
+  const { user } = useAuth()
   const [open, setOpen] = useState(false)
-  const unreadCount = notifications.filter((n) => n.unread).length
+  const [requests, setRequests] = useState(() => readSocial(`requests:${user?.email}`))
+  const refresh = () => setRequests(readSocial(`requests:${user?.email}`))
+  const unreadCount = notifications.filter((n) => n.unread).length + requests.filter((item) => item.status === 'pending').length
+  const respond = (request, accepted) => {
+    const next = requests.map((item) => item.id === request.id ? { ...item, status: accepted ? 'accepted' : 'rejected' } : item)
+    writeSocial(`requests:${user.email}`, next); setRequests(next)
+    if (accepted) {
+      const sender = { email: request.fromEmail, name: request.fromName, avatar: request.fromAvatar }
+      addFriend(user, sender)
+    }
+  }
 
   return (
     <div className="relative">
@@ -41,6 +54,7 @@ export default function NotificationBell() {
                 )}
               </div>
               <ul className="max-h-80 overflow-y-auto">
+                {requests.filter((item) => item.status === 'pending').map((request) => { const senderName = request.fromName?.trim() || request.fromEmail?.split('@')[0] || 'Someone'; return <li key={request.id} className="px-4 py-3 border-b border-white/5"><p className="text-sm font-medium">{senderName} sent you a friend request</p><div className="flex gap-2 mt-3"><button type="button" onClick={() => respond(request, true)} className="flex-1 rounded-lg bg-[var(--accent-solid)] text-black text-xs font-semibold py-2"><Check size={14} className="inline mr-1" />Allow</button><button type="button" onClick={() => respond(request, false)} className="flex-1 rounded-lg bg-white/10 text-xs font-semibold py-2"><X size={14} className="inline mr-1" />Reject</button></div></li> })}
                 {notifications.map((n, i) => (
                   <motion.li
                     key={n.id}
