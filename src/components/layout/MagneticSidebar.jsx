@@ -26,10 +26,10 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
   }, [activeIndex, location.pathname, collapsed])
 
   return (
-    <aside onMouseEnter={() => autoHide && onHoverChange?.(true)} onMouseLeave={() => autoHide && onHoverChange?.(false)} className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[240px]'}`}>
-      <div className={`p-5 ${collapsed ? 'px-4' : ''}`}>
+    <aside onMouseEnter={() => autoHide && onHoverChange?.(true)} onMouseLeave={() => autoHide && onHoverChange?.(false)} className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[280px]'}`}>
+      <div className={`p-4 ${collapsed ? 'px-4' : 'px-5'}`}>
         <Logo to="/" showText={!collapsed} size={collapsed ? 28 : 32} />
-        <p className="dashboard-sidebar-workspace">PERSONAL CAMPUS WORKSPACE</p>
+        <p className="dashboard-sidebar-workspace">UNIVO WORKSPACE</p>
       </div>
 
       <nav ref={navRef} className="relative flex-1 px-3 py-2 space-y-1">
@@ -79,10 +79,6 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
         </div>
       </div>
 
-      <div className={`dashboard-sidebar-tip p-4 mx-3 mb-4 rounded-xl bg-white/4 border border-white/6 ${collapsed ? 'is-collapsed' : ''}`}>
-          <p className="text-[10px] uppercase tracking-wider text-white/35 mb-1">Pro tip</p>
-          <p className="text-xs text-white/50 leading-relaxed">Press <kbd className="px-1 py-0.5 rounded bg-white/10 font-mono text-[10px]">⌘K</kbd> to jump anywhere instantly.</p>
-      </div>
     </aside>
   )
 }
