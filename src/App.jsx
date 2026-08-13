@@ -15,6 +15,7 @@ import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
 import StudentPlanPage from './pages/students/StudentPlanPage'
 import MessengerPage from './pages/modules/MessengerPage'
+import GroupsPage from './pages/modules/GroupsPage'
 import WorkspacePage from './pages/dashboard/WorkspacePage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="assignments" element={<ModulePlaceholder />} />
               <Route path="notes" element={<NotesHubPage />} />
               <Route path="marketplace" element={<ModulePlaceholder />} />
+              <Route path="groups" element={<GroupsPage />} />
               <Route path="forum" element={<ModulePlaceholder />} />
               <Route path="confessions" element={<ModulePlaceholder />} />
               <Route path="messenger" element={<MessengerPage />} />

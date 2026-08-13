@@ -26,7 +26,7 @@ export const NAV_BY_ROLE = {
     { id: 'attendance', label: 'Class Representative', path: '/dashboard/me/attendance', icon: 'CalendarCheck' },
     { id: 'assignments', label: 'Assignments', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/me/notes', icon: 'BookOpen' },
-    { id: 'marketplace', label: 'Marketplace', path: '/dashboard/me/marketplace', icon: 'Store' },
+    { id: 'groups', label: 'Groups', path: '/dashboard/me/groups', icon: 'UsersRound' },
     { id: 'forum', label: 'Forum', path: '/dashboard/me/forum', icon: 'MessagesSquare' },
     { id: 'confessions', label: 'Confessions', path: '/dashboard/me/confessions', icon: 'Ghost' },
     { id: 'messenger', label: 'Messenger', path: '/dashboard/me/messenger', icon: 'MessageCircle' },
