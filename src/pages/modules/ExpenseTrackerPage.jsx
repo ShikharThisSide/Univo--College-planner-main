@@ -37,14 +37,6 @@ const CATEGORIES = [
   { id: 'misc', label: 'Miscellaneous', icon: Tag, color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' }
 ]
 
-const DEMO_TRANSACTIONS = [
-  { id: 'tx-1', title: 'Monthly Mess Advance Fee', amount: 1800, category: 'mess', paymentMethod: 'UPI', date: '2026-08-01' },
-  { id: 'tx-2', title: 'Hostel Maintenance & Laundry', amount: 850, category: 'hostel', paymentMethod: 'Cash', date: '2026-08-03' },
-  { id: 'tx-3', title: 'Data Structures Textbook & Printing', amount: 420, category: 'academics', paymentMethod: 'UPI', date: '2026-08-05' },
-  { id: 'tx-4', title: 'Weekend Movie & Dinner with Friends', amount: 650, category: 'personal', paymentMethod: 'Card', date: '2026-08-08' },
-  { id: 'tx-5', title: 'Bus Pass / Metro Recharge', amount: 250, category: 'transport', paymentMethod: 'UPI', date: '2026-08-10' }
-]
-
 export default function ExpenseTrackerPage() {
   const { user } = useAuth()
   const storageKey = user?.email || 'guest'
@@ -59,13 +51,13 @@ export default function ExpenseTrackerPage() {
   const [budgetModalOpen, setBudgetModalOpen] = useState(false)
   const [tempBudgetInput, setTempBudgetInput] = useState(`${monthlyBudget}`)
 
-  // Expenses list state
+  // Expenses list state — Defaults to empty list [] so initial spent starts at ₹0!
   const [expenses, setExpenses] = useState(() => {
     try {
       const saved = localStorage.getItem(`univoExpenses:${storageKey}`)
-      if (saved) return JSON.parse(saved)
-      return DEMO_TRANSACTIONS
-    } catch { return DEMO_TRANSACTIONS }
+      if (saved !== null) return JSON.parse(saved)
+      return []
+    } catch { return [] }
   })
 
   // Add Expense Form state
@@ -199,10 +191,10 @@ export default function ExpenseTrackerPage() {
               </span>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="font-display text-4xl md:text-5xl font-bold text-white">
-                  &sharp;{totalSpent.toLocaleString('en-IN')}
+                  ₹{totalSpent.toLocaleString('en-IN')}
                 </span>
                 <span className="text-sm font-semibold text-white/50">
-                  spent of &sharp;{monthlyBudget.toLocaleString('en-IN')} limit
+                  spent of ₹{monthlyBudget.toLocaleString('en-IN')} limit
                 </span>
               </div>
             </div>
@@ -223,8 +215,8 @@ export default function ExpenseTrackerPage() {
                   <CheckCircle size={15} />
                 )}
                 {remainingBudget < 0
-                  ? `Over Budget by \u20B9${Math.abs(remainingBudget).toLocaleString('en-IN')}`
-                  : `\u20B9${remainingBudget.toLocaleString('en-IN')} Remaining`}
+                  ? `Over Budget by ₹${Math.abs(remainingBudget).toLocaleString('en-IN')}`
+                  : `₹${remainingBudget.toLocaleString('en-IN')} Remaining`}
               </div>
             </div>
           </div>
@@ -265,7 +257,7 @@ export default function ExpenseTrackerPage() {
               </div>
               <p className="text-xs font-medium text-white/60 truncate">{cat.label}</p>
               <p className="text-base font-bold font-display text-white mt-0.5">
-                &sharp;{amount.toLocaleString('en-IN')}
+                ₹{amount.toLocaleString('en-IN')}
               </p>
             </motion.div>
           )
@@ -360,7 +352,7 @@ export default function ExpenseTrackerPage() {
 
                     <div className="flex items-center gap-4 shrink-0">
                       <span className="font-display text-base font-bold text-white">
-                        -&sharp;{Number(tx.amount).toLocaleString('en-IN')}
+                        -₹{Number(tx.amount).toLocaleString('en-IN')}
                       </span>
                       <button
                         type="button"
@@ -402,7 +394,7 @@ export default function ExpenseTrackerPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-semibold text-white/70 mb-1">Amount (&sharp;)</label>
+                  <label className="block font-semibold text-white/70 mb-1">Amount (₹)</label>
                   <input
                     type="number"
                     min="1"
@@ -470,7 +462,7 @@ export default function ExpenseTrackerPage() {
             <h2 className="text-xl font-bold font-display">Set Monthly Budget</h2>
 
             <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Monthly Budget Limit (&sharp;)</label>
+              <label className="block font-semibold text-white/70">Monthly Budget Limit (₹)</label>
               <input
                 type="number"
                 min="100"
