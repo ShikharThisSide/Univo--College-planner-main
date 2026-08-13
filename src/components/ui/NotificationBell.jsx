@@ -25,7 +25,10 @@ export default function NotificationBell() {
   const storageKey = user?.email || 'guest'
   const [open, setOpen] = useState(false)
   const [requests, setRequests] = useState(() => readSocial(`requests:${storageKey}`))
+  const [groupRequests, setGroupRequests] = useState(() => readSocial(`groupRequests:${storageKey}`))
   const [inAppNotifs, setInAppNotifs] = useState(() => readSocial(`notifications:${storageKey}`))
+  const [dismissed, setDismissed] = useState(() => readSocial(`dismissed-notifications:${storageKey}`))
+  const account = (() => { try { return JSON.parse(localStorage.getItem('univoAccounts') || '{}')[storageKey] } catch { return null } })()
 
   useEffect(() => {
     const refresh = () => {
