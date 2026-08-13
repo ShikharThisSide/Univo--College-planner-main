@@ -353,15 +353,17 @@ export default function GroupsPage() {
           })}
         </div>
 
-        <div className="relative w-full sm:w-64">
-          <input
-            type="text"
-            placeholder="Search real groups by name or leader..."
-            value={groupSearch}
-            onChange={(e) => setGroupSearch(e.target.value)}
-            className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-          />
-          <Search size={14} className="absolute left-3 top-2.5 text-[var(--text-subtle)] pointer-events-none" />
+        <div className="relative w-full sm:w-72">
+          <div className="relative flex items-center w-full">
+            <Search size={15} className="absolute left-3.5 text-[var(--accent-solid)] pointer-events-none shrink-0" />
+            <input
+              type="text"
+              placeholder="Search groups..."
+              value={groupSearch}
+              onChange={(e) => setGroupSearch(e.target.value)}
+              className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-medium"
+            />
+          </div>
         </div>
       </div>
 
