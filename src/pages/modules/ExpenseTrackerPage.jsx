@@ -563,11 +563,20 @@ export default function ExpenseTrackerPage() {
         </div>
       )}
 
-      {/* LOG EXPENSE MODAL */}
+      {/* LOG EXPENSE MODAL — Dope Theme-Aligned Modal */}
       {addModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setAddModalOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl" onSubmit={handleAddExpense}>
-            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setAddModalOpen(false)} aria-label="Close">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setAddModalOpen(false)}>
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            onSubmit={handleAddExpense}
+          >
+            {/* Top Accent Glow Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setAddModalOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
             <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">NEW TRANSACTION</p>
@@ -582,7 +591,7 @@ export default function ExpenseTrackerPage() {
                   placeholder="e.g. Mess Bill, Laundromat, Book Printout..."
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] focus-within:border-[var(--accent-solid)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none"
                 />
               </div>
 
@@ -597,7 +606,7 @@ export default function ExpenseTrackerPage() {
                     placeholder="e.g. 250"
                     value={form.amount}
                     onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] focus-within:border-[var(--accent-solid)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -605,7 +614,7 @@ export default function ExpenseTrackerPage() {
                   <select
                     value={form.paymentMethod}
                     onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
                   >
                     <option value="UPI" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">UPI / GPay</option>
                     <option value="Cash" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Cash</option>
@@ -620,7 +629,7 @@ export default function ExpenseTrackerPage() {
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c.id} value={c.id} className="bg-[var(--surface-modal)] text-[var(--text-primary)]">
@@ -637,48 +646,114 @@ export default function ExpenseTrackerPage() {
                   required
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
-                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
                 />
               </div>
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-3 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
+            <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
               <Plus size={16} /> Save Expense Record
             </button>
-          </form>
+          </motion.form>
         </div>
       )}
 
-      {/* EDIT BUDGET MODAL */}
+      {/* EDIT BUDGET MODAL — Dope Theme-Aligned Modal */}
       {budgetModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setBudgetModalOpen(false)}>
-          <form className="glass-panel w-full max-w-sm rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl" onSubmit={handleSaveBudget}>
-            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setBudgetModalOpen(false)} aria-label="Close">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setBudgetModalOpen(false)}>
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            onSubmit={handleSaveBudget}
+          >
+            {/* Top Accent Glow Bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button
+              type="button"
+              className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1 rounded-lg hover:bg-white/10 transition-colors"
+              onClick={() => setBudgetModalOpen(false)}
+              aria-label="Close"
+            >
               <X size={18} />
             </button>
-            <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">MONTHLY TARGET</p>
-            <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Set Monthly Budget</h2>
 
-            <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-[var(--text-secondary)]">Monthly Budget Limit (₹)</label>
-              <input
-                type="number"
-                min="100"
-                required
-                placeholder="e.g. 5000"
-                value={tempBudgetInput}
-                onChange={(e) => setTempBudgetInput(e.target.value)}
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] text-base font-bold font-mono"
-              />
-              <p className="text-[11px] text-[var(--text-subtle)]">
-                This limit will be used to calculate your remaining monthly allowance and spending progress.
-              </p>
+            <div className="flex items-center gap-3">
+              <span className="p-3 rounded-2xl bg-[var(--accent-solid)]/15 text-[var(--accent-solid)] border border-[var(--accent-solid)]/30 shrink-0">
+                <Wallet size={22} />
+              </span>
+              <div>
+                <p className="settingsEyebrow text-[var(--accent-solid)] font-extrabold tracking-wider">MONTHLY TARGET</p>
+                <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-0.5">Set Monthly Budget</h2>
+              </div>
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
-              <Edit2 size={14} /> Update Monthly Budget
-            </button>
-          </form>
+            <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+              Define your monthly spending limit to track allowance remaining, calculate daily burn rate, and get smart warnings.
+            </p>
+
+            <div className="space-y-3">
+              <label className="block text-xs font-semibold text-[var(--text-secondary)]">Monthly Budget Limit (₹)</label>
+              
+              {/* Hero Currency Input Field */}
+              <div className="relative flex items-center bg-[var(--surface-control)] border border-[var(--border-subtle)] focus-within:border-[var(--accent-solid)] focus-within:ring-2 focus-within:ring-[var(--accent-solid)]/20 rounded-2xl px-4 py-3 transition-all">
+                <span className="text-2xl font-extrabold text-[var(--accent-solid)] mr-2 font-mono select-none">₹</span>
+                <input
+                  type="number"
+                  min="100"
+                  required
+                  autoFocus
+                  placeholder="6000"
+                  value={tempBudgetInput}
+                  onChange={(e) => setTempBudgetInput(e.target.value)}
+                  className="w-full bg-transparent text-2xl font-bold font-mono text-[var(--text-primary)] outline-none caret-[var(--accent-solid)]"
+                />
+              </div>
+
+              {/* Quick Preset Budget Chips */}
+              <div className="space-y-1.5 pt-1">
+                <span className="text-[11px] font-semibold text-[var(--text-subtle)] uppercase tracking-wider block">Quick Presets</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  {[4000, 6000, 8000, 10000, 15000].map((presetVal) => {
+                    const isSelected = String(presetVal) === String(tempBudgetInput)
+                    return (
+                      <button
+                        key={presetVal}
+                        type="button"
+                        onClick={() => setTempBudgetInput(String(presetVal))}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] scale-105 shadow-sm'
+                            : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
+                        }`}
+                      >
+                        ₹{presetVal.toLocaleString('en-IN')}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 space-y-2">
+              <button
+                type="submit"
+                className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                <CheckCircle size={16} /> Update Monthly Budget
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBudgetModalOpen(false)}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-[var(--text-secondary)] transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.form>
         </div>
       )}
     </PageTransition>
