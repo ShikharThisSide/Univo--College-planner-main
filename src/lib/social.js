@@ -14,6 +14,50 @@ export function writeSocial(key, value) {
   window.dispatchEvent(new Event('univo-social-updated'))
 }
 
+// Real Last Active Activity Tracker Helpers
+export function updateUserLastActive(email) {
+  if (!email) return
+  const now = Date.now()
+  localStorage.setItem(`univoSocial:lastActive:${email}`, String(now))
+
+  try {
+    const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}') || {}
+    if (accounts[email]) {
+      accounts[email].lastActiveAt = now
+      localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+    }
+  } catch {}
+}
+
+export function getUserLastActive(email) {
+  if (!email) return null
+  try {
+    const saved = localStorage.getItem(`univoSocial:lastActive:${email}`)
+    if (saved) return parseInt(saved, 10)
+    const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}') || {}
+    if (accounts[email]?.lastActiveAt) return accounts[email].lastActiveAt
+    if (accounts[email]?.createdAt) return accounts[email].createdAt
+  } catch {}
+  return null
+}
+
+export function formatLastActive(timestamp) {
+  if (!timestamp) return '🟢 Active Now'
+  const diffMs = Date.now() - timestamp
+  const diffMin = Math.floor(diffMs / (1000 * 60))
+
+  if (diffMin < 3) return '🟢 Active Now'
+  if (diffMin < 60) return `🕒 Last active ${diffMin}m ago`
+
+  const diffHours = Math.floor(diffMin / 60)
+  if (diffHours < 24) return `🕒 Last active ${diffHours}h ago`
+
+  const date = new Date(timestamp)
+  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const dateStr = date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+  return `🕒 Last active on ${dateStr} at ${timeStr}`
+}
+
 // Global Campus Groups Registry Helper
 export function readGlobalGroups() {
   return readSocial('all_groups', [])

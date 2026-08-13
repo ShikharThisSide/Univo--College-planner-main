@@ -5,7 +5,7 @@ import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_USERS } from '../../lib/constants'
-import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest, readDMMessages, sendDMMessage } from '../../lib/social'
+import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest, readDMMessages, sendDMMessage, getUserLastActive, formatLastActive } from '../../lib/social'
 
 function readPeople(currentUser) {
   let accounts = {}
@@ -17,7 +17,8 @@ function readPeople(currentUser) {
     role: account.role || 'student_individual',
     username: account.username,
     avatar: account.avatar,
-    avatarImage: account.avatarImage
+    avatarImage: account.avatarImage,
+    lastActiveAt: getUserLastActive(email) || account.lastActiveAt || account.createdAt
   }))
   return people.filter((person, index, list) => person.email !== currentUser?.email && list.findIndex((item) => item.email === person.email) === index)
 }
@@ -317,9 +318,15 @@ export default function MessengerPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-display font-extrabold text-lg univo-gradient-text text-[var(--accent-solid)] tracking-tight">{activeChatFriend.name}</h3>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active Now" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active Status" />
                     </div>
-                    <p className="text-xs text-[var(--text-subtle)] font-medium">@{activeChatFriend.username || activeChatFriend.email.split('@')[0]}</p>
+                    <p className="text-xs text-[var(--text-subtle)] font-medium font-mono flex items-center gap-1.5 mt-0.5">
+                      <span>@{activeChatFriend.username || activeChatFriend.email.split('@')[0]}</span>
+                      <span>&middot;</span>
+                      <span className="text-[var(--text-secondary)] font-bold">
+                        {formatLastActive(getUserLastActive(activeChatFriend.email) || activeChatFriend.lastActiveAt)}
+                      </span>
+                    </p>
                   </div>
                 </div>
 
@@ -451,6 +458,12 @@ export default function MessengerPage() {
               <p className="settingsEyebrow">UNIVO MEMBER</p>
               <h2 className="univo-gradient-text text-[var(--accent-solid)] font-extrabold">{selected.name}</h2>
               <p className="messengerProfileHandle">@{selected.username || selected.email.split('@')[0]}</p>
+
+              {/* REAL LAST ACTIVE STATUS BADGE */}
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[var(--surface-control)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] my-2.5 shadow-sm">
+                {formatLastActive(getUserLastActive(selected.email) || selected.lastActiveAt)}
+              </div>
+
               <p className="messengerProfileRole">{selected.role.replaceAll('_', ' ')}</p>
 
               {areFriends(user, selected) ? (

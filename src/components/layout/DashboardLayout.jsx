@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { NAV_BY_ROLE } from '../../lib/constants'
 import { getRoleLabel } from '../../lib/rbac'
 import MagneticSidebar from './MagneticSidebar'
-import { sendProductUpdateEmail } from '../../lib/social'
+import { sendProductUpdateEmail, updateUserLastActive } from '../../lib/social'
 import NotificationBell from '../ui/NotificationBell'
 import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
@@ -45,6 +45,13 @@ export default function DashboardLayout() {
     const timeout = setTimeout(() => setIsLoading(false), 650)
     return () => clearTimeout(timeout)
   }, [])
+
+  useEffect(() => {
+    if (!user?.email) return
+    updateUserLastActive(user.email)
+    const interval = setInterval(() => updateUserLastActive(user.email), 15000)
+    return () => clearInterval(interval)
+  }, [user?.email])
 
   const navItems = NAV_BY_ROLE[user?.role] || []
 
