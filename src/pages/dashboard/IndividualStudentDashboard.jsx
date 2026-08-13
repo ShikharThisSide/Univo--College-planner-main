@@ -28,7 +28,10 @@ import {
   PenTool,
   Bookmark,
   Wallet,
-  CreditCard
+  CreditCard,
+  MapPin,
+  User,
+  ShieldCheck
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -55,7 +58,7 @@ function PriorityBadge({ priority }) {
     low: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30'
   }
   return (
-    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-semibold border ${colors[priority] || colors.medium}`}>
+    <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold border ${colors[priority] || colors.medium}`}>
       {priority}
     </span>
   )
@@ -67,9 +70,7 @@ export default function IndividualStudentDashboard() {
   const storageKey = user?.email || 'guest'
 
   const [loading, setLoading] = useState(true)
-  const [useDemoData, setUseDemoData] = useState(() => {
-    try { return localStorage.getItem(`univoUseDemoData:${storageKey}`) === 'true' } catch { return false }
-  })
+  const [useDemoData] = useState(false)
 
   // Modals & Drawers
   const [scheduleOpen, setScheduleOpen] = useState(false)
@@ -77,7 +78,6 @@ export default function IndividualStudentDashboard() {
   const [focusModalOpen, setFocusModalOpen] = useState(false)
   const [quickNoteOpen, setQuickNoteOpen] = useState(false)
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false)
-  const [goalModalOpen, setGoalModalOpen] = useState(false)
   const [showCompletedTasks, setShowCompletedTasks] = useState(false)
 
   // Schedules state
@@ -86,7 +86,7 @@ export default function IndividualStudentDashboard() {
       return JSON.parse(localStorage.getItem(`univoSchedule:${storageKey}`) || '[]')
     } catch { return [] }
   })
-  const [scheduleForm, setScheduleForm] = useState({ time: '09:00', subject: '', room: '' })
+  const [scheduleForm, setScheduleForm] = useState({ time: '09:00 AM - 10:30 AM', subject: '', room: '' })
 
   // Custom Quick Sticky Notes state
   const [notesList, setNotesList] = useState(() => {
@@ -102,7 +102,7 @@ export default function IndividualStudentDashboard() {
       return JSON.parse(localStorage.getItem(`univoAssignments:${storageKey}`) || '[]')
     } catch { return [] }
   })
-  const [taskForm, setTaskForm] = useState({ title: '', subject: '', due: 'Tomorrow', priority: 'medium' })
+  const [taskForm, setTaskForm] = useState({ title: '', subject: 'General', due: 'Today', priority: 'medium' })
 
   // Attendance state — Default to [] (0 subjects)
   const [attendanceData, setAttendanceData] = useState(() => {
@@ -120,14 +120,6 @@ export default function IndividualStudentDashboard() {
   })
   const [newSubjectForm, setNewSubjectForm] = useState({ subject: '', attended: 15, total: 18 })
 
-  // Target Goal / Exam state
-  const [targetGoal, setTargetGoal] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(`univoTargetGoal:${storageKey}`) || 'null')
-    } catch { return null }
-  })
-  const [goalForm, setGoalForm] = useState({ title: '', date: '' })
-
   // Expense Tracker Preview State & Sync
   const [dashboardExpenses, setDashboardExpenses] = useState(() => {
     try {
@@ -143,6 +135,7 @@ export default function IndividualStudentDashboard() {
     } catch { return 6000 }
   })
 
+  // Sync Expenses
   useEffect(() => {
     const handleSyncExpenses = () => {
       try {
@@ -152,6 +145,18 @@ export default function IndividualStudentDashboard() {
     }
     window.addEventListener('univo-expenses-updated', handleSyncExpenses)
     return () => window.removeEventListener('univo-expenses-updated', handleSyncExpenses)
+  }, [storageKey])
+
+  // Sync Timetable Schedule
+  useEffect(() => {
+    const handleSyncSchedule = () => {
+      try {
+        const saved = localStorage.getItem(`univoSchedule:${storageKey}`)
+        if (saved !== null) setSchedule(JSON.parse(saved))
+      } catch {}
+    }
+    window.addEventListener('univo-schedule-updated', handleSyncSchedule)
+    return () => window.removeEventListener('univo-schedule-updated', handleSyncSchedule)
   }, [storageKey])
 
   const totalExpenseSpent = useMemo(() => {
@@ -173,11 +178,10 @@ export default function IndividualStudentDashboard() {
     try { return parseInt(localStorage.getItem(`univoFocusSessions:${storageKey}`) || '0', 10) } catch { return 0 }
   })
 
-  // Daily Quote index
   const quote = useMemo(() => MOTIVATIONAL_QUOTES[Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % MOTIVATIONAL_QUOTES.length], [])
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 700)
+    const timer = setTimeout(() => setLoading(false), 400)
     return () => clearTimeout(timer)
   }, [])
 
@@ -197,84 +201,59 @@ export default function IndividualStudentDashboard() {
     return () => clearInterval(interval)
   }, [timerActive, timerSeconds, completedSessions, storageKey])
 
-  // Target Days Left Calculation
-  const daysLeft = useMemo(() => {
-    if (!targetGoal || !targetGoal.date) return null
-    const diff = new Date(targetGoal.date).getTime() - new Date().setHours(0,0,0,0)
-    return Math.ceil(diff / (1000 * 60 * 60 * 24))
-  }, [targetGoal])
+  // Tasks Filter
+  const activePendingTasks = useMemo(() => userTasks.filter((t) => t.status !== 'completed'), [userTasks])
+  const completedTasks = useMemo(() => userTasks.filter((t) => t.status === 'completed'), [userTasks])
+  const displayTasks = showCompletedTasks ? userTasks : activePendingTasks
 
-  // Combined Data source (Demo or User created)
-  const isDemoActive = useDemoData || user?.id?.startsWith('demo-')
-  const displaySchedule = useMemo(() => {
-    if (schedule.length > 0) return schedule
-    if (isDemoActive) return individualStudentData.todaySchedule
-    return []
-  }, [schedule, isDemoActive])
-
-  const allTasks = useMemo(() => {
-    if (userTasks.length > 0) return userTasks
-    if (isDemoActive) return individualStudentData.assignments
-    return []
-  }, [userTasks, isDemoActive])
-
-  // Filter tasks to display
-  const activePendingTasks = useMemo(() => allTasks.filter((t) => t.status !== 'completed'), [allTasks])
-  const completedTasks = useMemo(() => allTasks.filter((t) => t.status === 'completed'), [allTasks])
-  const displayTasks = showCompletedTasks ? allTasks : activePendingTasks
-
-  // Save Schedule Handler
+  // Handlers
   const saveSchedule = (e) => {
     e.preventDefault()
     if (!scheduleForm.subject.trim()) return
     const newSlot = {
       id: `${Date.now()}`,
-      time: scheduleForm.time || '10:00 AM',
+      time: scheduleForm.time || '09:00 AM - 10:30 AM',
       subject: scheduleForm.subject.trim(),
       room: scheduleForm.room.trim() || 'Room 101',
       status: 'upcoming'
     }
-    const next = [...schedule, newSlot].sort((a, b) => a.time.localeCompare(b.time))
+    const next = [...schedule, newSlot]
     setSchedule(next)
     localStorage.setItem(`univoSchedule:${storageKey}`, JSON.stringify(next))
-    setScheduleForm({ time: '09:00', subject: '', room: '' })
+    setScheduleForm({ time: '09:00 AM - 10:30 AM', subject: '', room: '' })
     setScheduleOpen(false)
   }
 
-  // Toggle Schedule Class Completed
   const toggleClassDone = (slotId) => {
     const next = schedule.map((item) => item.id === slotId ? { ...item, completed: !item.completed } : item)
     setSchedule(next)
     localStorage.setItem(`univoSchedule:${storageKey}`, JSON.stringify(next))
   }
 
-  // Save Task Handler
   const saveTask = (e) => {
     e.preventDefault()
     if (!taskForm.title.trim()) return
     const newTask = {
       id: `${Date.now()}`,
       title: taskForm.title.trim(),
-      subject: taskForm.subject.trim() || 'General',
-      due: taskForm.due || 'Tomorrow',
-      priority: taskForm.priority,
+      subject: 'General',
+      due: 'Today',
+      priority: 'medium',
       status: 'pending'
     }
     const next = [newTask, ...userTasks]
     setUserTasks(next)
     localStorage.setItem(`univoAssignments:${storageKey}`, JSON.stringify(next))
-    setTaskForm({ title: '', subject: '', due: 'Tomorrow', priority: 'medium' })
+    setTaskForm({ title: '', subject: 'General', due: 'Today', priority: 'medium' })
     setTaskOpen(false)
   }
 
-  // Toggle Task Completion
   const toggleTaskDone = (id) => {
     const next = userTasks.map((t) => t.id === id ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed' } : t)
     setUserTasks(next)
     localStorage.setItem(`univoAssignments:${storageKey}`, JSON.stringify(next))
   }
 
-  // Save Quick Note
   const saveQuickNoteModal = (e) => {
     e.preventDefault()
     if (!newNoteInput.trim()) return
@@ -291,7 +270,6 @@ export default function IndividualStudentDashboard() {
     localStorage.setItem(`univoDashboardNotes:${storageKey}`, JSON.stringify(next))
   }
 
-  // Add New Attendance Subject
   const saveNewSubject = (e) => {
     e.preventDefault()
     if (!newSubjectForm.subject.trim()) return
@@ -308,34 +286,6 @@ export default function IndividualStudentDashboard() {
     setAttendanceModalOpen(false)
   }
 
-  // Sync attendance with external updates
-  useEffect(() => {
-    const handleSync = () => {
-      try {
-        const saved = JSON.parse(localStorage.getItem(`univoAttendance:${storageKey}`) || 'null')
-        if (saved && Array.isArray(saved)) setAttendanceData(saved)
-      } catch {}
-    }
-    window.addEventListener('univo-attendance-updated', handleSync)
-    return () => window.removeEventListener('univo-attendance-updated', handleSync)
-  }, [storageKey])
-
-  // Save Target Goal
-  const saveGoal = (e) => {
-    e.preventDefault()
-    if (!goalForm.title.trim() || !goalForm.date) return
-    const newGoal = { title: goalForm.title.trim(), date: goalForm.date }
-    setTargetGoal(newGoal)
-    localStorage.setItem(`univoTargetGoal:${storageKey}`, JSON.stringify(newGoal))
-    setGoalModalOpen(false)
-  }
-
-  const clearGoal = () => {
-    setTargetGoal(null)
-    localStorage.removeItem(`univoTargetGoal:${storageKey}`)
-  }
-
-  // Simulate Attendance Change
   const adjustAttendance = (idx, deltaAttended, deltaTotal) => {
     const next = [...attendanceData]
     const item = { ...next[idx] }
@@ -347,7 +297,6 @@ export default function IndividualStudentDashboard() {
     window.dispatchEvent(new Event('univo-attendance-updated'))
   }
 
-  // Format Timer
   const formatTimer = (secs) => {
     const m = Math.floor(secs / 60)
     const s = secs % 60
@@ -359,190 +308,221 @@ export default function IndividualStudentDashboard() {
   return (
     <PageTransition>
       {/* HERO BANNER & GREETING */}
-      <div className="mb-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-semibold text-white/50 uppercase tracking-widest flex items-center gap-1.5">
-            <Sparkles size={14} className="text-[var(--accent-solid)]" /> {getTimeGreeting()}
+          <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-extrabold text-[var(--accent-solid)] uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles size={14} /> {getTimeGreeting()}
           </motion.p>
-          <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="dashboard-user-name font-display text-4xl md:text-5xl font-bold tracking-tight mt-1">
+          <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="font-display text-4xl md:text-5xl font-extrabold tracking-tight mt-1 text-[var(--text-primary)]">
             {user?.name?.split(' ')[0] || 'Shikhar'} <span className="inline-block animate-[wave_2s_ease-in-out_infinite]">👋</span>
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-white/55 text-xs md:text-sm mt-1.5 flex items-center gap-2">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-[var(--text-muted)] text-xs md:text-sm mt-1 flex items-center gap-2">
             <span>{quote}</span>
           </motion.p>
         </div>
 
         {/* QUICK ACTION BAR */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-2">
-          {/* Option 1: Focus Mode */}
           <button
             type="button"
             onClick={() => setFocusModalOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <Zap size={15} className="text-amber-400" /> Focus Mode ({completedSessions} done)
           </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard/me/timetable')}
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+          >
+            <Clock size={15} className="text-[var(--accent-solid)]" /> Timetable
+          </button>
           
-          {/* Option 2: Add Schedule */}
           <button
             type="button"
             onClick={() => setScheduleOpen(true)}
-            className="px-3.5 py-2 rounded-xl univo-gradient-bg text-black text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+            className="px-3.5 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 shadow-md"
           >
             <Plus size={15} /> Add Schedule
           </button>
 
-          {/* Option 3: Add Task */}
           <button
             type="button"
             onClick={() => setTaskOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <Plus size={15} /> Add Task
           </button>
 
-          {/* Option 4: Quick Note */}
           <button
             type="button"
             onClick={() => setQuickNoteOpen(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <PenTool size={14} className="text-emerald-400" /> Quick Note
           </button>
         </motion.div>
       </div>
 
-      {/* MAIN WIDGET GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      {/* TOP ROW 2-COLUMN GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         
-        {/* TODAY'S SCHEDULE TIMELINE */}
+        {/* WIDGET 1: TODAY'S SCHEDULE */}
         <GlassCard className="lg:col-span-2" delay={0.15}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <Clock size={18} className="text-[var(--accent-solid)]" />
-              <h2 className="font-display font-semibold text-lg">Today's Schedule</h2>
+              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Today's Schedule</h2>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-white/40">{new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-              <button type="button" onClick={() => setScheduleOpen(true)} className="univo-gradient-bg text-black px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer">
+              <span className="text-xs font-mono font-semibold text-[var(--text-subtle)]">
+                {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
+              <button
+                type="button"
+                onClick={() => setScheduleOpen(true)}
+                className="univo-gradient-bg text-black px-3 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 cursor-pointer shadow-sm hover:scale-105 transition-all"
+              >
                 <Plus size={13} /> Class
               </button>
             </div>
           </div>
 
-          <div className="space-y-2.5">
-            {displaySchedule.length === 0 ? (
-              <div className="p-8 text-center border border-dashed border-white/15 rounded-2xl space-y-3">
-                <Calendar size={28} className="mx-auto text-white/30" />
-                <p className="text-sm font-semibold text-white/70">No classes scheduled for today</p>
-                <p className="text-xs text-white/40 max-w-xs mx-auto">Add your daily classes to track timetable, room numbers, and check-offs.</p>
-                <button type="button" onClick={() => setScheduleOpen(true)} className="px-4 py-2 rounded-xl univo-gradient-bg text-black text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
-                  <Plus size={14} /> Build Timetable
+          <div className="space-y-2.5 min-h-[140px]">
+            {schedule.length === 0 ? (
+              <div className="p-8 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2.5 bg-[var(--surface-control)]">
+                <Calendar size={32} className="mx-auto text-[var(--accent-solid)]" />
+                <p className="text-sm font-bold text-[var(--text-primary)]">No classes scheduled for today</p>
+                <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">Add your daily lectures or labs to track room locations and attendance check-offs.</p>
+                <button
+                  type="button"
+                  onClick={() => setScheduleOpen(true)}
+                  className="px-4 py-2 rounded-xl univo-gradient-bg text-black text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer shadow-md hover:scale-105 transition-all mt-1"
+                >
+                  <Plus size={14} /> Add Today's Class
                 </button>
               </div>
             ) : (
-              displaySchedule.map((slot, i) => (
+              schedule.map((slot, i) => (
                 <motion.div
                   key={slot.id || slot.time + i}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
                   className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
-                    slot.completed ? 'bg-white/2 border-white/5 opacity-60' : 'bg-white/5 border-white/10 hover:border-[var(--accent-solid)]/40 hover:bg-white/8'
+                    slot.completed
+                      ? 'bg-[var(--surface-control)] border-[var(--border-subtle)] opacity-60'
+                      : 'bg-[var(--surface-control)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                   }`}
                 >
                   <button
                     type="button"
                     onClick={() => slot.id && toggleClassDone(slot.id)}
-                    className="text-white/40 hover:text-[var(--accent-solid)] cursor-pointer"
+                    className="text-[var(--text-subtle)] hover:text-[var(--accent-solid)] cursor-pointer shrink-0"
                   >
                     {slot.completed ? <CheckCircle2 size={18} className="text-[var(--accent-solid)]" /> : <Circle size={18} />}
                   </button>
 
-                  <span className="text-xs font-mono font-medium text-white/50 w-16 shrink-0">{slot.time}</span>
+                  <span className="text-xs font-mono font-bold text-[var(--accent-solid)] px-2.5 py-1 rounded-lg bg-[var(--accent-solid)]/10 shrink-0">
+                    {slot.time}
+                  </span>
                   
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-semibold truncate ${slot.completed ? 'line-through text-white/50' : 'text-white'}`}>
+                    <p className={`text-sm font-bold truncate text-[var(--text-primary)] ${slot.completed ? 'line-through text-[var(--text-subtle)]' : ''}`}>
                       {slot.subject}
                     </p>
-                    <p className="text-xs text-white/40">{slot.room || 'Classroom'}</p>
+                    <div className="flex items-center gap-2 text-xs text-[var(--text-secondary)] mt-0.5">
+                      <span className="flex items-center gap-1"><MapPin size={12} className="text-[var(--accent-solid)]" /> {slot.room || 'Classroom'}</span>
+                    </div>
                   </div>
-
-                  {slot.status === 'current' && (
-                    <span className="px-2 py-0.5 rounded-full univo-gradient-bg text-[10px] font-bold text-black uppercase tracking-wider">
-                      Now
-                    </span>
-                  )}
                 </motion.div>
               ))
             )}
           </div>
         </GlassCard>
 
-        {/* ATTENDANCE TRACKER & SIMULATOR */}
+        {/* WIDGET 2: ATTENDANCE TRACKER */}
         <GlassCard delay={0.2}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
-              <h2 className="font-display font-semibold text-lg">Attendance Tracker</h2>
-              <button type="button" onClick={() => setAttendanceModalOpen(true)} className="text-xs text-[var(--accent-solid)] hover:underline cursor-pointer">
-                + Add
-              </button>
+              <Percent size={18} className="text-[var(--accent-solid)]" />
+              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Attendance Tracker</h2>
             </div>
-            <span className="text-[11px] text-[var(--accent-solid)] font-semibold font-mono">Target &ge; 75%</span>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard/me/attendance-tracker')}
+              className="text-xs text-[var(--accent-solid)] hover:underline font-bold cursor-pointer"
+            >
+              Open Tracker &rarr;
+            </button>
           </div>
 
-          <div className="space-y-3 max-h-[340px] overflow-y-auto pr-1">
-            {attendanceData.map((item, idx) => {
-              const pct = item.total > 0 ? Math.round((item.attended / item.total) * 100) : 0
-              const isSafe = pct >= 75
-              return (
-                <div key={item.subject + idx} className="p-3 rounded-xl bg-white/5 border border-white/8 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold">
-                    <span className="text-white truncate max-w-[140px]">{item.subject}</span>
-                    <span className={`font-mono px-2 py-0.5 rounded-md ${isSafe ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}`}>
-                      {pct}% ({item.attended}/{item.total})
-                    </span>
-                  </div>
+          <div className="space-y-3 min-h-[140px] max-h-[320px] overflow-y-auto pr-1">
+            {attendanceData.length === 0 ? (
+              <div className="p-6 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2 bg-[var(--surface-control)]">
+                <Percent size={32} className="mx-auto text-[var(--accent-solid)]" />
+                <p className="text-sm font-bold text-[var(--text-primary)]">No subjects tracked yet</p>
+                <p className="text-xs text-[var(--text-muted)]">Track your subjects to get smart 75% bunk advisor recommendations.</p>
+                <button
+                  type="button"
+                  onClick={() => setAttendanceModalOpen(true)}
+                  className="px-4 py-2 rounded-xl univo-gradient-bg text-black text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer shadow-md hover:scale-105 transition-all mt-1"
+                >
+                  <Plus size={14} /> Add First Subject
+                </button>
+              </div>
+            ) : (
+              attendanceData.map((item, idx) => {
+                const pct = item.total > 0 ? Math.round((item.attended / item.total) * 100) : 0
+                const isSafe = pct >= 75
+                return (
+                  <div key={item.subject + idx} className="p-3.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold">
+                      <span className="text-[var(--text-primary)] truncate max-w-[140px]">{item.subject}</span>
+                      <span className={`font-mono px-2 py-0.5 rounded-md ${isSafe ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/15 text-red-400 border border-red-500/30'}`}>
+                        {pct}% ({item.attended}/{item.total})
+                      </span>
+                    </div>
 
-                  <AnimatedProgress value={pct} height={5} delay={idx * 0.1} />
+                    <AnimatedProgress value={pct} height={6} delay={idx * 0.1} />
 
-                  <div className="flex items-center justify-between text-[11px] text-white/40 pt-1">
-                    <span>Simulate:</span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => adjustAttendance(idx, 1, 1)}
-                        className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-semibold cursor-pointer"
-                        title="Attended class (+1)"
-                      >
-                        + Attend
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => adjustAttendance(idx, 0, 1)}
-                        className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 font-semibold cursor-pointer"
-                        title="Skipped class (+1 total)"
-                      >
-                        + Bunk
-                      </button>
+                    <div className="flex items-center justify-between text-[11px] text-[var(--text-subtle)] pt-1">
+                      <span>Simulate:</span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => adjustAttendance(idx, 1, 1)}
+                          className="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 font-bold cursor-pointer transition-colors"
+                        >
+                          + Attend
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => adjustAttendance(idx, 0, 1)}
+                          className="px-2 py-0.5 rounded-lg bg-red-500/20 text-red-300 border border-red-500/30 hover:bg-red-500/30 font-bold cursor-pointer transition-colors"
+                        >
+                          + Bunk
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })
+            )}
           </div>
         </GlassCard>
       </div>
 
-      {/* SECONDARY ROW: TASKS TO COMPLETE, EXPENSE TRACKER PREVIEW, & QUICK SCRATCHPAD */}
+      {/* SECONDARY ROW: 3-COLUMN WIDGET GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
 
-        {/* TASKS TO COMPLETE WIDGET */}
+        {/* WIDGET 3: TASKS TO COMPLETE */}
         <GlassCard delay={0.25}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <CheckSquare size={18} className="text-[var(--accent-solid)]" />
-              <h2 className="font-display font-semibold text-lg">Tasks to complete</h2>
+              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Tasks to complete</h2>
             </div>
 
             <div className="flex items-center gap-2">
@@ -550,18 +530,18 @@ export default function IndividualStudentDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowCompletedTasks(!showCompletedTasks)}
-                  className="text-[11px] text-white/40 hover:text-white transition-colors cursor-pointer"
+                  className="text-[11px] text-[var(--text-subtle)] hover:text-[var(--text-primary)] font-semibold transition-colors cursor-pointer"
                 >
-                  {showCompletedTasks ? 'Hide Done' : `Show Done (${completedTasks.length})`}
+                  {showCompletedTasks ? 'Hide Done' : `Done (${completedTasks.length})`}
                 </button>
               )}
 
               <button
                 type="button"
                 onClick={() => setTaskOpen(true)}
-                className="univo-gradient-bg text-black px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+                className="univo-gradient-bg text-black px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center gap-1 cursor-pointer shadow-sm hover:scale-105 transition-all"
               >
-                <Plus size={13} /> Add Task
+                <Plus size={13} /> Task
               </button>
             </div>
           </div>
@@ -573,13 +553,13 @@ export default function IndividualStudentDashboard() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="p-6 text-center border border-dashed border-white/15 rounded-xl space-y-2"
+                  className="p-6 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2 bg-[var(--surface-control)]"
                 >
-                  <CheckCircle2 size={24} className="mx-auto text-emerald-400" />
-                  <p className="text-xs font-semibold text-white/70">
-                    {completedTasks.length > 0 ? 'All tasks completed! Great work 🎉' : 'No tasks to complete right now.'}
+                  <CheckCircle2 size={28} className="mx-auto text-emerald-400" />
+                  <p className="text-xs font-bold text-[var(--text-primary)]">
+                    {completedTasks.length > 0 ? 'All tasks completed! 🎉' : 'No pending tasks right now.'}
                   </p>
-                  <button type="button" onClick={() => setTaskOpen(true)} className="text-xs text-[var(--accent-solid)] underline cursor-pointer">
+                  <button type="button" onClick={() => setTaskOpen(true)} className="text-xs text-[var(--accent-solid)] font-bold underline cursor-pointer">
                     + Add a new task
                   </button>
                 </motion.div>
@@ -590,33 +570,32 @@ export default function IndividualStudentDashboard() {
                     layout
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.92, y: -10, transition: { duration: 0.3 } }}
+                    exit={{ opacity: 0, scale: 0.92, y: -10 }}
                     className={`p-3.5 rounded-xl border transition-all flex items-start justify-between gap-3 ${
                       t.status === 'completed'
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-200'
-                        : 'bg-white/5 border-white/10 hover:border-[var(--accent-solid)]/40 hover:bg-white/8'
+                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
+                        : 'bg-[var(--surface-control)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
                     }`}
                   >
                     <div className="flex items-start gap-2.5 min-w-0 flex-1">
                       <button
                         type="button"
                         onClick={() => t.id && toggleTaskDone(t.id)}
-                        className="mt-0.5 text-white/40 hover:text-[var(--accent-solid)] cursor-pointer group"
-                        title="Click to mark done and fade out"
+                        className="mt-0.5 text-[var(--text-subtle)] hover:text-[var(--accent-solid)] cursor-pointer group shrink-0"
                       >
                         {t.status === 'completed' ? (
                           <CheckCircle2 size={18} className="text-emerald-400" />
                         ) : (
-                          <div className="w-4 h-4 rounded border border-white/30 group-hover:border-[var(--accent-solid)] flex items-center justify-center transition-colors">
+                          <div className="w-4 h-4 rounded border border-[var(--border-strong)] group-hover:border-[var(--accent-solid)] flex items-center justify-center transition-colors">
                             <Check size={12} className="opacity-0 group-hover:opacity-100 text-[var(--accent-solid)]" />
                           </div>
                         )}
                       </button>
                       <div className="min-w-0 flex-1">
-                        <p className={`text-sm font-semibold truncate ${t.status === 'completed' ? 'line-through text-white/40' : 'text-white'}`}>
+                        <p className={`text-xs font-bold truncate text-[var(--text-primary)] ${t.status === 'completed' ? 'line-through text-[var(--text-subtle)]' : ''}`}>
                           {t.title}
                         </p>
-                        <p className="text-xs text-white/40 mt-0.5">{t.subject} &middot; Due {t.due}</p>
+                        <p className="text-[11px] text-[var(--text-subtle)] mt-0.5">{t.subject} &middot; Due {t.due}</p>
                       </div>
                     </div>
                     <PriorityBadge priority={t.priority || 'medium'} />
@@ -627,35 +606,35 @@ export default function IndividualStudentDashboard() {
           </div>
         </GlassCard>
 
-        {/* EXPENSE TRACKER PREVIEW WIDGET */}
+        {/* WIDGET 4: EXPENSE TRACKER PREVIEW */}
         <GlassCard delay={0.28}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <Wallet size={18} className="text-[var(--accent-solid)]" />
-              <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Expense Tracker</h2>
+              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Expense Tracker</h2>
             </div>
             <button
               type="button"
               onClick={() => navigate('/dashboard/me/expenses')}
-              className="text-[11px] text-[var(--accent-solid)] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs text-[var(--accent-solid)] font-bold hover:underline flex items-center gap-1 cursor-pointer"
             >
-              Open Tracker <ArrowRight size={12} />
+              Open Tracker &rarr;
             </button>
           </div>
 
           <div className="p-3.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-2 mb-3">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-[var(--text-muted)] font-medium">Monthly Spending</span>
+            <div className="flex items-center justify-between text-xs font-bold">
+              <span className="text-[var(--text-muted)]">Monthly Spending</span>
               <span className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold ${
                 totalExpenseSpent > dashboardMonthlyBudget
-                  ? 'bg-red-500/20 text-red-400'
-                  : 'bg-emerald-500/20 text-emerald-400'
+                  ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
               }`}>
                 ₹{totalExpenseSpent.toLocaleString('en-IN')} / ₹{dashboardMonthlyBudget.toLocaleString('en-IN')}
               </span>
             </div>
             <AnimatedProgress value={expenseSpentPct} height={6} delay={0.2} />
-            <div className="flex justify-between items-center text-[10px] text-[var(--text-subtle)] pt-0.5">
+            <div className="flex justify-between items-center text-[10px] text-[var(--text-subtle)] pt-0.5 font-mono">
               <span>{expenseSpentPct}% budget used</span>
               <span>
                 {dashboardMonthlyBudget - totalExpenseSpent < 0
@@ -665,25 +644,24 @@ export default function IndividualStudentDashboard() {
             </div>
           </div>
 
-          {/* Recent logged expenses list */}
           <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
             {dashboardExpenses.length === 0 ? (
-              <div className="p-4 text-center border border-dashed border-[var(--border-subtle)] rounded-xl space-y-1">
-                <p className="text-xs font-semibold text-[var(--text-secondary)]">No expenses recorded</p>
-                <p className="text-[11px] text-[var(--text-subtle)]">Track your hostel rent, mess, & daily student spending.</p>
+              <div className="p-4 text-center border border-dashed border-[var(--border-subtle)] rounded-xl space-y-1 bg-[var(--surface-control)]">
+                <p className="text-xs font-bold text-[var(--text-primary)]">No expenses recorded</p>
+                <p className="text-[11px] text-[var(--text-muted)]">Track your hostel rent, mess, & daily spending.</p>
                 <button
                   type="button"
                   onClick={() => navigate('/dashboard/me/expenses')}
-                  className="text-xs text-[var(--accent-solid)] font-bold underline cursor-pointer mt-1 inline-block"
+                  className="text-xs text-[var(--accent-solid)] font-extrabold underline cursor-pointer mt-1 inline-block"
                 >
                   + Log First Expense
                 </button>
               </div>
             ) : (
               dashboardExpenses.slice(0, 3).map((item) => (
-                <div key={item.id} className="p-2.5 rounded-lg bg-white/5 border border-white/8 flex items-center justify-between gap-2 text-xs">
+                <div key={item.id} className="p-2.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
                   <div className="truncate min-w-0">
-                    <p className="font-semibold text-[var(--text-primary)] truncate">{item.title}</p>
+                    <p className="font-bold text-[var(--text-primary)] truncate">{item.title}</p>
                     <p className="text-[10px] text-[var(--text-subtle)] capitalize">{item.category} &middot; {item.paymentMethod}</p>
                   </div>
                   <span className="font-bold text-[var(--text-primary)] font-mono shrink-0">-₹{Number(item.amount).toLocaleString('en-IN')}</span>
@@ -693,19 +671,18 @@ export default function IndividualStudentDashboard() {
           </div>
         </GlassCard>
 
-        {/* INSTANT DASHBOARD SCRATCHPAD & QUICK TODO */}
+        {/* WIDGET 5: DASHBOARD SCRATCHPAD */}
         <GlassCard delay={0.3}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <StickyNote size={18} className="text-[var(--accent-solid)]" />
-              <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Dashboard Scratchpad</h2>
+              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Dashboard Scratchpad</h2>
             </div>
-            <button type="button" onClick={() => setQuickNoteOpen(true)} className="text-[11px] text-[var(--accent-solid)] font-semibold hover:underline cursor-pointer">
+            <button type="button" onClick={() => setQuickNoteOpen(true)} className="text-xs text-[var(--accent-solid)] font-bold hover:underline cursor-pointer">
               + New Note
             </button>
           </div>
 
-          {/* ADD SCRATCHPAD NOTE FORM */}
           <form onSubmit={saveQuickNoteModal} className="flex items-center gap-2 mb-3">
             <input
               type="text"
@@ -714,19 +691,18 @@ export default function IndividualStudentDashboard() {
               onChange={(e) => setNewNoteInput(e.target.value)}
               className="flex-1 bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
             />
-            <button type="submit" className="univo-gradient-bg text-black px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer">
+            <button type="submit" className="univo-gradient-bg text-black px-3.5 py-2 rounded-xl text-xs font-extrabold cursor-pointer shadow-sm hover:scale-105 transition-all">
               Add
             </button>
           </form>
 
-          {/* NOTES LIST */}
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {notesList.length === 0 ? (
-              <p className="text-xs text-center py-4 text-[var(--text-subtle)] italic">No quick notes added. Type a quick reminder above!</p>
+              <p className="text-xs text-center py-6 text-[var(--text-subtle)] italic">No quick notes added. Type a quick reminder above!</p>
             ) : (
               notesList.map((n) => (
                 <div key={n.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/25 text-xs transition-all">
-                  <span className="font-medium text-[var(--text-primary)]">{n.text}</span>
+                  <span className="font-bold text-[var(--text-primary)]">{n.text}</span>
                   <div className="flex items-center gap-2.5 shrink-0 ml-2">
                     <span className="text-[10px] text-[var(--text-subtle)] font-mono">{n.time}</span>
                     <button type="button" onClick={() => deleteNote(n.id)} className="text-[var(--text-subtle)] hover:text-red-400 cursor-pointer p-0.5" aria-label="Delete note">
@@ -741,58 +717,85 @@ export default function IndividualStudentDashboard() {
 
       </div>
 
+      {/* MODALS */}
       {/* ADD SCHEDULE MODAL */}
       {scheduleOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setScheduleOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveSchedule}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setScheduleOpen(false)} aria-label="Close">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setScheduleOpen(false)}>
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            onSubmit={saveSchedule}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setScheduleOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
-            <p className="settingsEyebrow">TIMETABLE</p>
-            <h2 className="text-xl font-bold font-display">Add a Class</h2>
 
-            <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Time</label>
-              <input
-                type="time"
-                value={scheduleForm.time}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-
-              <label className="block font-semibold text-white/70">Subject Name</label>
-              <input
-                type="text"
-                placeholder="e.g. Operating Systems, Data Structures..."
-                value={scheduleForm.subject}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, subject: e.target.value })}
-                required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-
-              <label className="block font-semibold text-white/70">Room / Lab</label>
-              <input
-                type="text"
-                placeholder="e.g. Lab 204, LH-3"
-                value={scheduleForm.room}
-                onChange={(e) => setScheduleForm({ ...scheduleForm, room: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
+            <div>
+              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">TIMETABLE</p>
+              <h2 className="text-xl font-bold font-display text-[var(--text-primary)] mt-0.5">Add Today's Class</h2>
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
-              <Plus size={15} /> Add to Schedule
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Time Slot</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 09:00 AM - 10:30 AM"
+                  value={scheduleForm.time}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, time: e.target.value })}
+                  required
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Subject Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Operating Systems, Data Structures..."
+                  value={scheduleForm.subject}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, subject: e.target.value })}
+                  required
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Room / Lab Location</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Hall 102, CS Lab 3..."
+                  value={scheduleForm.room}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, room: e.target.value })}
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
+              <Plus size={16} /> Add to Schedule
             </button>
-          </form>
+          </motion.form>
         </div>
       )}
 
-      {/* ADD TASK MODAL — Simple Single Field Title Form */}
+      {/* ADD TASK MODAL */}
       {taskOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setTaskOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl" onSubmit={saveTask}>
-            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setTaskOpen(false)} aria-label="Close">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setTaskOpen(false)}>
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            onSubmit={saveTask}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setTaskOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
             <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">TASKS TO COMPLETE</p>
@@ -807,177 +810,52 @@ export default function IndividualStudentDashboard() {
                 onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
                 required
                 autoFocus
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
               />
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-3 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
-              <Plus size={15} /> Save Task
+            <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
+              <Plus size={16} /> Save Task
             </button>
-          </form>
+          </motion.form>
         </div>
       )}
 
-      {/* QUICK NOTE MODAL */}
-      {quickNoteOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setQuickNoteOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveQuickNoteModal}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setQuickNoteOpen(false)} aria-label="Close">
-              <X size={18} />
-            </button>
-            <p className="settingsEyebrow">QUICK NOTE</p>
-            <h2 className="text-xl font-bold font-display">Add Scratchpad Note</h2>
-
-            <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Note / Thought</label>
-              <textarea
-                autoFocus
-                required
-                rows={4}
-                placeholder="Type your quick study note, reminder, or snippet..."
-                value={newNoteInput}
-                onChange={(e) => setNewNoteInput(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-[var(--accent-solid)] resize-none"
-              />
-            </div>
-
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
-              <PenTool size={15} /> Save to Scratchpad
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* ATTENDANCE SUBJECT MODAL */}
-      {attendanceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setAttendanceModalOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveNewSubject}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setAttendanceModalOpen(false)} aria-label="Close">
-              <X size={18} />
-            </button>
-            <p className="settingsEyebrow">ATTENDANCE TRACKER</p>
-            <h2 className="text-xl font-bold font-display">Track New Subject</h2>
-
-            <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Subject Name</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Artificial Intelligence, Web Dev..."
-                value={newSubjectForm.subject}
-                onChange={(e) => setNewSubjectForm({ ...newSubjectForm, subject: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold text-white/70 mb-1">Attended Classes</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={newSubjectForm.attended}
-                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, attended: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-white/70 mb-1">Total Classes</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={newSubjectForm.total}
-                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, total: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
-              <Percent size={15} /> Add Subject Tracker
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* TARGET GOAL / EXAM COUNTDOWN MODAL */}
-      {goalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setGoalModalOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveGoal}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setGoalModalOpen(false)} aria-label="Close">
-              <X size={18} />
-            </button>
-            <p className="settingsEyebrow">TARGET MILESTONE</p>
-            <h2 className="text-xl font-bold font-display">Target Goal / Exam Countdown</h2>
-
-            <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Goal / Exam Name</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. DBMS Midterm Exam, Major Project Presentation..."
-                value={goalForm.title}
-                onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-
-              <label className="block font-semibold text-white/70">Target Date</label>
-              <input
-                type="date"
-                required
-                value={goalForm.date}
-                onChange={(e) => setGoalForm({ ...goalForm, date: e.target.value })}
-                className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
-              />
-            </div>
-
-            <div className="flex gap-2 mt-2">
-              <button type="submit" className="flex-1 univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
-                <Target size={15} /> Set Target Goal
-              </button>
-              {targetGoal && (
-                <button type="button" onClick={clearGoal} className="px-3 py-2.5 rounded-xl bg-red-500/20 text-red-300 text-xs font-semibold cursor-pointer">
-                  Remove
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
-      )}
-
-      {/* INTERACTIVE POMODORO FOCUS MODAL */}
+      {/* FOCUS MODE MODAL */}
       {focusModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setFocusModalOpen(false)}>
-          <div className="glass-panel w-full max-w-sm rounded-3xl p-6 text-center relative space-y-6">
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setFocusModalOpen(false)} aria-label="Close">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setFocusModalOpen(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center"
+          >
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setFocusModalOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
 
             <div>
-              <p className="settingsEyebrow flex items-center justify-center gap-1">
-                <Zap size={13} className="text-amber-400" /> FOCUS POMODORO
-              </p>
-              <h2 className="text-2xl font-bold font-display mt-1">Study Sprint</h2>
-              <p className="text-xs text-white/40 mt-1">Eliminate distractions for 25 minutes.</p>
+              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold uppercase tracking-wider">POMODORO FOCUS TIMER</p>
+              <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-1">Deep Work Session</h2>
             </div>
 
-            <div className="py-6 rounded-2xl bg-white/5 border border-white/10 relative overflow-hidden">
-              <p className="font-mono text-5xl font-bold text-[var(--accent-solid)] tracking-wider">
+            <div className="py-6 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)]">
+              <div className="font-mono text-5xl md:text-6xl font-extrabold text-[var(--accent-solid)] tracking-tight">
                 {formatTimer(timerSeconds)}
-              </p>
-              <p className="text-[11px] text-white/40 mt-2">
-                {timerActive ? '🔥 In the zone... Keep pushing!' : 'Ready to lock in?'}
-              </p>
+              </div>
+              <p className="text-xs text-[var(--text-subtle)] mt-2 font-semibold">25-minute uninterrupted study block</p>
             </div>
 
             <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={() => setTimerActive(!timerActive)}
-                className="flex-1 univo-gradient-bg text-black py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
+                className="px-6 py-3.5 rounded-2xl univo-gradient-bg text-black font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
               >
-                {timerActive ? <Pause size={16} /> : <Play size={16} />}
-                {timerActive ? 'Pause' : 'Start Focus'}
+                {timerActive ? <Pause size={18} /> : <Play size={18} />}
+                {timerActive ? 'Pause Session' : 'Start Focus Session'}
               </button>
 
               <button
@@ -986,17 +864,80 @@ export default function IndividualStudentDashboard() {
                   setTimerActive(false)
                   setTimerSeconds(25 * 60)
                 }}
-                className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white/70 cursor-pointer"
-                title="Reset timer"
+                className="p-3.5 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] cursor-pointer transition-all"
+                title="Reset Timer"
               >
-                <RotateCcw size={16} />
+                <RotateCcw size={18} />
               </button>
             </div>
+          </motion.div>
+        </div>
+      )}
 
-            <p className="text-[11px] text-white/35">
-              Completed today: <span className="font-bold text-white/70">{completedSessions} sessions</span>
-            </p>
-          </div>
+      {/* ADD ATTENDANCE SUBJECT MODAL */}
+      {attendanceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setAttendanceModalOpen(false)}>
+          <motion.form
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            onSubmit={saveNewSubject}
+          >
+            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setAttendanceModalOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+
+            <div>
+              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">ATTENDANCE TRACKER</p>
+              <h2 className="text-xl font-bold font-display text-[var(--text-primary)] mt-0.5">Track New Subject</h2>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Subject Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Operating Systems, Computer Networks..."
+                  value={newSubjectForm.subject}
+                  onChange={(e) => setNewSubjectForm({ ...newSubjectForm, subject: e.target.value })}
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Classes Attended</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={newSubjectForm.attended}
+                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, attended: e.target.value })}
+                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Total Conducted</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newSubjectForm.total}
+                    onChange={(e) => setNewSubjectForm({ ...newSubjectForm, total: e.target.value })}
+                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-mono font-bold"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
+              <Plus size={16} /> Track Subject
+            </button>
+          </motion.form>
         </div>
       )}
     </PageTransition>
