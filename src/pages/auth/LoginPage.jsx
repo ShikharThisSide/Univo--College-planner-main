@@ -7,6 +7,7 @@ import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 import AnimatedLoadingSkeleton from '../../components/ui/AnimatedLoadingSkeleton'
 import { sendOTPEmail, sendPasswordResetEmail } from '../../lib/social'
+import { fetchCloudUserData, restoreUserDataToDevice } from '../../lib/cloudSync'
 
 function OtpBoxes({ value, onChange }) {
   const inputRefs = useRef([])
@@ -104,9 +105,22 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setNotice('')
     if (!email.trim()) return setError('Enter your email')
     const normalizedEmail = email.trim().toLowerCase()
-    const accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
+    let accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
+
+    // If account not found in local memory, check central cloud database!
+    if (!accounts[normalizedEmail]) {
+      setIsLoading(true)
+      const cloudData = await fetchCloudUserData(normalizedEmail)
+      setIsLoading(false)
+      if (cloudData) {
+        restoreUserDataToDevice(cloudData)
+        accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
+      }
+    }
     if (mode === 'create' && password.length < 8) return setError('Password must be at least 8 characters')
     if (mode === 'create') {
       if (!fullName.trim()) return setError('Enter your full name')
