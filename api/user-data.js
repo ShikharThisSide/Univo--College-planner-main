@@ -18,7 +18,26 @@ export default async function handler(req, res) {
   }
 
   if (req.method === 'POST') {
-    const { email, account, tasks, groups, friends, requests, notifications, dmMessages } = req.body || {}
+    const {
+      email,
+      account,
+      tasks,
+      timetable,
+      attendance,
+      expenses,
+      scratchpad,
+      gpa,
+      notes,
+      groups,
+      friends,
+      requests,
+      joinRequests,
+      notifications,
+      dmMessages,
+      themeAccent,
+      themeMode
+    } = req.body || {}
+
     if (!email) return res.status(400).json({ error: 'Email parameter required' })
 
     const userEmail = email.toLowerCase()
@@ -28,18 +47,27 @@ export default async function handler(req, res) {
       email: userEmail,
       account: account || existing.account || null,
       tasks: tasks || existing.tasks || [],
+      timetable: timetable || existing.timetable || [],
+      attendance: attendance || existing.attendance || [],
+      expenses: expenses || existing.expenses || [],
+      scratchpad: scratchpad !== undefined ? scratchpad : existing.scratchpad || '',
+      gpa: gpa || existing.gpa || null,
+      notes: notes || existing.notes || [],
       groups: groups || existing.groups || [],
       friends: friends || existing.friends || [],
       requests: requests || existing.requests || [],
+      joinRequests: joinRequests || existing.joinRequests || [],
       notifications: notifications || existing.notifications || [],
       dmMessages: dmMessages || existing.dmMessages || {},
+      themeAccent: themeAccent || existing.themeAccent || 'emerald',
+      themeMode: themeMode || existing.themeMode || 'dark',
       lastSyncedAt: Date.now()
     }
 
     cloudUserDataStore.set(userEmail, payload)
     if (account) cloudAccountStore.set(userEmail, account)
 
-    return res.status(200).json({ success: true, message: 'User data synced successfully across devices', data: payload })
+    return res.status(200).json({ success: true, message: 'Comprehensive user data synced across devices', data: payload })
   }
 
   return res.status(405).json({ error: 'Method not allowed' })

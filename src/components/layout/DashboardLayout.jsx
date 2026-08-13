@@ -13,6 +13,7 @@ import DashboardDock from '../ui/DashboardDock'
 import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
 import WelcomeOnboarding from '../ui/WelcomeOnboarding'
 import LiveMessageToast from '../ui/LiveMessageToast'
+import { pushUserDataToCloud } from '../../lib/cloudSync'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
@@ -51,6 +52,36 @@ export default function DashboardLayout() {
     updateUserLastActive(user.email)
     const interval = setInterval(() => updateUserLastActive(user.email), 15000)
     return () => clearInterval(interval)
+  }, [user?.email])
+
+  // Automatic Background Cloud Autosave Engine
+  useEffect(() => {
+    if (!user?.email) return
+
+    const triggerAutosave = () => {
+      pushUserDataToCloud(user.email)
+    }
+
+    triggerAutosave()
+
+    window.addEventListener('univo-tasks-updated', triggerAutosave)
+    window.addEventListener('univo-timetable-updated', triggerAutosave)
+    window.addEventListener('univo-expenses-updated', triggerAutosave)
+    window.addEventListener('univo-social-updated', triggerAutosave)
+    window.addEventListener('univo-dm-sent', triggerAutosave)
+    window.addEventListener('storage', triggerAutosave)
+
+    const interval = setInterval(triggerAutosave, 30000)
+
+    return () => {
+      window.removeEventListener('univo-tasks-updated', triggerAutosave)
+      window.removeEventListener('univo-timetable-updated', triggerAutosave)
+      window.removeEventListener('univo-expenses-updated', triggerAutosave)
+      window.removeEventListener('univo-social-updated', triggerAutosave)
+      window.removeEventListener('univo-dm-sent', triggerAutosave)
+      window.removeEventListener('storage', triggerAutosave)
+      clearInterval(interval)
+    }
   }, [user?.email])
 
   const navItems = NAV_BY_ROLE[user?.role] || []
