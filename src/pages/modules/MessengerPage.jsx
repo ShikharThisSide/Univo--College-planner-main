@@ -45,7 +45,17 @@ export default function MessengerPage() {
   const [dmText, setDmText] = useState('')
   const [dmPdfFile, setDmPdfFile] = useState(null)
 
-  const [friends] = useState(() => readSocial(`friends:${user?.email}`))
+  const [friends, setFriends] = useState(() => readSocial(`friends:${user?.email}`))
+
+  useEffect(() => {
+    if (!user?.email) return
+    const syncFriends = () => {
+      setFriends(readSocial(`friends:${user.email}`))
+    }
+    syncFriends()
+    window.addEventListener('univo-social-updated', syncFriends)
+    return () => window.removeEventListener('univo-social-updated', syncFriends)
+  }, [user?.email])
   const people = useMemo(() => readPeople(user), [user])
   const friendPeople = people.filter((person) => friends.includes(person.email))
   const results = people.filter((person) => `${person.name} ${person.email} ${person.username || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
