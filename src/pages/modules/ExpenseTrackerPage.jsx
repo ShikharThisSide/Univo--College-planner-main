@@ -150,11 +150,11 @@ export default function ExpenseTrackerPage() {
       {/* HEADER SECTION */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <p className="settingsEyebrow">STUDENT FINANCIALS</p>
+          <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">STUDENT FINANCIALS</p>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1 text-[var(--accent-solid)]">
             Expense Tracker
           </h1>
-          <p className="text-white/45 text-sm mt-1">
+          <p className="text-[var(--text-muted)] text-sm mt-1">
             Track hostel, mess, academics, and personal student spending with real-time monthly budget alerts.
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function ExpenseTrackerPage() {
               setTempBudgetInput(`${monthlyBudget}`)
               setBudgetModalOpen(true)
             }}
-            className="px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all text-[var(--text-primary)]"
           >
             <Edit2 size={14} className="text-[var(--accent-solid)]" /> Set Monthly Budget
           </button>
@@ -186,14 +186,14 @@ export default function ExpenseTrackerPage() {
         <div className="p-6 md:p-8 space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span className="text-xs uppercase tracking-wider text-white/40 font-semibold flex items-center gap-1.5">
+              <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-1.5">
                 <Wallet size={16} className="text-[var(--accent-solid)]" /> Monthly Budget Summary
               </span>
               <div className="flex items-baseline gap-3 mt-1">
-                <span className="font-display text-4xl md:text-5xl font-bold text-white">
+                <span className="font-display text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
                   ₹{totalSpent.toLocaleString('en-IN')}
                 </span>
-                <span className="text-sm font-semibold text-white/50">
+                <span className="text-sm font-semibold text-[var(--text-muted)]">
                   spent of ₹{monthlyBudget.toLocaleString('en-IN')} limit
                 </span>
               </div>
@@ -202,10 +202,10 @@ export default function ExpenseTrackerPage() {
             <div className="flex items-center gap-3">
               <div className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${
                 remainingBudget < 0
-                  ? 'bg-red-500/20 border-red-500/40 text-red-300'
+                  ? 'bg-red-500/20 border-red-500/40 text-red-400'
                   : spentPercentage >= 80
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                  : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+                  : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-400'
               }`}>
                 {remainingBudget < 0 ? (
                   <AlertTriangle size={15} />
@@ -222,7 +222,7 @@ export default function ExpenseTrackerPage() {
           </div>
 
           <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-semibold text-white/60">
+            <div className="flex justify-between text-xs font-semibold text-[var(--text-muted)]">
               <span>{spentPercentage}% of monthly budget used</span>
               <span>Target &le; 100%</span>
             </div>
@@ -246,17 +246,17 @@ export default function ExpenseTrackerPage() {
               transition={{ delay: idx * 0.05 }}
               onClick={() => setSelectedCategory(selectedCategory === cat.id ? 'all' : cat.id)}
               className={`p-3.5 rounded-2xl glass-card border transition-all cursor-pointer ${
-                selectedCategory === cat.id ? 'border-[var(--accent-solid)] bg-[var(--accent-solid)]/10' : 'border-white/10 hover:bg-white/5'
+                selectedCategory === cat.id ? 'border-[var(--accent-solid)] bg-[var(--accent-solid)]/10' : 'border-[var(--border-subtle)] hover:bg-[var(--surface-hover)]'
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className={`p-2 rounded-xl ${cat.color}`}>
                   <Icon size={16} />
                 </span>
-                <span className="text-[10px] font-mono text-white/40">{pct}%</span>
+                <span className="text-[10px] font-mono text-[var(--text-subtle)]">{pct}%</span>
               </div>
-              <p className="text-xs font-medium text-white/60 truncate">{cat.label}</p>
-              <p className="text-base font-bold font-display text-white mt-0.5">
+              <p className="text-xs font-medium text-[var(--text-secondary)] truncate">{cat.label}</p>
+              <p className="text-base font-bold font-display text-[var(--text-primary)] mt-0.5">
                 ₹{amount.toLocaleString('en-IN')}
               </p>
             </motion.div>
@@ -269,20 +269,20 @@ export default function ExpenseTrackerPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2">
             <CreditCard size={18} className="text-[var(--accent-solid)]" />
-            <h2 className="font-display font-semibold text-lg">Expense Log</h2>
-            <span className="text-xs text-white/40 font-mono">({filteredExpenses.length} entries)</span>
+            <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Expense Log</h2>
+            <span className="text-xs text-[var(--text-subtle)] font-mono">({filteredExpenses.length} entries)</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative flex-1 md:w-56">
-              <Search size={14} className="absolute left-3 top-2.5 text-white/40" />
+              <Search size={14} className="absolute left-3 top-2.5 text-[var(--text-subtle)]" />
               <input
                 type="text"
                 placeholder="Search expense..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
               />
             </div>
 
@@ -291,7 +291,7 @@ export default function ExpenseTrackerPage() {
               type="button"
               onClick={() => setSelectedCategory('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                selectedCategory === 'all' ? 'univo-gradient-bg text-black' : 'bg-white/5 text-white/60 hover:text-white'
+                selectedCategory === 'all' ? 'univo-gradient-bg text-black' : 'bg-[var(--surface-control)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               All
@@ -307,11 +307,11 @@ export default function ExpenseTrackerPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="p-8 text-center border border-dashed border-white/15 rounded-2xl space-y-2"
+                className="p-8 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2"
               >
-                <Wallet size={28} className="mx-auto text-white/30" />
-                <p className="text-sm font-semibold text-white/70">No expenses recorded yet</p>
-                <p className="text-xs text-white/40">Log your mess fees, hostel rent, or daily snacks to keep your budget on track.</p>
+                <Wallet size={28} className="mx-auto text-[var(--text-subtle)]" />
+                <p className="text-sm font-semibold text-[var(--text-secondary)]">No expenses recorded yet</p>
+                <p className="text-xs text-[var(--text-subtle)]">Log your mess fees, hostel rent, or daily snacks to keep your budget on track.</p>
                 <button
                   type="button"
                   onClick={() => setAddModalOpen(true)}
@@ -332,15 +332,15 @@ export default function ExpenseTrackerPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="p-3.5 rounded-xl bg-white/5 border border-white/8 hover:border-white/15 flex items-center justify-between gap-3 transition-all"
+                    className="p-3.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] flex items-center justify-between gap-3 transition-all"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <span className={`p-2.5 rounded-xl shrink-0 ${catObj.color}`}>
                         <Icon size={16} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-white truncate">{tx.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-white/40 mt-0.5">
+                        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{tx.title}</p>
+                        <div className="flex items-center gap-2 text-xs text-[var(--text-subtle)] mt-0.5">
                           <span>{catObj.label}</span>
                           <span>&middot;</span>
                           <span className="font-mono">{tx.paymentMethod}</span>
@@ -351,13 +351,13 @@ export default function ExpenseTrackerPage() {
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0">
-                      <span className="font-display text-base font-bold text-white">
+                      <span className="font-display text-base font-bold text-[var(--text-primary)]">
                         -₹{Number(tx.amount).toLocaleString('en-IN')}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleDeleteExpense(tx.id)}
-                        className="text-white/30 hover:text-red-400 cursor-pointer p-1"
+                        className="text-[var(--text-subtle)] hover:text-red-400 cursor-pointer p-1"
                         aria-label="Delete expense"
                       >
                         <Trash2 size={15} />
@@ -374,27 +374,29 @@ export default function ExpenseTrackerPage() {
       {/* LOG EXPENSE MODAL */}
       {addModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setAddModalOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={handleAddExpense}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setAddModalOpen(false)} aria-label="Close">
+          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl" onSubmit={handleAddExpense}>
+            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setAddModalOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
-            <p className="settingsEyebrow">NEW TRANSACTION</p>
-            <h2 className="text-xl font-bold font-display">Log Expense</h2>
+            <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">NEW TRANSACTION</p>
+            <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Log Expense</h2>
 
             <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Expense Title</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Mess Bill, Laundromat, Book Printout..."
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Expense Title</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Mess Bill, Laundromat, Book Printout..."
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block font-semibold text-white/70 mb-1">Amount (₹)</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Amount (₹)</label>
                   <input
                     type="number"
                     min="1"
@@ -403,45 +405,49 @@ export default function ExpenseTrackerPage() {
                     placeholder="e.g. 250"
                     value={form.amount}
                     onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-white/70 mb-1">Payment Method</label>
+                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Payment Method</label>
                   <select
                     value={form.paymentMethod}
                     onChange={(e) => setForm({ ...form, paymentMethod: e.target.value })}
-                    className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
                   >
-                    <option value="UPI">UPI / GPay</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Card">Card</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="UPI" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">UPI / GPay</option>
+                    <option value="Cash" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Cash</option>
+                    <option value="Card" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Card</option>
+                    <option value="Bank Transfer" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Bank Transfer</option>
                   </select>
                 </div>
               </div>
 
-              <label className="block font-semibold text-white/70">Category</label>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                >
+                  {CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id} className="bg-[var(--surface-modal)] text-[var(--text-primary)]">
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              <label className="block font-semibold text-white/70">Date</label>
-              <input
-                type="date"
-                required
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Date</label>
+                <input
+                  type="date"
+                  required
+                  value={form.date}
+                  onChange={(e) => setForm({ ...form, date: e.target.value })}
+                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                />
+              </div>
             </div>
 
             <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-3 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
@@ -454,15 +460,15 @@ export default function ExpenseTrackerPage() {
       {/* EDIT BUDGET MODAL */}
       {budgetModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setBudgetModalOpen(false)}>
-          <form className="glass-panel w-full max-w-sm rounded-2xl p-6 relative space-y-4" onSubmit={handleSaveBudget}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setBudgetModalOpen(false)} aria-label="Close">
+          <form className="glass-panel w-full max-w-sm rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl" onSubmit={handleSaveBudget}>
+            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setBudgetModalOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
-            <p className="settingsEyebrow">MONTHLY TARGET</p>
-            <h2 className="text-xl font-bold font-display">Set Monthly Budget</h2>
+            <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">MONTHLY TARGET</p>
+            <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Set Monthly Budget</h2>
 
             <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Monthly Budget Limit (₹)</label>
+              <label className="block font-semibold text-[var(--text-secondary)]">Monthly Budget Limit (₹)</label>
               <input
                 type="number"
                 min="100"
@@ -470,9 +476,9 @@ export default function ExpenseTrackerPage() {
                 placeholder="e.g. 5000"
                 value={tempBudgetInput}
                 onChange={(e) => setTempBudgetInput(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-[var(--accent-solid)] text-base font-bold font-mono"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] text-base font-bold font-mono"
               />
-              <p className="text-[11px] text-white/40">
+              <p className="text-[11px] text-[var(--text-subtle)]">
                 This limit will be used to calculate your remaining monthly allowance and spending progress.
               </p>
             </div>

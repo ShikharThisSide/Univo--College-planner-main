@@ -739,11 +739,11 @@ export default function IndividualStudentDashboard() {
                   <select
                     value={taskForm.priority}
                     onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-                    className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
                   >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="low" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Low</option>
+                    <option value="medium" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Medium</option>
+                    <option value="high" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">High</option>
                   </select>
                 </div>
               </div>
@@ -865,7 +865,7 @@ export default function IndividualStudentDashboard() {
                 required
                 value={goalForm.date}
                 onChange={(e) => setGoalForm({ ...goalForm, date: e.target.value })}
-                className="w-full bg-[#182428] border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
               />
             </div>
 
