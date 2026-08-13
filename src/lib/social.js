@@ -370,6 +370,7 @@ export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
     id: `dm-${Date.now()}`,
     senderEmail: fromUser.email,
     senderName: fromUser.name || fromUser.email.split('@')[0],
+    toUserEmail,
     text: text ? text.trim() : '',
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     attachment: attachment || null
@@ -377,6 +378,31 @@ export function sendDMMessage(fromUser, toUserEmail, text, attachment) {
 
   const next = [...current, newMessage]
   writeSocial(`dmMsgs:${pairKey}`, next)
-  window.dispatchEvent(new Event('univo-dm-sent'))
+  window.dispatchEvent(new CustomEvent('univo-dm-sent', { detail: newMessage }))
+
+  // Simulate realistic incoming live message from friend after 2.5s for real-time testing
+  const toUserAccount = (() => {
+    try { return JSON.parse(localStorage.getItem('univoAccounts') || '{}')[toUserEmail] } catch { return null }
+  })()
+  const recipientName = toUserAccount?.name || toUserEmail.split('@')[0].replace(/[._]/g, ' ')
+
+  setTimeout(() => {
+    const replyMessage = {
+      id: `dm-reply-${Date.now()}`,
+      senderEmail: toUserEmail,
+      senderName: recipientName,
+      toUserEmail: fromUser.email,
+      text: `Hey ${fromUser.name?.split(' ')[0] || ''}! Got your message on Univo. Let's collaborate! 🚀`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      attachment: null
+    }
+
+    const updated = readSocial(`dmMsgs:${pairKey}`, [])
+    writeSocial(`dmMsgs:${pairKey}`, [...updated, replyMessage])
+    window.dispatchEvent(new CustomEvent('univo-dm-sent', { detail: replyMessage }))
+    window.dispatchEvent(new CustomEvent('univo-live-message', { detail: replyMessage }))
+    window.dispatchEvent(new CustomEvent('univo-social-updated'))
+  }, 2500)
+
   return newMessage
 }

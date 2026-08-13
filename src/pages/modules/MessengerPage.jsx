@@ -234,7 +234,7 @@ export default function MessengerPage() {
                   >
                     <PersonAvatar person={person} index={index} />
                     <span className="messengerPersonCopy">
-                      <strong className="text-[var(--text-primary)]">{person.name}</strong>
+                      <strong className="univo-gradient-text text-[var(--accent-solid)] font-bold">{person.name}</strong>
                       <small>@{person.username || person.email.split('@')[0]}</small>
                     </span>
                     <MessageCircle size={18} className="text-[var(--accent-solid)]" />
@@ -273,7 +273,7 @@ export default function MessengerPage() {
                   >
                     <PersonAvatar person={person} index={index} />
                     <span className="messengerPersonCopy">
-                      <strong>{person.name}</strong>
+                      <strong className="univo-gradient-text text-[var(--accent-solid)] font-bold">{person.name}</strong>
                       <small>@{person.username || person.email.split('@')[0]}</small>
                       <em>{person.role.replaceAll('_', ' ')}</em>
                     </span>
@@ -316,7 +316,7 @@ export default function MessengerPage() {
                   <PersonAvatar person={activeChatFriend} large />
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-display font-extrabold text-base text-[var(--text-primary)]">{activeChatFriend.name}</h3>
+                      <h3 className="font-display font-extrabold text-lg univo-gradient-text text-[var(--accent-solid)] tracking-tight">{activeChatFriend.name}</h3>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active Now" />
                     </div>
                     <p className="text-xs text-[var(--text-subtle)] font-medium">@{activeChatFriend.username || activeChatFriend.email.split('@')[0]}</p>
@@ -449,7 +449,7 @@ export default function MessengerPage() {
               </button>
               <PersonAvatar person={selected} large />
               <p className="settingsEyebrow">UNIVO MEMBER</p>
-              <h2>{selected.name}</h2>
+              <h2 className="univo-gradient-text text-[var(--accent-solid)] font-extrabold">{selected.name}</h2>
               <p className="messengerProfileHandle">@{selected.username || selected.email.split('@')[0]}</p>
               <p className="messengerProfileRole">{selected.role.replaceAll('_', ' ')}</p>
 

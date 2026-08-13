@@ -12,6 +12,7 @@ import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
 import DashboardDock from '../ui/DashboardDock'
 import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
 import WelcomeOnboarding from '../ui/WelcomeOnboarding'
+import LiveMessageToast from '../ui/LiveMessageToast'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
@@ -141,6 +142,7 @@ export default function DashboardLayout() {
 
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onThemeOpen={() => setThemeOpen(true)} />
       <DashboardDock items={navItems} onSearch={() => setCmdOpen(true)} onSettings={openSettings} autoHide={autoHideDock} />
+      <LiveMessageToast />
       {welcomeOpen && <WelcomeOnboarding onComplete={() => setWelcomeOpen(false)} />}
       {settingsOpen && <div className="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false) }}>
         <div className="settingsModal">
