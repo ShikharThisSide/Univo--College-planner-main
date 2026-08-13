@@ -4,6 +4,7 @@ import {
   generateFriendRequestEmailHTML,
   generateProductUpdateEmailHTML
 } from './emailTemplates'
+import { pushUserDataToCloud } from './cloudSync'
 
 export function readSocial(key, fallback = []) {
   try { return JSON.parse(localStorage.getItem(`univoSocial:${key}`)) || fallback } catch { return fallback }
@@ -303,6 +304,8 @@ export function areFriends(a, b) {
 export function addFriend(a, b) {
   if (!areFriends(a, b)) writeSocial(`friends:${a.email}`, [...readSocial(`friends:${a.email}`), b.email])
   if (!areFriends(b, a)) writeSocial(`friends:${b.email}`, [...readSocial(`friends:${b.email}`), a.email])
+  if (a?.email) pushUserDataToCloud(a.email)
+  if (b?.email) pushUserDataToCloud(b.email)
 }
 
 export function sendGroupInvite(group, fromUser, recipientEmail, recipientName) {

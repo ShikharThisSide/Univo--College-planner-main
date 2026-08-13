@@ -21,6 +21,7 @@ import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import AnimatedProgress from '../../components/ui/AnimatedProgress'
 import { useAuth } from '../../context/AuthContext'
+import { pushUserDataToCloud } from '../../lib/cloudSync'
 
 export default function TasksPage() {
   const { user } = useAuth()
@@ -74,6 +75,7 @@ export default function TasksPage() {
     setTasks(nextTasks)
     localStorage.setItem(`univoAssignments:${storageKey}`, JSON.stringify(nextTasks))
     window.dispatchEvent(new Event('univo-tasks-updated'))
+    if (user?.email) pushUserDataToCloud(user.email)
   }
 
   // Action Handlers
