@@ -289,11 +289,11 @@ export default function MessengerPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="glass-panel w-full max-w-lg rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl"
+              className="glass-panel w-full max-w-xl rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl max-h-[90vh] overflow-y-auto"
             >
               <button
                 type="button"
-                className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer"
+                className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer z-10"
                 onClick={() => setPreviewEmail(null)}
                 aria-label="Close email preview"
               >
@@ -304,42 +304,52 @@ export default function MessengerPage() {
                 <Mail size={18} className="text-[var(--accent-solid)]" />
                 <div>
                   <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">DELIVERED EMAIL PREVIEW</p>
-                  <h3 className="text-lg font-bold font-display">Friend Request Notification</h3>
+                  <h3 className="text-lg font-bold font-display">
+                    {previewEmail.type === 'otp_verification'
+                      ? 'OTP Verification Email'
+                      : previewEmail.type === 'password_reset'
+                      ? 'Password Reset Email'
+                      : previewEmail.type === 'product_update'
+                      ? 'Product Updates Email'
+                      : 'Friend Request Notification'}
+                  </h3>
                 </div>
               </div>
 
-              {/* EMAIL CONTENT CARD */}
-              <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4 text-xs font-sans">
-                <div className="space-y-1.5 pb-3 border-b border-white/10 text-white/60">
-                  <div className="flex justify-between">
-                    <span><strong>From:</strong> Univo Notifications &lt;notifications@univo.edu&gt;</span>
-                    <span className="font-mono text-[10px] text-white/40">Just now</span>
+              {/* EMAIL CONTENT CONTAINER */}
+              {previewEmail.htmlContent ? (
+                <div className="rounded-xl overflow-hidden border border-[var(--border-subtle)] bg-white">
+                  <iframe
+                    title="Email Preview"
+                    srcDoc={previewEmail.htmlContent}
+                    className="w-full h-[380px] border-0"
+                  />
+                </div>
+              ) : (
+                <div className="p-5 rounded-2xl bg-black/40 border border-white/10 space-y-4 text-xs font-sans">
+                  <div className="space-y-1.5 pb-3 border-b border-white/10 text-white/60">
+                    <div className="flex justify-between">
+                      <span><strong>From:</strong> Univo Notifications &lt;notifications@univo.edu&gt;</span>
+                      <span className="font-mono text-[10px] text-white/40">Just now</span>
+                    </div>
+                    <div><strong>To:</strong> {previewEmail.recipientName} &lt;{previewEmail.recipientEmail}&gt;</div>
+                    <div><strong>Subject:</strong> 👋 {previewEmail.senderName} sent you a friend request on Univo!</div>
                   </div>
-                  <div><strong>To:</strong> {previewEmail.recipientName} &lt;{previewEmail.recipientEmail}&gt;</div>
-                  <div><strong>Subject:</strong> 👋 {previewEmail.senderName} sent you a friend request on Univo!</div>
-                </div>
 
-                <div className="space-y-3 text-white/90 leading-relaxed text-xs">
-                  <p className="font-semibold text-sm">Hey {previewEmail.recipientName}! 👋</p>
-                  <p>
-                    <strong className="text-[var(--accent-solid)]">{previewEmail.senderName}</strong> ({previewEmail.senderEmail}) has sent you a friend request on Univo.
-                  </p>
-
-                  <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 italic text-white/80">
-                    "Building great things is better with a solid study network. Let's connect, share notes, track assignments, and crush this semester together!"
+                  <div className="space-y-3 text-white/90 leading-relaxed text-xs">
+                    <p className="font-semibold text-sm">Hey {previewEmail.recipientName}! 👋</p>
+                    <p>
+                      <strong className="text-[var(--accent-solid)]">{previewEmail.senderName}</strong> ({previewEmail.senderEmail}) has sent you a friend request on Univo.
+                    </p>
                   </div>
-
-                  <p className="text-white/60 text-[11px]">
-                    Log in to your Univo dashboard and check your notification bell to accept or decline this request.
-                  </p>
                 </div>
+              )}
 
-                <div className="pt-2 flex items-center justify-between">
-                  <span className="px-3 py-1.5 rounded-xl bg-[var(--accent-solid)] text-black font-bold text-xs inline-flex items-center gap-1.5 cursor-default">
-                    <CheckCircle2 size={14} /> Delivered to Inbox
-                  </span>
-                  <span className="text-[10px] text-white/40 font-mono">Status: 200 OK</span>
-                </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="px-3 py-1.5 rounded-xl bg-[var(--accent-solid)] text-black font-bold text-xs inline-flex items-center gap-1.5 cursor-default">
+                  <CheckCircle2 size={14} /> Delivered to Inbox
+                </span>
+                <span className="text-[10px] text-[var(--text-subtle)] font-mono">Status: 200 OK</span>
               </div>
 
               <button

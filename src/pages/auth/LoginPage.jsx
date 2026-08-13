@@ -6,6 +6,7 @@ import { AnimatePresence, m } from 'motion/react'
 import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 import AnimatedLoadingSkeleton from '../../components/ui/AnimatedLoadingSkeleton'
+import { sendOTPEmail, sendPasswordResetEmail } from '../../lib/social'
 
 function OtpBoxes({ value, onChange }) {
   const inputRefs = useRef([])
@@ -147,7 +148,9 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       if (!otp) {
         const generatedOtp = String(Math.floor(100000 + Math.random() * 900000))
         setOtp(generatedOtp)
-        return setNotice(`Demo OTP: ${generatedOtp}`)
+        sendOTPEmail({ email: normalizedEmail, name: accounts[normalizedEmail]?.name, otp: generatedOtp })
+        sendPasswordResetEmail({ email: normalizedEmail, name: accounts[normalizedEmail]?.name })
+        return setNotice(`📩 OTP Verification & Reset link delivered to ${normalizedEmail}! (OTP: ${generatedOtp})`)
       }
       if (enteredOtp !== otp) return setError('Incorrect OTP')
       if (password.length < 8) return setError('New password must be at least 8 characters')

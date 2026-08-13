@@ -1,3 +1,10 @@
+import {
+  generateOTPEmailHTML,
+  generatePasswordResetEmailHTML,
+  generateFriendRequestEmailHTML,
+  generateProductUpdateEmailHTML
+} from './emailTemplates'
+
 export function readSocial(key, fallback = []) {
   try { return JSON.parse(localStorage.getItem(`univoSocial:${key}`)) || fallback } catch { return fallback }
 }
@@ -7,6 +14,21 @@ export function writeSocial(key, value) {
   window.dispatchEvent(new Event('univo-social-updated'))
 }
 
+// Internal helper to broadcast & log sent emails into local inbox/outbound storage
+function logAndBroadcastEmail(emailRecord) {
+  const recipientInbox = readSocial(`inbox:${emailRecord.toEmail}`)
+  writeSocial(`inbox:${emailRecord.toEmail}`, [emailRecord, ...recipientInbox])
+
+  if (emailRecord.fromEmail) {
+    const senderOutbound = readSocial(`outbound:${emailRecord.fromEmail}`)
+    writeSocial(`outbound:${emailRecord.fromEmail}`, [emailRecord, ...senderOutbound])
+  }
+
+  window.dispatchEvent(new CustomEvent('univo-email-sent', { detail: emailRecord }))
+  return emailRecord
+}
+
+// 1. FRIEND REQUEST EMAIL NOTIFICATION
 export function requestFriend(from, to) {
   const requests = readSocial(`requests:${to.email}`)
   if (requests.some((item) => item.fromEmail === from.email && item.status === 'pending')) return null
@@ -14,8 +36,7 @@ export function requestFriend(from, to) {
   const newRequest = { id: `${from.email}-${Date.now()}`, fromEmail: from.email, fromName: from.name || from.email.split('@')[0], fromAvatar: from.avatar, status: 'pending', createdAt: Date.now() }
   writeSocial(`requests:${to.email}`, [...requests, newRequest])
 
-  // Professional Email Notification Record
-  const emailNotification = {
+  const emailRecord = {
     id: `email-${Date.now()}`,
     toEmail: to.email,
     toName: to.name || to.email.split('@')[0],
@@ -23,18 +44,89 @@ export function requestFriend(from, to) {
     fromName: from.name || from.email.split('@')[0],
     subject: `👋 ${from.name || 'A classmate'} sent you a friend request on Univo!`,
     sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    type: 'friend_request'
+    type: 'friend_request',
+    htmlContent: generateFriendRequestEmailHTML({
+      toName: to.name || to.email.split('@')[0],
+      fromName: from.name || from.email.split('@')[0],
+      fromEmail: from.email,
+      acceptLink: `/dashboard/me/messenger`
+    })
   }
 
-  // Store in recipient inbox & sender outbound logs
-  const recipientEmails = readSocial(`inbox:${to.email}`)
-  writeSocial(`inbox:${to.email}`, [emailNotification, ...recipientEmails])
+  return logAndBroadcastEmail(emailRecord)
+}
 
-  const senderEmails = readSocial(`outbound:${from.email}`)
-  writeSocial(`outbound:${from.email}`, [emailNotification, ...senderEmails])
+// 2. OTP VERIFICATION EMAIL
+export function sendOTPEmail({ email, name, otp }) {
+  const generatedOtp = otp || Math.floor(100000 + Math.random() * 900000).toString()
+  const emailRecord = {
+    id: `otp-${Date.now()}`,
+    toEmail: email,
+    toName: name || email.split('@')[0],
+    fromEmail: 'security@univo.edu',
+    fromName: 'Univo Security',
+    subject: `🔒 ${generatedOtp} is your Univo verification code`,
+    sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    type: 'otp_verification',
+    otp: generatedOtp,
+    htmlContent: generateOTPEmailHTML({
+      name: name || email.split('@')[0],
+      email,
+      otp: generatedOtp,
+      expiresMinutes: 10
+    })
+  }
 
-  window.dispatchEvent(new CustomEvent('univo-email-sent', { detail: emailNotification }))
-  return emailNotification
+  return logAndBroadcastEmail(emailRecord)
+}
+
+// 3. PASSWORD RESET EMAIL
+export function sendPasswordResetEmail({ email, name }) {
+  const token = `rst_${Math.random().toString(36).substr(2, 9)}_${Date.now()}`
+  const resetLink = `${window.location.origin}/login?reset_token=${token}`
+
+  const emailRecord = {
+    id: `reset-${Date.now()}`,
+    toEmail: email,
+    toName: name || email.split('@')[0],
+    fromEmail: 'accounts@univo.edu',
+    fromName: 'Univo Accounts',
+    subject: `🔐 Reset your Univo account password`,
+    sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    type: 'password_reset',
+    token,
+    resetLink,
+    htmlContent: generatePasswordResetEmailHTML({
+      name: name || email.split('@')[0],
+      email,
+      resetLink,
+      token
+    })
+  }
+
+  return logAndBroadcastEmail(emailRecord)
+}
+
+// 4. PRODUCT UPDATES / NEWSLETTER EMAIL
+export function sendProductUpdateEmail({ email, name, updateTitle, releaseHighlights }) {
+  const emailRecord = {
+    id: `newsletter-${Date.now()}`,
+    toEmail: email,
+    toName: name || email.split('@')[0],
+    fromEmail: 'releases@univo.edu',
+    fromName: 'Univo Product Team',
+    subject: `✨ ${updateTitle || 'Univo Release v2.4 — Major Feature Updates!'}`,
+    sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    type: 'product_update',
+    htmlContent: generateProductUpdateEmailHTML({
+      name: name || email.split('@')[0],
+      updateTitle,
+      version: 'v2.4',
+      releaseHighlights
+    })
+  }
+
+  return logAndBroadcastEmail(emailRecord)
 }
 
 export function areFriends(a, b) {
@@ -66,7 +158,6 @@ export function sendGroupInvite(group, fromUser, recipientEmail, recipientName) 
 
   writeSocial(recipientRequestsKey, [...existing, newInvite])
 
-  // Update group pending invites on creator's side
   const creatorKey = `groups:${fromUser.email}`
   const creatorGroups = readSocial(creatorKey)
   const updatedGroups = creatorGroups.map((g) => {
@@ -111,14 +202,12 @@ export function respondToGroupInvite(invite, accepted, currentUser) {
       pendingInvites: updatedPending
     }
 
-    // Sync to creator's groups
     const nextCreatorGroups = creatorGroups.map((g) => g.id === invite.groupId ? newGroupState : g)
     if (!creatorGroups.some((g) => g.id === invite.groupId)) {
       nextCreatorGroups.push(newGroupState)
     }
     writeSocial(creatorKey, nextCreatorGroups)
 
-    // Sync to recipient's groups
     const recipientKey = `groups:${recipientEmail}`
     const recipientGroups = readSocial(recipientKey)
     if (!recipientGroups.some((g) => g.id === invite.groupId)) {
@@ -128,4 +217,3 @@ export function respondToGroupInvite(invite, accepted, currentUser) {
     }
   }
 }
-
