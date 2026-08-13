@@ -22,7 +22,7 @@ export default function DashboardLayout() {
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
   const [themeOpen, setThemeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('univoSidebarCollapsed') === 'true')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('univoSidebarCollapsed') !== 'false')
   const [compactCards, setCompactCards] = useState(() => localStorage.getItem('univoCompactCards') === 'true')
   const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('univoNotifications') !== 'false')
   const [autoHideSidebar, setAutoHideSidebar] = useState(() => localStorage.getItem('univoAutoHideSidebar') === 'true')
