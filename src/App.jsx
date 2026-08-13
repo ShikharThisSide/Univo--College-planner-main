@@ -15,6 +15,7 @@ import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
 import StudentPlanPage from './pages/students/StudentPlanPage'
 import MessengerPage from './pages/modules/MessengerPage'
+import WorkspacePage from './pages/dashboard/WorkspacePage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
 import './app.css'
@@ -61,10 +62,10 @@ export default function App() {
               }
             >
               <Route index element={<InstitutionalStudentDashboard />} />
-              <Route path="timetable" element={<ModulePlaceholder />} />
-              <Route path="assignments" element={<ModulePlaceholder />} />
+              <Route path="assignments" element={<WorkspacePage section="assignments" />} />
               <Route path="attendance" element={<ClassRepresentativePage />} />
               <Route path="notes" element={<NotesHubPage />} />
+              <Route path="groups" element={<WorkspacePage section="groups" />} />
               <Route path="forum" element={<ModulePlaceholder />} />
               <Route path="messenger" element={<MessengerPage />} />
             </Route>
@@ -79,11 +80,12 @@ export default function App() {
               }
             >
               <Route index element={<TeacherDashboard />} />
-              <Route path="grading" element={<ModulePlaceholder />} />
-              <Route path="assignments" element={<ModulePlaceholder />} />
-              <Route path="attendance" element={<ModulePlaceholder />} />
-              <Route path="notes" element={<ModulePlaceholder />} />
-              <Route path="forum" element={<ModulePlaceholder />} />
+              <Route path="classes" element={<WorkspacePage section="classes" />} />
+              <Route path="assignments" element={<WorkspacePage section="assignments" />} />
+              <Route path="broadcast" element={<WorkspacePage section="broadcast" />} />
+              <Route path="resources" element={<WorkspacePage section="resources" />} />
+              <Route path="groups" element={<WorkspacePage section="groups" />} />
+              <Route path="messenger" element={<MessengerPage />} />
             </Route>
 
             {/* Admin routes */}
@@ -96,12 +98,11 @@ export default function App() {
               }
             >
               <Route index element={<AdminDashboard />} />
-              <Route path="departments" element={<ModulePlaceholder />} />
-              <Route path="teachers" element={<ModulePlaceholder />} />
-              <Route path="students" element={<ModulePlaceholder />} />
-              <Route path="notices" element={<ModulePlaceholder />} />
-              <Route path="analytics" element={<ModulePlaceholder />} />
-              <Route path="moderation" element={<ModulePlaceholder />} />
+              <Route path="teachers" element={<WorkspacePage section="teachers" />} />
+              <Route path="students" element={<WorkspacePage section="students" />} />
+              <Route path="classes" element={<WorkspacePage section="classes" />} />
+              <Route path="credentials" element={<WorkspacePage section="credentials" />} />
+              <Route path="moderation" element={<WorkspacePage section="moderation" />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

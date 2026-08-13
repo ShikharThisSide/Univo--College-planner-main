@@ -226,10 +226,10 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             />
           )}
           <input
-            type="email"
+            type={isUniversity ? 'text' : 'email'}
             value={email}
             onChange={(e) => { setEmail(e.target.value); setError('') }}
-            placeholder="Email address"
+            placeholder={isUniversity ? 'Username or email address' : 'Email address'}
             className="w-full px-4 py-3.5 rounded-xl bg-white/6 border border-white/10 text-white placeholder:text-white/35 outline-none focus:border-[var(--accent-solid)]/50 transition-colors"
           />
           {(mode !== 'reset' || otp) && (

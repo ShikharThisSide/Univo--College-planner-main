@@ -65,9 +65,35 @@ export default function DashboardLayout() {
   }, [settingsOpen, user?.name, user?.avatar, user?.avatarImage])
   const saveProfile = (event) => { event.preventDefault(); const name = profileName.trim(); const avatar = profileAvatar.trim().slice(0, 3).toUpperCase(); if (!name) return; updateProfile({ name, avatar, avatarImage: profileImage }); }
   const handleProfileImage = (event) => { const file = event.target.files?.[0]; if (!file || !file.type.startsWith('image/') || file.size > 5 * 1024 * 1024) return; const reader = new FileReader(); reader.onload = () => setPendingProfileImage(String(reader.result)); reader.readAsDataURL(file); }
-  const cropProfileImage = (source, zoom, offset) => new Promise((resolve) => { const image = new Image(); image.onload = () => { const base = Math.max(512 / image.naturalWidth, 512 / image.naturalHeight); const cropSize = 512 / (base * zoom); const centerX = image.naturalWidth / 2 - offset.x / (base * zoom); const centerY = image.naturalHeight / 2 - offset.y / (base * zoom); const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512; const context = canvas.getContext('2d'); context.drawImage(image, Math.max(0, centerX - cropSize / 2), Math.max(0, centerY - cropSize / 2), cropSize, cropSize, 0, 0, 512, 512); resolve(canvas.toDataURL('image/jpeg', .9)) }; image.src = source })
-  const confirmProfileImage = async () => { if (!pendingProfileImage) return; setProfileImage(await cropProfileImage(pendingProfileImage, avatarZoom, avatarOffset)); setPendingProfileImage(''); setAvatarZoom(1); setAvatarOffset({ x: 0, y: 0 }); setAvatarUploadOpen(false) }
-  const removeProfileImage = () => { setProfileImage(''); setPendingProfileImage(''); setAvatarZoom(1); setAvatarOffset({ x: 0, y: 0 }); setAvatarUploadOpen(false) }
+  const cropProfileImage = (source, zoom, offset) => new Promise((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => {
+      const outputSize = 512
+      const scale = Math.max(outputSize / image.naturalWidth, outputSize / image.naturalHeight)
+      const cropSize = Math.min(image.naturalWidth, image.naturalHeight) / zoom
+      const centerX = image.naturalWidth / 2 - offset.x / scale / zoom
+      const centerY = image.naturalHeight / 2 - offset.y / scale / zoom
+      const maxX = image.naturalWidth - cropSize
+      const maxY = image.naturalHeight - cropSize
+      const sourceX = Math.min(maxX, Math.max(0, centerX - cropSize / 2))
+      const sourceY = Math.min(maxY, Math.max(0, centerY - cropSize / 2))
+      const canvas = document.createElement('canvas')
+      canvas.width = outputSize; canvas.height = outputSize
+      const context = canvas.getContext('2d')
+      context.drawImage(image, sourceX, sourceY, cropSize, cropSize, 0, 0, outputSize, outputSize)
+      resolve(canvas.toDataURL('image/jpeg', .92))
+    }
+    image.onerror = reject
+    image.src = source
+  })
+  const confirmProfileImage = async () => {
+    if (!pendingProfileImage) return
+    const cropped = await cropProfileImage(pendingProfileImage, avatarZoom, avatarOffset)
+    setProfileImage(cropped)
+    updateProfile({ avatarImage: cropped })
+    setPendingProfileImage(''); setAvatarZoom(1); setAvatarOffset({ x: 0, y: 0 }); setAvatarUploadOpen(false)
+  }
+  const removeProfileImage = () => { setProfileImage(''); updateProfile({ avatarImage: '' }); setPendingProfileImage(''); setAvatarZoom(1); setAvatarOffset({ x: 0, y: 0 }); setAvatarUploadOpen(false) }
   const handleAvatarWheel = (event) => { event.preventDefault(); setAvatarZoom((value) => Math.min(3, Math.max(1, +(value - event.deltaY * .001).toFixed(2)))) }
   const handleAvatarPointerDown = (event) => { event.currentTarget.setPointerCapture(event.pointerId); setAvatarDragging(true); avatarDrag.current = { x: event.clientX, y: event.clientY, offset: avatarOffset } }
   const handleAvatarPointerMove = (event) => { if (!avatarDrag.current) return; setAvatarOffset({ x: avatarDrag.current.offset.x + event.clientX - avatarDrag.current.x, y: avatarDrag.current.offset.y + event.clientY - avatarDrag.current.y }) }
