@@ -14,8 +14,8 @@ export default function InstitutionalStudentDashboard() {
         <p className="text-xs font-extrabold text-[var(--accent-solid)] uppercase tracking-widest flex items-center gap-1.5">
           <Sparkles size={14} /> {getTimeGreeting()}
         </p>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight mt-1 text-[var(--text-primary)]">
-          {data.university}
+        <h1 className="font-display text-4xl font-extrabold tracking-tight mt-1">
+          <span className="univo-gradient-text text-[var(--accent-solid)]">{data.university}</span>
         </h1>
         <p className="text-[var(--text-muted)] text-sm mt-1.5 flex items-center gap-2 font-medium">
           <Building2 size={15} className="text-[var(--accent-solid)]" /> {data.department} &middot; Semester {data.semester}
