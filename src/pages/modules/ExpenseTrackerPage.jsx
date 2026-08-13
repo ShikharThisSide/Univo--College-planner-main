@@ -21,7 +21,10 @@ import {
   Home,
   BookOpen,
   Bus,
-  Tag
+  Tag,
+  Clock,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
@@ -37,9 +40,28 @@ const CATEGORIES = [
   { id: 'misc', label: 'Miscellaneous', icon: Tag, color: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30' }
 ]
 
+function getMonthYearKey(dateStr) {
+  if (!dateStr) return new Date().toISOString().slice(0, 7)
+  return dateStr.slice(0, 7)
+}
+
+function getPreviousMonthKey() {
+  const d = new Date()
+  d.setMonth(d.getMonth() - 1)
+  return d.toISOString().slice(0, 7)
+}
+
+function formatMonthYearLabel(monthKey) {
+  const [year, month] = monthKey.split('-')
+  const date = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1)
+  return date.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })
+}
+
 export default function ExpenseTrackerPage() {
   const { user } = useAuth()
   const storageKey = user?.email || 'guest'
+
+  const currentMonthKey = useMemo(() => new Date().toISOString().slice(0, 7), [])
 
   // Monthly Budget limit state
   const [monthlyBudget, setMonthlyBudget] = useState(() => {
@@ -51,7 +73,7 @@ export default function ExpenseTrackerPage() {
   const [budgetModalOpen, setBudgetModalOpen] = useState(false)
   const [tempBudgetInput, setTempBudgetInput] = useState(`${monthlyBudget}`)
 
-  // Expenses list state — Defaults to empty list [] so initial spent starts at ₹0!
+  // Expenses list state — Saved in localStorage with full dates (e.g. "2026-08-10", "2026-07-20")
   const [expenses, setExpenses] = useState(() => {
     try {
       const saved = localStorage.getItem(`univoExpenses:${storageKey}`)
@@ -70,14 +92,23 @@ export default function ExpenseTrackerPage() {
     date: new Date().toISOString().slice(0, 10)
   })
 
-  // Filter state
+  // History & Past Months Modal state
+  const [historyModalOpen, setHistoryModalOpen] = useState(false)
+  const [selectedHistoryMonth, setSelectedHistoryMonth] = useState(() => getPreviousMonthKey())
+
+  // Filter state for current view
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 
-  // Calculated totals
+  // Current Month Expenses
+  const currentMonthExpenses = useMemo(() => {
+    return expenses.filter((item) => getMonthYearKey(item.date) === currentMonthKey)
+  }, [expenses, currentMonthKey])
+
+  // Calculated totals for Current Month
   const totalSpent = useMemo(() => {
-    return expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
-  }, [expenses])
+    return currentMonthExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+  }, [currentMonthExpenses])
 
   const remainingBudget = useMemo(() => {
     return monthlyBudget - totalSpent
@@ -91,7 +122,7 @@ export default function ExpenseTrackerPage() {
   const categoryTotals = useMemo(() => {
     const map = {}
     CATEGORIES.forEach((c) => { map[c.id] = 0 })
-    expenses.forEach((item) => {
+    currentMonthExpenses.forEach((item) => {
       if (map[item.category] !== undefined) {
         map[item.category] += Number(item.amount) || 0
       } else {
@@ -99,15 +130,47 @@ export default function ExpenseTrackerPage() {
       }
     })
     return map
-  }, [expenses])
+  }, [currentMonthExpenses])
 
   const filteredExpenses = useMemo(() => {
-    return expenses.filter((item) => {
+    return currentMonthExpenses.filter((item) => {
       const matchCat = selectedCategory === 'all' || item.category === selectedCategory
       const matchSearch = !searchQuery.trim() || item.title.toLowerCase().includes(searchQuery.trim().toLowerCase())
       return matchCat && matchSearch
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  }, [expenses, selectedCategory, searchQuery])
+  }, [currentMonthExpenses, selectedCategory, searchQuery])
+
+  // Past Month Expenses Data for History Modal
+  const historyMonthExpenses = useMemo(() => {
+    return expenses.filter((item) => getMonthYearKey(item.date) === selectedHistoryMonth)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  }, [expenses, selectedHistoryMonth])
+
+  const historyTotalSpent = useMemo(() => {
+    return historyMonthExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0)
+  }, [historyMonthExpenses])
+
+  const historyCategoryTotals = useMemo(() => {
+    const map = {}
+    CATEGORIES.forEach((c) => { map[c.id] = 0 })
+    historyMonthExpenses.forEach((item) => {
+      if (map[item.category] !== undefined) {
+        map[item.category] += Number(item.amount) || 0
+      } else {
+        map['misc'] = (map['misc'] || 0) + (Number(item.amount) || 0)
+      }
+    })
+    return map
+  }, [historyMonthExpenses])
+
+  // Available unique months list from data + previous month option
+  const availableMonthsList = useMemo(() => {
+    const monthsSet = new Set([currentMonthKey, getPreviousMonthKey()])
+    expenses.forEach((item) => {
+      if (item.date) monthsSet.add(getMonthYearKey(item.date))
+    })
+    return Array.from(monthsSet).sort().reverse()
+  }, [expenses, currentMonthKey])
 
   // Save Expense Handler
   const handleAddExpense = (e) => {
@@ -159,7 +222,16 @@ export default function ExpenseTrackerPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* 3 HEADER ACTION BUTTONS */}
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setHistoryModalOpen(true)}
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all text-[var(--text-primary)]"
+          >
+            <Calendar size={14} className="text-[var(--accent-solid)]" /> Last Month's Expenses
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -187,7 +259,7 @@ export default function ExpenseTrackerPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span className="text-xs uppercase tracking-wider text-[var(--text-muted)] font-semibold flex items-center gap-1.5">
-                <Wallet size={16} className="text-[var(--accent-solid)]" /> Monthly Budget Summary
+                <Wallet size={16} className="text-[var(--accent-solid)]" /> Current Month ({formatMonthYearLabel(currentMonthKey)}) Summary
               </span>
               <div className="flex items-baseline gap-3 mt-1">
                 <span className="font-display text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
@@ -270,20 +342,20 @@ export default function ExpenseTrackerPage() {
           <div className="flex items-center gap-2">
             <CreditCard size={18} className="text-[var(--accent-solid)]" />
             <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Expense Log</h2>
-            <span className="text-xs text-[var(--text-subtle)] font-mono">({filteredExpenses.length} entries)</span>
+            <span className="text-xs text-[var(--text-subtle)] font-mono">({filteredExpenses.length} entries this month)</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative flex-1 md:w-56 flex items-center">
-              <Search size={14} className="absolute left-3.5 pointer-events-none text-[var(--text-subtle)]" />
               <input
                 type="text"
                 placeholder="Search expense..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-3.5 pr-9 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
               />
+              <Search size={14} className="absolute right-3 pointer-events-none text-[var(--text-subtle)]" />
             </div>
 
             {/* Category Filter Pills */}
@@ -310,7 +382,7 @@ export default function ExpenseTrackerPage() {
                 className="p-8 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2"
               >
                 <Wallet size={28} className="mx-auto text-[var(--text-subtle)]" />
-                <p className="text-sm font-semibold text-[var(--text-secondary)]">No expenses recorded yet</p>
+                <p className="text-sm font-semibold text-[var(--text-secondary)]">No expenses recorded for this month</p>
                 <p className="text-xs text-[var(--text-subtle)]">Log your mess fees, hostel rent, or daily snacks to keep your budget on track.</p>
                 <button
                   type="button"
@@ -345,7 +417,7 @@ export default function ExpenseTrackerPage() {
                           <span>&middot;</span>
                           <span className="font-mono">{tx.paymentMethod}</span>
                           <span>&middot;</span>
-                          <span>{new Date(tx.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}</span>
+                          <span>{new Date(tx.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         </div>
                       </div>
                     </div>
@@ -370,6 +442,126 @@ export default function ExpenseTrackerPage() {
           </AnimatePresence>
         </div>
       </GlassCard>
+
+      {/* LAST MONTH'S EXPENSES & PAST HISTORY MODAL */}
+      {historyModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setHistoryModalOpen(false)}>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="glass-panel w-full max-w-2xl rounded-2xl p-6 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl max-h-[88vh] overflow-y-auto"
+          >
+            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setHistoryModalOpen(false)} aria-label="Close">
+              <X size={18} />
+            </button>
+
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[var(--border-subtle)]">
+              <div>
+                <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">PAST FINANCIAL RECORDS</p>
+                <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Past Months' Expenses</h2>
+              </div>
+
+              {/* Month Selector Dropdown */}
+              <div className="flex items-center gap-2">
+                <Calendar size={15} className="text-[var(--accent-solid)] shrink-0" />
+                <select
+                  value={selectedHistoryMonth}
+                  onChange={(e) => setSelectedHistoryMonth(e.target.value)}
+                  className="bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
+                >
+                  {availableMonthsList.map((mKey) => (
+                    <option key={mKey} value={mKey} className="bg-[var(--surface-modal)] text-[var(--text-primary)]">
+                      {formatMonthYearLabel(mKey)} {mKey === currentMonthKey ? '(Current)' : mKey === getPreviousMonthKey() ? '(Last Month)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* MONTH SUMMARY STATS */}
+            <div className="p-4 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span className="text-xs text-[var(--text-subtle)] font-medium">Total Spent in {formatMonthYearLabel(selectedHistoryMonth)}</span>
+                <p className="font-display text-3xl font-bold text-[var(--text-primary)] mt-0.5">
+                  ₹{historyTotalSpent.toLocaleString('en-IN')}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[var(--text-muted)] font-mono">{historyMonthExpenses.length} logged entries</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForm({ title: '', amount: '', category: 'mess', paymentMethod: 'UPI', date: `${selectedHistoryMonth}-15` })
+                    setHistoryModalOpen(false)
+                    setAddModalOpen(true)
+                  }}
+                  className="px-3 py-1.5 rounded-xl univo-gradient-bg text-black text-xs font-bold flex items-center gap-1 cursor-pointer"
+                >
+                  <Plus size={14} /> Log Past Record
+                </button>
+              </div>
+            </div>
+
+            {/* CATEGORY BREAKDOWN FOR PAST MONTH */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Category Breakdown</span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {CATEGORIES.map((cat) => {
+                  const amt = historyCategoryTotals[cat.id] || 0
+                  return (
+                    <div key={cat.id} className="p-2.5 rounded-xl bg-white/5 border border-white/8 text-xs flex items-center justify-between">
+                      <span className="text-[var(--text-muted)] truncate">{cat.label}</span>
+                      <span className="font-bold text-[var(--text-primary)] font-mono">₹{amt.toLocaleString('en-IN')}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* TRANSACTIONS LIST FOR PAST MONTH */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider block">Logged Transactions</span>
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {historyMonthExpenses.length === 0 ? (
+                  <div className="p-6 text-center border border-dashed border-[var(--border-subtle)] rounded-xl text-xs text-[var(--text-subtle)]">
+                    No expense records found for {formatMonthYearLabel(selectedHistoryMonth)}.
+                  </div>
+                ) : (
+                  historyMonthExpenses.map((tx) => {
+                    const catObj = CATEGORIES.find((c) => c.id === tx.category) || CATEGORIES[5]
+                    const Icon = catObj.icon
+                    return (
+                      <div key={tx.id} className="p-3 rounded-xl bg-white/5 border border-white/8 flex items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                          <span className={`p-2 rounded-lg ${catObj.color}`}>
+                            <Icon size={14} />
+                          </span>
+                          <div className="truncate min-w-0">
+                            <p className="font-semibold text-[var(--text-primary)] truncate">{tx.title}</p>
+                            <p className="text-[11px] text-[var(--text-subtle)] font-mono">{tx.paymentMethod} &middot; {tx.date}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="font-bold text-[var(--text-primary)] font-mono">-₹{Number(tx.amount).toLocaleString('en-IN')}</span>
+                          <button type="button" onClick={() => handleDeleteExpense(tx.id)} className="text-[var(--text-subtle)] hover:text-red-400 cursor-pointer p-0.5">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            <button type="button" onClick={() => setHistoryModalOpen(false)} className="w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold cursor-pointer">
+              Close History View
+            </button>
+          </motion.div>
+        </div>
+      )}
 
       {/* LOG EXPENSE MODAL */}
       {addModalOpen && (
