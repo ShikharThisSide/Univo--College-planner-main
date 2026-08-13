@@ -24,14 +24,14 @@ export const NAV_BY_ROLE = {
   [ROLES.STUDENT_INDIVIDUAL]: [
     { id: 'home', label: 'Home', path: '/dashboard/me', icon: 'Home' },
     { id: 'attendance', label: 'Class Representative', path: '/dashboard/me/attendance', icon: 'CalendarCheck' },
-    { id: 'assignments', label: 'Assignments', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
+    { id: 'assignments', label: 'Tasks', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/me/notes', icon: 'BookOpen' },
     { id: 'groups', label: 'Groups', path: '/dashboard/me/groups', icon: 'UsersRound' },
     { id: 'messenger', label: 'Messenger', path: '/dashboard/me/messenger', icon: 'MessageCircle' },
   ],
   [ROLES.STUDENT_INSTITUTIONAL]: [
     { id: 'home', label: 'Home', path: '/dashboard/student', icon: 'Home' },
-    { id: 'assignments', label: 'Assignments', path: '/dashboard/student/assignments', icon: 'ClipboardList' },
+    { id: 'assignments', label: 'Tasks', path: '/dashboard/student/assignments', icon: 'ClipboardList' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/student/notes', icon: 'BookOpen' },
     { id: 'groups', label: 'Groups', path: '/dashboard/student/groups', icon: 'UsersRound' },
     { id: 'attendance', label: 'Class Representative', path: '/dashboard/student/attendance', icon: 'CalendarCheck' },
