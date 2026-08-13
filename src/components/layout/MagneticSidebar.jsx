@@ -38,9 +38,7 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
                 className={({ isActive }) =>
                   `relative flex min-h-[48px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? collapsed
-                        ? 'text-[var(--accent-solid)] font-bold'
-                        : 'text-[var(--accent-solid)] font-bold bg-transparent'
+                      ? 'text-[var(--accent-solid)] font-bold bg-transparent'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
                   } ${collapsed ? 'justify-center' : ''}`
                 }
@@ -55,11 +53,11 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
                   />
                 )}
 
-                {/* Highlight background pill ONLY for collapsed / auto-hide sidebar view */}
+                {/* Subtle soft tint background pill ONLY for collapsed / auto-hide sidebar view */}
                 {collapsed && isItemActive && (
                   <motion.div
                     layoutId="sidebar-active-pill-collapsed"
-                    className="absolute inset-0 rounded-xl univo-gradient-bg opacity-20 pointer-events-none z-0"
+                    className="absolute inset-1 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/20 pointer-events-none z-0"
                     transition={{ type: 'spring', stiffness: 400, damping: 32 }}
                   />
                 )}
