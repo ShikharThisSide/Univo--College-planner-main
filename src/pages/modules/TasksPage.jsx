@@ -456,7 +456,7 @@ export default function TasksPage() {
         </div>
       )}
 
-      {/* ADD TASK MODAL */}
+      {/* ADD TASK MODAL — Simple Single Field Title Form */}
       {addModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setAddModalOpen(false)}>
           <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl" onSubmit={handleAddTask}>
@@ -472,48 +472,12 @@ export default function TasksPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Data Structures Lab 4, Submit OS Assignment..."
+                  autoFocus
+                  placeholder="e.g. Finish Data Structures Lab 3, Buy notebooks, Submit OS Assignment..."
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
                 />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Subject / Category</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Database Management, Operating Systems, Personal..."
-                  value={form.subject}
-                  onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Due Date</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Tomorrow, Friday 5 PM..."
-                    value={form.due}
-                    onChange={(e) => setForm({ ...form, due: e.target.value })}
-                    className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Priority</label>
-                  <select
-                    value={form.priority}
-                    onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
-                  >
-                    <option value="low" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Low</option>
-                    <option value="medium" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Medium</option>
-                    <option value="high" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">High</option>
-                  </select>
-                </div>
               </div>
             </div>
 

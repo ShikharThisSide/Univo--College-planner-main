@@ -19,6 +19,7 @@ import GroupsPage from './pages/modules/GroupsPage'
 import ExpenseTrackerPage from './pages/modules/ExpenseTrackerPage'
 import AttendanceTrackerPage from './pages/modules/AttendanceTrackerPage'
 import TasksPage from './pages/modules/TasksPage'
+import TimetablePage from './pages/modules/TimetablePage'
 import WorkspacePage from './pages/dashboard/WorkspacePage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
@@ -47,6 +48,7 @@ export default function App() {
               }
             >
               <Route index element={<IndividualStudentDashboard />} />
+              <Route path="timetable" element={<TimetablePage />} />
               <Route path="attendance-tracker" element={<AttendanceTrackerPage />} />
               <Route path="attendance" element={<ClassRepresentativePage />} />
               <Route path="assignments" element={<TasksPage />} />
@@ -69,6 +71,7 @@ export default function App() {
               }
             >
               <Route index element={<InstitutionalStudentDashboard />} />
+              <Route path="timetable" element={<TimetablePage />} />
               <Route path="attendance-tracker" element={<AttendanceTrackerPage />} />
               <Route path="assignments" element={<TasksPage />} />
               <Route path="expenses" element={<ExpenseTrackerPage />} />

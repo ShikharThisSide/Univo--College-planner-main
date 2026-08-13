@@ -788,63 +788,30 @@ export default function IndividualStudentDashboard() {
         </div>
       )}
 
-      {/* ADD TASK MODAL */}
+      {/* ADD TASK MODAL — Simple Single Field Title Form */}
       {taskOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onMouseDown={(e) => e.target === e.currentTarget && setTaskOpen(false)}>
-          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4" onSubmit={saveTask}>
-            <button type="button" className="absolute top-4 right-4 text-white/40 hover:text-white cursor-pointer" onClick={() => setTaskOpen(false)} aria-label="Close">
+          <form className="glass-panel w-full max-w-md rounded-2xl p-6 relative space-y-4 bg-[var(--surface-modal)] border border-[var(--border-strong)] text-[var(--text-primary)] shadow-2xl" onSubmit={saveTask}>
+            <button type="button" className="absolute top-4 right-4 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setTaskOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
-            <p className="settingsEyebrow">TASKS TO COMPLETE</p>
-            <h2 className="text-xl font-bold font-display">Add Task</h2>
+            <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">TASKS TO COMPLETE</p>
+            <h2 className="text-xl font-bold font-display text-[var(--text-primary)]">Add Task</h2>
 
             <div className="space-y-3 text-xs">
-              <label className="block font-semibold text-white/70">Task Title</label>
+              <label className="block font-semibold text-[var(--text-secondary)]">Task Title</label>
               <input
                 type="text"
-                placeholder="e.g. Finish Data Structures Lab 3, Submit Assignment..."
+                placeholder="e.g. Finish Data Structures Lab 3, Buy notebooks, Submit OS Assignment..."
                 value={taskForm.title}
                 onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
                 required
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
+                autoFocus
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-3 text-sm text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
               />
-
-              <label className="block font-semibold text-white/70">Category / Subject</label>
-              <input
-                type="text"
-                placeholder="e.g. Database Management, Personal, Exam Prep"
-                value={taskForm.subject}
-                onChange={(e) => setTaskForm({ ...taskForm, subject: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold text-white/70 mb-1">Due Date</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Tomorrow, Friday 5 PM"
-                    value={taskForm.due}
-                    onChange={(e) => setTaskForm({ ...taskForm, due: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-solid)]"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-white/70 mb-1">Priority</label>
-                  <select
-                    value={taskForm.priority}
-                    onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer"
-                  >
-                    <option value="low" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Low</option>
-                    <option value="medium" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Medium</option>
-                    <option value="high" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">High</option>
-                  </select>
-                </div>
-              </div>
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-2.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
+            <button type="submit" className="w-full univo-gradient-bg text-black font-semibold rounded-xl py-3 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2">
               <Plus size={15} /> Save Task
             </button>
           </form>
