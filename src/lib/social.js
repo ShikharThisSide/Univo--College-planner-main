@@ -14,6 +14,113 @@ export function writeSocial(key, value) {
   window.dispatchEvent(new Event('univo-social-updated'))
 }
 
+// Global Campus Groups Registry Helper
+export function readGlobalGroups() {
+  return readSocial('all_groups', [])
+}
+
+export function saveGlobalGroup(group) {
+  const all = readGlobalGroups()
+  const idx = all.findIndex((g) => g.id === group.id)
+  let updated
+  if (idx >= 0) {
+    updated = all.map((g) => (g.id === group.id ? group : g))
+  } else {
+    updated = [group, ...all]
+  }
+  writeSocial('all_groups', updated)
+  return updated
+}
+
+// Join Request Workflow (User requests Leader approval)
+export function requestToJoinGroup(group, requestingUser) {
+  const leaderEmail = group.creatorEmail
+  if (!leaderEmail) return null
+
+  const key = `joinRequests:${leaderEmail}`
+  const requests = readSocial(key, [])
+
+  // Check if request already exists
+  if (requests.some((r) => r.groupId === group.id && r.requesterEmail === requestingUser.email && r.status === 'pending')) {
+    return null
+  }
+
+  const newRequest = {
+    id: `jreq-${group.id}-${requestingUser.email}-${Date.now()}`,
+    groupId: group.id,
+    groupName: group.name,
+    leaderEmail: group.creatorEmail,
+    requesterEmail: requestingUser.email,
+    requesterName: requestingUser.name || requestingUser.email.split('@')[0],
+    status: 'pending',
+    createdAt: Date.now()
+  }
+
+  writeSocial(key, [newRequest, ...requests])
+  return newRequest
+}
+
+// Leader Approves or Rejects Join Request
+export function respondToJoinRequest(request, accept) {
+  const key = `joinRequests:${request.leaderEmail}`
+  const requests = readSocial(key, [])
+  const updatedRequests = requests.map((r) => r.id === request.id ? { ...r, status: accept ? 'accepted' : 'rejected' } : r)
+  writeSocial(key, updatedRequests)
+
+  if (accept) {
+    // 1. Update global groups
+    const globalGroups = readGlobalGroups()
+    const targetGroup = globalGroups.find((g) => g.id === request.groupId)
+    if (targetGroup) {
+      const updatedMembers = Array.from(new Set([...(targetGroup.members || []), request.requesterName]))
+      const updatedGroup = { ...targetGroup, members: updatedMembers }
+      saveGlobalGroup(updatedGroup)
+
+      // 2. Add to leader's groups
+      const leaderKey = `groups:${request.leaderEmail}`
+      const leaderGroups = readSocial(leaderKey, [])
+      writeSocial(leaderKey, leaderGroups.map((g) => g.id === request.groupId ? updatedGroup : g))
+
+      // 3. Add to requester's groups
+      const requesterKey = `groups:${request.requesterEmail}`
+      const requesterGroups = readSocial(requesterKey, [])
+      if (!requesterGroups.some((g) => g.id === request.groupId)) {
+        writeSocial(requesterKey, [updatedGroup, ...requesterGroups])
+      }
+    }
+  }
+}
+
+// Group Chat Messages & PDF Attachments Helper
+export function readGroupMessages(groupId) {
+  return readSocial(`groupMsgs:${groupId}`, [
+    {
+      id: 'welcome-1',
+      senderName: 'Univo Bot',
+      senderEmail: 'bot@univo.edu',
+      text: '🎉 Welcome to the group chat! Share notes, ask questions, and upload PDFs with your squad.',
+      timestamp: 'Just now',
+      attachment: null
+    }
+  ])
+}
+
+export function sendGroupMessage(groupId, messageObj) {
+  const current = readGroupMessages(groupId)
+  const newMessage = {
+    id: `msg-${Date.now()}`,
+    senderName: messageObj.senderName || 'Anonymous',
+    senderEmail: messageObj.senderEmail,
+    text: messageObj.text || '',
+    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    attachment: messageObj.attachment || null
+  }
+  const next = [...current, newMessage]
+  writeSocial(`groupMsgs:${groupId}`, next)
+  window.dispatchEvent(new Event('univo-group-msg-sent'))
+  return newMessage
+}
+
 // Internal helper to broadcast & log sent emails into local inbox/outbound storage
 function logAndBroadcastEmail(emailRecord) {
   const recipientInbox = readSocial(`inbox:${emailRecord.toEmail}`)

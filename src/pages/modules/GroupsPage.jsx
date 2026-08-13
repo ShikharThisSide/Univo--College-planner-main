@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users,
@@ -12,70 +11,75 @@ import {
   FolderKanban,
   Sparkles,
   BookOpen,
-  Rocket,
-  Target,
-  Award,
   CheckCircle2,
   Lock,
-  ArrowRight,
+  FileText,
+  Paperclip,
   Check,
-  ShieldCheck
+  Clock,
+  ShieldCheck,
+  Crown,
+  FileUp,
+  Download
 } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_USERS } from '../../lib/constants'
-import { readSocial, sendGroupInvite, writeSocial } from '../../lib/social'
+import {
+  readSocial,
+  writeSocial,
+  readGlobalGroups,
+  saveGlobalGroup,
+  requestToJoinGroup,
+  respondToJoinRequest,
+  readGroupMessages,
+  sendGroupMessage,
+  sendGroupInvite
+} from '../../lib/social'
 import UnivoGlobe from '../../components/ui/UnivoGlobe'
 
-const RECOMMENDED_CAMPUS_GROUPS = [
+// Initial Seed Real Campus Groups (Used if global registry is empty)
+const INITIAL_REAL_GROUPS = [
   {
-    id: 'rec-ds-squad',
+    id: 'real-ds-squad',
     name: 'CS301 Data Structures & Algorithms Squad',
-    description: 'Weekly problem solving, LeetCode prep, code reviews, and lab exam revision.',
+    description: 'Official campus study group for CS301 lab prep, LeetCode algorithms, and exam revision.',
     category: 'Study Group',
     iconTag: '📚',
-    gradient: 'from-emerald-500 to-teal-600',
     creatorEmail: 'prof.kumar@xyzuniversity.edu',
-    members: ['Dr. Raj Kumar', 'Priya Mehta', 'Aarav Sharma', 'Neha Kapoor', 'Siddharth V.', 'Ananya R.'],
-    sharedNotesCount: 12,
-    isRecommended: true
+    members: ['Dr. Raj Kumar', 'Priya Mehta', 'Aarav Sharma'],
+    createdAt: Date.now() - 86400000 * 5
   },
   {
-    id: 'rec-hackathon-team',
+    id: 'real-hackathon-team',
     name: 'Univo Hackathon 2026 Build Team',
-    description: 'Building AI applications, full-stack prototypes, and competing in inter-college hackathons.',
+    description: 'Building AI web apps, prototypes, and competing in inter-college innovation hackathons.',
     category: 'Project Team',
     iconTag: '🚀',
-    gradient: 'from-purple-500 to-indigo-600',
     creatorEmail: 'priya@xyzuniversity.edu',
-    members: ['Priya Mehta', 'Aarav Sharma', 'Rohan Gupta', 'Kavya S.'],
-    sharedNotesCount: 8,
-    isRecommended: true
+    members: ['Priya Mehta', 'Aarav Sharma'],
+    createdAt: Date.now() - 86400000 * 3
   },
   {
-    id: 'rec-exam-prep',
+    id: 'real-exam-prep',
     name: 'Mid-Term Exam Crunch Room',
-    description: 'Late night group study, past paper solving, and quick formula revision sessions.',
+    description: 'Late night problem solving, formula cheat sheet revision, and past year question discussion.',
     category: 'Exam Prep',
     iconTag: '🎯',
-    gradient: 'from-amber-500 to-orange-600',
     creatorEmail: 'aarav@personal.com',
-    members: ['Aarav Sharma', 'Priya Mehta', 'Vikram S.', 'Isha P.', 'Dr. Raj Kumar'],
-    sharedNotesCount: 19,
-    isRecommended: true
+    members: ['Aarav Sharma', 'Priya Mehta'],
+    createdAt: Date.now() - 86400000 * 2
   },
   {
-    id: 'rec-dev-guild',
+    id: 'real-dev-guild',
     name: 'Univo Open Source & Web Guild',
-    description: 'Web development workshops, Git collaboration, open source projects, and tech talks.',
+    description: 'Open source contributions, React workshops, Git collaboration, and student networking.',
     category: 'Campus Club',
     iconTag: '🎉',
-    gradient: 'from-blue-500 to-cyan-600',
     creatorEmail: 'admin@xyzuniversity.edu',
-    members: ['Neha Kapoor', 'Aarav Sharma', 'Priya Mehta', 'Dr. Raj Kumar', 'Tanya M.'],
-    sharedNotesCount: 15,
-    isRecommended: true
+    members: ['Neha Kapoor', 'Aarav Sharma'],
+    createdAt: Date.now() - 86400000 * 7
   }
 ]
 
@@ -94,16 +98,27 @@ function readPeople(currentUser) {
 
 export default function GroupsPage() {
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const key = `groups:${user?.email || 'guest'}`
+  const myEmail = user?.email || 'guest'
+  const myName = user?.name || myEmail.split('@')[0]
+  const key = `groups:${myEmail}`
 
   // State
-  const [userGroups, setUserGroups] = useState(() => readSocial(key))
-  const [activeTab, setActiveTab] = useState('all') // 'all', 'my_groups', 'discover', 'study', 'project'
+  const [globalGroups, setGlobalGroups] = useState([])
+  const [userGroups, setUserGroups] = useState([])
+  const [pendingJoinRequests, setPendingJoinRequests] = useState([])
+
+  const [activeTab, setActiveTab] = useState('all') // 'all', 'my_groups', 'discover', 'leader_requests'
   const [groupSearch, setGroupSearch] = useState('')
+
+  // Modals
   const [openCreate, setOpenCreate] = useState(false)
   const [inviteModalGroup, setInviteModalGroup] = useState(null)
-  const [vaultModalGroup, setVaultModalGroup] = useState(null)
+  const [chatModalGroup, setChatModalGroup] = useState(null)
+
+  // Chat Room State
+  const [chatMessages, setChatMessages] = useState([])
+  const [newMsgText, setNewMsgText] = useState('')
+  const [pendingPdfFile, setPendingPdfFile] = useState(null)
 
   // Form State
   const [form, setForm] = useState({ name: '', description: '', category: 'Study Group' })
@@ -114,74 +129,85 @@ export default function GroupsPage() {
 
   const people = useMemo(() => readPeople(user), [user])
 
-  // Sync state
-  useEffect(() => {
-    const refresh = () => setUserGroups(readSocial(key))
-    window.addEventListener('univo-social-updated', refresh)
-    return () => window.removeEventListener('univo-social-updated', refresh)
-  }, [key])
+  // Load & Seed Real Groups
+  const loadGroups = () => {
+    let globals = readGlobalGroups()
+    if (!globals || globals.length === 0) {
+      INITIAL_REAL_GROUPS.forEach((g) => saveGlobalGroup(g))
+      globals = readGlobalGroups()
+    }
+    setGlobalGroups(globals)
+    setUserGroups(readSocial(key, []))
 
-  // Combine user groups & recommended groups
-  const allDisplayGroups = useMemo(() => {
-    const joinedIds = new Set(userGroups.map((g) => g.id))
-    const availableRecs = RECOMMENDED_CAMPUS_GROUPS.filter((r) => !joinedIds.has(r.id))
-    return [...userGroups, ...availableRecs]
-  }, [userGroups])
+    // Read join requests sent to current user as group leader
+    const reqs = readSocial(`joinRequests:${myEmail}`, [])
+    setPendingJoinRequests(reqs.filter((r) => r.status === 'pending'))
+  }
+
+  useEffect(() => {
+    loadGroups()
+    window.addEventListener('univo-social-updated', loadGroups)
+    return () => window.removeEventListener('univo-social-updated', loadGroups)
+  }, [myEmail])
+
+  // Load chat messages when chat modal opens
+  useEffect(() => {
+    if (!chatModalGroup) return
+    const refreshChat = () => {
+      setChatMessages(readGroupMessages(chatModalGroup.id))
+    }
+    refreshChat()
+    window.addEventListener('univo-group-msg-sent', refreshChat)
+    return () => window.removeEventListener('univo-group-msg-sent', refreshChat)
+  }, [chatModalGroup])
 
   // Filter groups
   const filteredGroups = useMemo(() => {
-    return allDisplayGroups.filter((group) => {
-      const isJoined = userGroups.some((g) => g.id === group.id)
-      if (activeTab === 'my_groups' && !isJoined) return false
-      if (activeTab === 'discover' && isJoined) return false
-      if (activeTab === 'study' && group.category !== 'Study Group') return false
-      if (activeTab === 'project' && group.category !== 'Project Team') return false
-      if (activeTab === 'exam' && group.category !== 'Exam Prep') return false
+    return globalGroups.filter((group) => {
+      const isMember = (group.members || []).includes(myName)
+      if (activeTab === 'my_groups' && !isMember) return false
+      if (activeTab === 'discover' && isMember) return false
 
       if (groupSearch.trim()) {
         const q = groupSearch.toLowerCase()
         const matchName = group.name.toLowerCase().includes(q)
         const matchDesc = (group.description || '').toLowerCase().includes(q)
-        const matchCategory = (group.category || '').toLowerCase().includes(q)
-        return matchName || matchDesc || matchCategory
+        const matchCat = (group.category || '').toLowerCase().includes(q)
+        return matchName || matchDesc || matchCat
       }
       return true
     })
-  }, [allDisplayGroups, userGroups, activeTab, groupSearch])
+  }, [globalGroups, myName, activeTab, groupSearch])
 
   // Handlers
-  const handleJoinGroup = (recGroup) => {
-    const myName = user?.name || user?.email?.split('@')[0] || 'You'
-    const updatedGroup = {
-      ...recGroup,
-      members: Array.from(new Set([...recGroup.members, myName])),
-      isJoined: true
-    }
-    const next = [...userGroups, updatedGroup]
-    setUserGroups(next)
-    writeSocial(key, next)
+  const handleRequestJoin = (group) => {
+    requestToJoinGroup(group, { email: myEmail, name: myName })
+    loadGroups()
+  }
+
+  const handleLeaderResponse = (req, accept) => {
+    respondToJoinRequest(req, accept)
+    loadGroups()
   }
 
   const handleCreateGroup = (e) => {
     e.preventDefault()
     if (!form.name.trim()) return
 
-    const myName = user?.name || user?.email?.split('@')[0] || 'You'
     const newGroup = {
       id: `group-${Date.now()}`,
       name: form.name.trim(),
-      description: form.description.trim() || 'Custom study squad space on Univo.',
+      description: form.description.trim() || 'Campus study squad on Univo.',
       category: form.category || 'Study Group',
       iconTag: form.category === 'Project Team' ? '🚀' : form.category === 'Exam Prep' ? '🎯' : '📚',
+      creatorEmail: myEmail,
       members: [myName],
-      creatorEmail: user?.email,
       pendingInvites: selectedInvites.map((p) => ({ email: p.email, name: p.name })),
       createdAt: Date.now()
     }
 
-    const next = [...userGroups, newGroup]
-    setUserGroups(next)
-    writeSocial(key, next)
+    saveGlobalGroup(newGroup)
+    writeSocial(key, [newGroup, ...userGroups])
 
     selectedInvites.forEach((person) => {
       sendGroupInvite(newGroup, user, person.email, person.name)
@@ -191,26 +217,34 @@ export default function GroupsPage() {
     setSelectedInvites([])
     setSearchQuery('')
     setOpenCreate(false)
+    loadGroups()
   }
 
-  const handleLeaveOrDelete = (groupId) => {
-    const next = userGroups.filter((g) => g.id !== groupId)
-    setUserGroups(next)
-    writeSocial(key, next)
-  }
-
-  const sendMoreInvites = (e) => {
+  const handleSendChatMessage = (e) => {
     e.preventDefault()
-    if (!inviteModalGroup || !existingSelectedInvites.length) return
+    if (!chatModalGroup || (!newMsgText.trim() && !pendingPdfFile)) return
 
-    existingSelectedInvites.forEach((person) => {
-      sendGroupInvite(inviteModalGroup, user, person.email, person.name)
+    sendGroupMessage(chatModalGroup.id, {
+      senderName: myName,
+      senderEmail: myEmail,
+      text: newMsgText.trim(),
+      attachment: pendingPdfFile
     })
 
-    setUserGroups(readSocial(key))
-    setInviteModalGroup(null)
-    setExistingSelectedInvites([])
-    setExistingGroupSearch('')
+    setNewMsgText('')
+    setPendingPdfFile(null)
+  }
+
+  const handlePdfUpload = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setPendingPdfFile({
+      name: file.name,
+      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
+      type: file.type || 'application/pdf',
+      url: URL.createObjectURL(file)
+    })
   }
 
   const toggleCreateInvite = (person) => {
@@ -229,6 +263,20 @@ export default function GroupsPage() {
     }
   }
 
+  const sendMoreInvites = (e) => {
+    e.preventDefault()
+    if (!inviteModalGroup || !existingSelectedInvites.length) return
+
+    existingSelectedInvites.forEach((person) => {
+      sendGroupInvite(inviteModalGroup, user, person.email, person.name)
+    })
+
+    setInviteModalGroup(null)
+    setExistingSelectedInvites([])
+    setExistingGroupSearch('')
+    loadGroups()
+  }
+
   return (
     <PageTransition>
       {/* PAGE HEADER */}
@@ -236,10 +284,10 @@ export default function GroupsPage() {
         <div>
           <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">UNIVO COMMUNITY</p>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1 text-[var(--accent-solid)]">
-            Groups & Study Squads
+            Campus Groups & Study Squads
           </h1>
           <p className="text-[var(--text-muted)] text-sm mt-1">
-            Collaborative spaces for classmates, lab teams, hackathons, and exam preparation.
+            Real campus groups, leader-moderated join approvals, shared PDF vaults, and live group chat.
           </p>
         </div>
 
@@ -248,16 +296,56 @@ export default function GroupsPage() {
           onClick={() => setOpenCreate(true)}
           className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all hover:scale-105 shadow-lg shrink-0"
         >
-          <Plus size={16} /> Create New Group
+          <Plus size={16} /> Create Real Group
         </button>
       </div>
 
-      {/* DOPE INTERACTIVE HERO BANNER */}
-      <GlassCard className="mb-8 !p-0 overflow-hidden relative" delay={0.1}>
+      {/* PENDING JOIN REQUESTS ALERT BANNER FOR GROUP LEADERS */}
+      {pendingJoinRequests.length > 0 && (
+        <div className="mb-6 p-4 rounded-2xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/40 space-y-3">
+          <div className="flex items-center gap-2">
+            <Crown size={18} className="text-[var(--accent-solid)]" />
+            <h3 className="font-bold text-sm text-[var(--text-primary)]">
+              Leader Approvals Needed ({pendingJoinRequests.length} pending join request{pendingJoinRequests.length > 1 ? 's' : ''})
+            </h3>
+          </div>
+
+          <div className="space-y-2">
+            {pendingJoinRequests.map((req) => (
+              <div key={req.id} className="p-3 rounded-xl bg-[var(--surface-modal)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div>
+                  <p className="font-bold text-[var(--text-primary)]">{req.requesterName} ({req.requesterEmail})</p>
+                  <p className="text-[11px] text-[var(--text-muted)]">Requested to join <strong>"{req.groupName}"</strong></p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => handleLeaderResponse(req, true)}
+                    className="px-3 py-1.5 rounded-xl univo-gradient-bg text-black font-extrabold text-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <Check size={14} /> Accept Member
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLeaderResponse(req, false)}
+                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-[var(--text-secondary)] font-semibold text-xs cursor-pointer"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* DOPE HERO BANNER */}
+      <GlassCard className="mb-6 !p-0 overflow-hidden relative" delay={0.1}>
         <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-4 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-xs font-bold">
-              <Sparkles size={14} /> CAMPUS COLLABORATION HUB
+              <Sparkles size={14} /> LEADER-APPROVED CAMPUS SQUADS
             </div>
 
             <h2 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
@@ -265,20 +353,13 @@ export default function GroupsPage() {
             </h2>
 
             <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-              Connect with classmates, share course lecture notes, coordinate lab assignments, and study together in real-time.
+              Join real campus groups, send join requests to group leaders, share course PDFs, and chat with team members in real-time.
             </p>
 
-            {/* LIVE STATS BADGES */}
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs">
-              <span className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                <Users size={14} className="text-[var(--accent-solid)]" /> {userGroups.length} Joined Squads
-              </span>
-              <span className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                <BookOpen size={14} className="text-emerald-400" /> 54 Shared Files
-              </span>
-              <span className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-cyan-400" /> End-to-End Encrypted
-              </span>
+            <div className="flex flex-wrap items-center gap-3 pt-1 text-xs font-semibold text-[var(--text-secondary)]">
+              <span className="flex items-center gap-1.5"><ShieldCheck size={14} className="text-[var(--accent-solid)]" /> Leader Verification Required</span>
+              <span>&middot;</span>
+              <span className="flex items-center gap-1.5"><FileText size={14} className="text-emerald-400" /> PDF Document Vault</span>
             </div>
           </div>
 
@@ -290,15 +371,11 @@ export default function GroupsPage() {
 
       {/* FILTER TABS & SEARCH BAR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        {/* Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {[
-            { id: 'all', label: 'All Squads' },
-            { id: 'my_groups', label: `My Squads (${userGroups.length})` },
-            { id: 'discover', label: 'Discover Campus' },
-            { id: 'study', label: 'Study 📚' },
-            { id: 'project', label: 'Projects 🚀' },
-            { id: 'exam', label: 'Exam Prep 🎯' }
+            { id: 'all', label: `All Groups (${globalGroups.length})` },
+            { id: 'my_groups', label: `My Joined Squads (${userGroups.length})` },
+            { id: 'discover', label: 'Discover Public Squads' }
           ].map((tab) => {
             const isActive = activeTab === tab.id
             return (
@@ -306,7 +383,7 @@ export default function GroupsPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border ${
                   isActive
                     ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] shadow-sm scale-105'
                     : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
@@ -318,11 +395,10 @@ export default function GroupsPage() {
           })}
         </div>
 
-        {/* Search Bar */}
         <div className="relative w-full sm:w-64">
           <input
             type="text"
-            placeholder="Search squads by name or tag..."
+            placeholder="Search real groups by name or leader..."
             value={groupSearch}
             onChange={(e) => setGroupSearch(e.target.value)}
             className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3.5 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
@@ -331,33 +407,37 @@ export default function GroupsPage() {
         </div>
       </div>
 
-      {/* GROUPS GRID */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-4 mb-10">
+      {/* GROUPS LIST */}
+      <div className="grid md:grid-cols-2 gap-4 mb-10">
         <AnimatePresence mode="popLayout">
           {filteredGroups.length === 0 ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="col-span-full p-10 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl glass-card space-y-3"
+              className="col-span-full p-10 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl glass-card space-y-3 bg-[var(--surface-control)]"
             >
-              <Users size={36} className="mx-auto text-[var(--text-subtle)]" />
+              <Users size={36} className="mx-auto text-[var(--accent-solid)]" />
               <p className="text-base font-bold text-[var(--text-primary)]">No groups found</p>
-              <p className="text-xs text-[var(--text-subtle)] max-w-sm mx-auto">
-                {groupSearch ? 'No groups matched your search term.' : 'Click "+ Create New Group" to start your first campus study squad.'}
+              <p className="text-xs text-[var(--text-muted)] max-w-sm mx-auto">
+                {groupSearch ? 'No groups matched your search term.' : 'Click "+ Create Real Group" to start the first squad on campus.'}
               </p>
               <button
                 type="button"
                 onClick={() => setOpenCreate(true)}
-                className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer mt-2"
+                className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold inline-flex items-center gap-1.5 cursor-pointer mt-2 shadow-md"
               >
-                <Plus size={16} /> Create Group
+                <Plus size={16} /> Create Real Group
               </button>
             </motion.div>
           ) : (
             filteredGroups.map((group) => {
-              const isJoined = userGroups.some((g) => g.id === group.id)
-              const pendingList = group.pendingInvites || []
+              const isLeader = group.creatorEmail === myEmail
+              const isMember = (group.members || []).includes(myName)
+              
+              // Check if join request is pending for leader
+              const myRequests = readSocial(`joinRequests:${group.creatorEmail}`, [])
+              const isPending = myRequests.some((r) => r.groupId === group.id && r.requesterEmail === myEmail && r.status === 'pending')
 
               return (
                 <motion.div
@@ -366,124 +446,98 @@ export default function GroupsPage() {
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="p-5 rounded-2xl glass-card border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all flex flex-col justify-between gap-4 relative group"
+                  className="p-5 rounded-2xl glass-card border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all flex flex-col justify-between gap-4 text-[var(--text-primary)]"
                 >
                   <div className="space-y-3">
-                    {/* TOP BAR: GRADIENT ICON & CATEGORY BADGE */}
+                    {/* CARD HEADER */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl univo-gradient-bg grid place-items-center text-black shadow-md font-bold text-xl shrink-0">
+                        <div className="w-12 h-12 rounded-2xl univo-gradient-bg grid place-items-center text-black font-bold text-xl shadow-md shrink-0">
                           {group.iconTag || '👥'}
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-display font-bold text-base text-[var(--text-primary)] leading-snug">
-                              {group.name}
-                            </h3>
-                          </div>
-                          <span className="text-[11px] text-[var(--text-subtle)] block">
-                            Created by {group.creatorEmail === user?.email ? 'You' : group.members[0] || 'Campus member'}
+                          <h3 className="font-display font-bold text-base text-[var(--text-primary)] leading-snug">
+                            {group.name}
+                          </h3>
+                          <span className="text-xs text-[var(--text-secondary)] font-medium flex items-center gap-1 mt-0.5">
+                            {isLeader ? (
+                              <span className="text-[var(--accent-solid)] font-bold flex items-center gap-1"><Crown size={13} /> Group Leader (You)</span>
+                            ) : (
+                              <span>Leader: {group.creatorEmail?.split('@')[0]}</span>
+                            )}
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-2.5 py-1 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-[10px] font-bold uppercase tracking-wider shrink-0">
+                      <span className="px-2.5 py-1 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-[10px] font-extrabold uppercase tracking-wider shrink-0">
                         {group.category || 'Study Group'}
                       </span>
                     </div>
 
-                    {/* DESCRIPTION */}
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
-                      {group.description || 'Dedicated collaboration room for course notes and study prep.'}
+                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                      {group.description || 'Campus study squad for course collaboration and note sharing.'}
                     </p>
 
-                    {/* MEMBER AVATAR STACK & STATS */}
+                    {/* MEMBERS STACK */}
                     <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5">
                         <div className="flex -space-x-2 overflow-hidden">
-                          {group.members.slice(0, 4).map((mName, i) => (
+                          {(group.members || []).slice(0, 4).map((mName, i) => (
                             <span
                               key={i}
-                              className="inline-block w-7 h-7 rounded-full univo-gradient-bg text-black font-bold text-[10px] grid place-items-center ring-2 ring-black"
+                              className="inline-block w-7 h-7 rounded-full univo-gradient-bg text-black font-extrabold text-[10px] grid place-items-center ring-2 ring-black"
                               title={mName}
                             >
                               {mName.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()}
                             </span>
                           ))}
                         </div>
-                        <span className="text-xs text-[var(--text-muted)] font-semibold font-mono pl-1">
-                          {group.members.length} member{group.members.length === 1 ? '' : 's'}
+                        <span className="text-xs text-[var(--text-secondary)] font-bold font-mono pl-1">
+                          {(group.members || []).length} active member{(group.members || []).length === 1 ? '' : 's'}
                         </span>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => setVaultModalGroup(group)}
-                        className="text-xs text-[var(--accent-solid)] hover:underline flex items-center gap-1 font-semibold cursor-pointer"
-                      >
-                        <FolderKanban size={13} /> Shared Vault
-                      </button>
                     </div>
-
-                    {/* PENDING INVITES LIST */}
-                    {pendingList.length > 0 && (
-                      <div className="pt-2 border-t border-[var(--border-subtle)]">
-                        <span className="text-[11px] text-amber-400 font-medium block mb-1">
-                          Pending Invites ({pendingList.length}):
-                        </span>
-                        <div className="flex flex-wrap gap-1">
-                          {pendingList.map((p, idx) => (
-                            <span key={idx} className="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-[10px] text-amber-300">
-                              {typeof p === 'string' ? p : p.name || p.email}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  {/* ACTION FOOTER */}
+                  {/* ACTION BUTTONS */}
                   <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
-                    {isJoined ? (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => navigate('/dashboard/me/messenger')}
-                            className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1.5 text-[var(--text-primary)] cursor-pointer transition-all"
-                          >
-                            <MessageCircle size={14} className="text-[var(--accent-solid)]" /> Chat Channel
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setInviteModalGroup(group)
-                              setExistingSelectedInvites([])
-                              setExistingGroupSearch('')
-                            }}
-                            className="px-3 py-1.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold flex items-center gap-1 text-[var(--text-primary)] cursor-pointer transition-all"
-                          >
-                            <UserPlus size={14} className="text-[var(--accent-solid)]" /> Invite
-                          </button>
-                        </div>
+                    {isMember ? (
+                      <div className="flex items-center justify-between w-full gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setChatModalGroup(group)}
+                          className="flex-1 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer shadow-md hover:scale-[1.01] transition-all"
+                        >
+                          <MessageCircle size={15} /> Group Chat & PDF Vault
+                        </button>
 
                         <button
                           type="button"
-                          onClick={() => handleLeaveOrDelete(group.id)}
-                          className="text-xs text-[var(--text-subtle)] hover:text-red-400 cursor-pointer p-1 transition-colors"
-                          title="Leave Group"
+                          onClick={() => {
+                            setInviteModalGroup(group)
+                            setExistingSelectedInvites([])
+                            setExistingGroupSearch('')
+                          }}
+                          className="px-3 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] cursor-pointer transition-all"
                         >
-                          Leave
+                          <UserPlus size={15} className="text-[var(--accent-solid)]" /> Invite
                         </button>
-                      </>
+                      </div>
+                    ) : isPending ? (
+                      <button
+                        type="button"
+                        disabled
+                        className="w-full py-2.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                      >
+                        <Clock size={15} /> Request Sent (Pending Leader Approval)
+                      </button>
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleJoinGroup(group)}
-                        className="w-full py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-md hover:scale-[1.01] transition-all"
+                        onClick={() => handleRequestJoin(group)}
+                        className="w-full py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--accent-solid)]/40 text-[var(--accent-solid)] font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer transition-all hover:scale-[1.01]"
                       >
-                        <CheckCircle2 size={15} /> Join Squad
+                        <Send size={14} /> Request to Join Squad (Sends to Leader)
                       </button>
                     )}
                   </div>
@@ -494,7 +548,7 @@ export default function GroupsPage() {
         </AnimatePresence>
       </div>
 
-      {/* CREATE GROUP MODAL */}
+      {/* CREATE REAL GROUP MODAL */}
       {openCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setOpenCreate(false)}>
           <motion.form
@@ -506,14 +560,14 @@ export default function GroupsPage() {
           >
             <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
 
-            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1 rounded-lg hover:bg-white/10" onClick={() => setOpenCreate(false)} aria-label="Close">
+            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setOpenCreate(false)} aria-label="Close">
               <X size={18} />
             </button>
 
             <div>
-              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">NEW SQUAD</p>
-              <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-0.5">Create a Study Group</h2>
-              <p className="text-xs text-[var(--text-muted)] mt-1">Set up a collaborative space and send instant request notifications to classmates.</p>
+              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">GROUP LEADER</p>
+              <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-0.5">Create Real Campus Group</h2>
+              <p className="text-xs text-[var(--text-muted)] mt-1">You will be designated as the Group Leader with full join request approval rights.</p>
             </div>
 
             <div className="space-y-3 text-xs">
@@ -522,236 +576,156 @@ export default function GroupsPage() {
                 <input
                   autoFocus
                   required
-                  placeholder="e.g. Data Structures Prep, Hackathon 2026 Squad..."
+                  placeholder="e.g. B.Tech Computer Networks Team, OS Lab Squad..."
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] focus-within:border-[var(--accent-solid)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none"
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Category</label>
-                  <select
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer font-semibold"
-                  >
-                    <option value="Study Group" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Study Group 📚</option>
-                    <option value="Project Team" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Project Team 🚀</option>
-                    <option value="Exam Prep" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Exam Prep 🎯</option>
-                    <option value="Campus Club" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Campus Club 🎉</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-[var(--text-secondary)] mb-1">Visibility</label>
-                  <div className="px-3 py-2.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                    <Lock size={13} className="text-[var(--accent-solid)]" /> Private Squad
-                  </div>
-                </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Description (optional)</label>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Category</label>
+                <select
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
+                  className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer font-semibold"
+                >
+                  <option value="Study Group" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Study Group 📚</option>
+                  <option value="Project Team" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Project Team 🚀</option>
+                  <option value="Exam Prep" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Exam Prep 🎯</option>
+                  <option value="Campus Club" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Campus Club 🎉</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[var(--text-secondary)] mb-1">Description</label>
                 <textarea
-                  placeholder="What is this group focused on?"
+                  placeholder="What is this group created for?"
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={2}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] focus-within:border-[var(--accent-solid)] rounded-xl px-3.5 py-2 text-[var(--text-primary)] focus:outline-none resize-none"
+                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3.5 py-2 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] resize-none"
                 />
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-[var(--border-subtle)] space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[var(--text-secondary)] flex items-center gap-1.5">
-                  <UserPlus size={14} className="text-[var(--accent-solid)]" /> Invite Classmates
-                </label>
-                {selectedInvites.length > 0 && (
-                  <span className="text-[11px] text-[var(--accent-solid)] font-bold">{selectedInvites.length} selected</span>
-                )}
-              </div>
-
-              <div className="relative">
-                <Search size={14} className="absolute left-3.5 top-2.5 pointer-events-none text-[var(--text-subtle)]" />
-                <input
-                  type="text"
-                  placeholder="Search classmates by name or email..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-                />
-              </div>
-
-              {selectedInvites.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedInvites.map((p) => (
-                    <span key={p.email} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--accent-muted)] border border-[var(--accent-solid)]/40 text-xs font-bold text-[var(--accent-solid)]">
-                      {p.name}
-                      <button type="button" onClick={() => toggleCreateInvite(p)} className="hover:text-red-400 ml-1 cursor-pointer">
-                        <X size={12} />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
-                {people.map((person) => {
-                  const isSelected = selectedInvites.some((p) => p.email === person.email)
-                  return (
-                    <button
-                      type="button"
-                      key={person.email}
-                      onClick={() => toggleCreateInvite(person)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all cursor-pointer ${
-                        isSelected ? 'bg-[var(--accent-muted)] border border-[var(--accent-solid)]/40' : 'bg-[var(--surface-control)] hover:bg-[var(--surface-hover)]'
-                      }`}
-                    >
-                      <div>
-                        <p className="text-xs font-bold text-[var(--text-primary)]">{person.name}</p>
-                        <p className="text-[10px] text-[var(--text-subtle)] font-mono">{person.email}</p>
-                      </div>
-                      {isSelected ? <Check size={14} className="text-[var(--accent-solid)]" /> : <Plus size={14} className="text-[var(--text-subtle)]" />}
-                    </button>
-                  )
-                })}
               </div>
             </div>
 
             <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
-              <Plus size={16} /> Create Group & Send Invites
+              <Plus size={16} /> Launch Group & Become Leader
             </button>
           </motion.form>
         </div>
       )}
 
-      {/* INVITE MODAL FOR EXISTING GROUP */}
-      {inviteModalGroup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setInviteModalGroup(null)}>
-          <motion.form
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
-            onSubmit={sendMoreInvites}
-          >
-            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
-
-            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1 rounded-lg hover:bg-white/10" onClick={() => setInviteModalGroup(null)} aria-label="Close">
-              <X size={18} />
-            </button>
-
-            <div>
-              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">INVITATION REQUEST</p>
-              <h2 className="text-xl font-bold font-display text-[var(--text-primary)] mt-1">Invite to "{inviteModalGroup.name}"</h2>
-            </div>
-
-            <div className="relative">
-              <Search size={14} className="absolute left-3 top-3 text-[var(--text-subtle)]" />
-              <input
-                type="text"
-                placeholder="Search classmates by name or email..."
-                value={existingGroupSearch}
-                onChange={(e) => setExistingGroupSearch(e.target.value)}
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-              />
-            </div>
-
-            <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
-              {people.map((person) => {
-                const isMember = inviteModalGroup.members.includes(person.name)
-                const isPending = (inviteModalGroup.pendingInvites || []).some((p) => (typeof p === 'string' ? p === person.email : p.email === person.email))
-                const isSelected = existingSelectedInvites.some((p) => p.email === person.email)
-
-                return (
-                  <button
-                    type="button"
-                    key={person.email}
-                    disabled={isMember || isPending}
-                    onClick={() => toggleExistingInvite(person)}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-all ${
-                      isMember || isPending
-                        ? 'opacity-50 cursor-not-allowed bg-[var(--surface-control)]'
-                        : isSelected
-                        ? 'bg-[var(--accent-muted)] border border-[var(--accent-solid)]/40'
-                        : 'bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] cursor-pointer'
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-[var(--text-primary)]">{person.name}</p>
-                      <p className="text-[10px] text-[var(--text-subtle)] font-mono">{person.email}</p>
-                    </div>
-                    {isMember ? (
-                      <span className="text-[10px] text-[var(--text-subtle)] font-semibold">Member</span>
-                    ) : isPending ? (
-                      <span className="text-[10px] text-amber-400 font-bold">Invited</span>
-                    ) : isSelected ? (
-                      <Check size={14} className="text-[var(--accent-solid)]" />
-                    ) : (
-                      <Plus size={14} className="text-[var(--text-subtle)]" />
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-
-            <button
-              type="submit"
-              disabled={!existingSelectedInvites.length}
-              className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Send size={15} /> Send Group Invites ({existingSelectedInvites.length})
-            </button>
-          </motion.form>
-        </div>
-      )}
-
-      {/* SHARED VAULT MODAL */}
-      {vaultModalGroup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setVaultModalGroup(null)}>
+      {/* GROUP CHAT & PDF VAULT MODAL FOR MEMBERS */}
+      {chatModalGroup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setChatModalGroup(null)}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden max-h-[85vh] overflow-y-auto"
+            className="glass-panel w-full max-w-2xl rounded-3xl p-6 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col justify-between"
           >
             <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
 
-            <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setVaultModalGroup(null)} aria-label="Close">
-              <X size={18} />
-            </button>
+            {/* CHAT HEADER */}
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl univo-gradient-bg text-black font-bold text-lg grid place-items-center shrink-0">
+                  {chatModalGroup.iconTag || '💬'}
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-lg text-[var(--text-primary)]">{chatModalGroup.name} Chat</h3>
+                  <span className="text-xs text-[var(--text-secondary)] font-medium">
+                    {(chatModalGroup.members || []).length} members in channel &middot; Leader: {chatModalGroup.creatorEmail?.split('@')[0]}
+                  </span>
+                </div>
+              </div>
 
-            <div>
-              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">GROUP RESOURCE VAULT</p>
-              <h2 className="text-xl font-bold font-display text-[var(--text-primary)] mt-1">{vaultModalGroup.name} Vault</h2>
-              <p className="text-xs text-[var(--text-muted)] mt-1">Shared course notes, lab code, and exam revision guides.</p>
+              <button type="button" onClick={() => setChatModalGroup(null)} className="text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" aria-label="Close chat">
+                <X size={18} />
+              </button>
             </div>
 
-            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-              {[
-                { title: 'Data Structures Lab 3 - Solution Walkthrough.pdf', size: '2.4 MB', date: 'Today' },
-                { title: 'Semester 4 Mid-Term Past Year Papers & Answer Key.zip', size: '14.8 MB', date: 'Yesterday' },
-                { title: 'Operating Systems System Calls Reference Sheet.docx', size: '840 KB', date: '3 days ago' }
-              ].map((doc, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] flex items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                    <BookOpen size={16} className="text-[var(--accent-solid)] shrink-0" />
-                    <div className="truncate">
-                      <p className="font-semibold text-[var(--text-primary)] truncate">{doc.title}</p>
-                      <p className="text-[10px] text-[var(--text-subtle)] font-mono">{doc.size} &middot; Shared {doc.date}</p>
+            {/* CHAT MESSAGE STREAM */}
+            <div className="flex-1 space-y-3 overflow-y-auto pr-1 min-h-[260px] max-h-[360px] p-2 bg-[var(--surface-control)] rounded-2xl border border-[var(--border-subtle)]">
+              {chatMessages.map((msg) => {
+                const isMe = msg.senderEmail === myEmail
+
+                return (
+                  <div key={msg.id} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} space-y-1`}>
+                    <span className="text-[10px] text-[var(--text-subtle)] font-bold px-1">
+                      {msg.senderName} &middot; {msg.timestamp}
+                    </span>
+
+                    <div className={`p-3 rounded-2xl max-w-[85%] text-xs font-sans leading-relaxed ${
+                      isMe
+                        ? 'univo-gradient-bg text-black font-semibold rounded-tr-none'
+                        : 'bg-[var(--surface-modal)] border border-[var(--border-subtle)] text-[var(--text-primary)] rounded-tl-none'
+                    }`}>
+                      {msg.text && <p>{msg.text}</p>}
+
+                      {/* ATTACHED PDF CARD */}
+                      {msg.attachment && (
+                        <div className={`mt-2 p-2.5 rounded-xl border flex items-center justify-between gap-3 ${
+                          isMe ? 'bg-black/10 border-black/20 text-black' : 'bg-white/5 border-white/10 text-[var(--text-primary)]'
+                        }`}>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FileText size={18} className={isMe ? 'text-black' : 'text-emerald-400'} />
+                            <div className="truncate">
+                              <p className="font-bold truncate text-[11px]">{msg.attachment.name}</p>
+                              <span className="text-[10px] opacity-75 font-mono">{msg.attachment.size}</span>
+                            </div>
+                          </div>
+
+                          <a
+                            href={msg.attachment.url}
+                            download={msg.attachment.name}
+                            className={`p-1.5 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 ${
+                              isMe ? 'bg-black text-white' : 'bg-[var(--accent-solid)] text-black'
+                            }`}
+                          >
+                            <Download size={12} /> Save PDF
+                          </a>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-[var(--accent-solid)] cursor-pointer hover:underline shrink-0">Download</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
 
-            <button type="button" onClick={() => setVaultModalGroup(null)} className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-[var(--text-secondary)] transition-colors cursor-pointer">
-              Close Vault
-            </button>
+            {/* PENDING PDF ATTACHMENT PREVIEW CARD */}
+            {pendingPdfFile && (
+              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText size={16} className="text-emerald-400 shrink-0" />
+                  <span className="font-bold text-[var(--text-primary)] truncate">{pendingPdfFile.name} ({pendingPdfFile.size})</span>
+                </div>
+                <button type="button" onClick={() => setPendingPdfFile(null)} className="text-red-400 hover:text-red-300 p-0.5">
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            {/* CHAT INPUT FORM WITH PDF UPLOAD BUTTON */}
+            <form onSubmit={handleSendChatMessage} className="flex items-center gap-2 pt-1">
+              <label className="p-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-[var(--accent-solid)] cursor-pointer transition-colors" title="Attach PDF or Document">
+                <Paperclip size={18} />
+                <input type="file" accept="application/pdf,image/*,.doc,.docx" onChange={handlePdfUpload} className="hidden" />
+              </label>
+
+              <input
+                type="text"
+                placeholder="Type a message or upload PDF notes to your squad..."
+                value={newMsgText}
+                onChange={(e) => setNewMsgText(e.target.value)}
+                className="flex-1 bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-4 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+              />
+
+              <button type="submit" className="univo-gradient-bg text-black px-4 py-2.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-md hover:scale-105 transition-all">
+                <Send size={15} /> Send
+              </button>
+            </form>
           </motion.div>
         </div>
       )}
