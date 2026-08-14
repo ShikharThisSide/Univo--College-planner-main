@@ -155,21 +155,20 @@ export default function DashboardLayout() {
       <MagneticSidebar items={navItems} collapsed={sidebarIsCollapsed} autoHide={autoHideSidebar} onHoverChange={setSidebarHovered} onSettings={openSettings} user={user} onLogout={handleLogout} />
 
       <div className={`${sidebarIsCollapsed ? 'pl-[72px]' : 'pl-[280px]'} min-h-screen flex flex-col transition-[padding] duration-300`}>
-        <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 glass-panel border-b border-white/8">
-            <button
+        <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-3.5 glass-panel border-b border-[var(--border-subtle)] backdrop-blur-xl">
+          <button
             type="button"
             onClick={() => setCmdOpen(true)}
-            className="dashboard-search flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all max-w-md w-full"
+            className="dashboard-search flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all max-w-md w-full hover:border-[var(--accent-solid)]/40 hover:shadow-xs active:scale-[0.99]"
           >
-            <Search size={16} />
-            <span className="flex-1 text-left">Search or jump to…</span>
-            <kbd className="dashboard-kbd px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>
-            </button>
+            <Search size={16} className="text-[var(--text-subtle)]" />
+            <span className="flex-1 text-left univo-text-muted text-xs font-medium">Search or jump to…</span>
+            <kbd className="dashboard-kbd px-1.5 py-0.5 rounded text-[10px] font-mono border border-[var(--border-subtle)]">⌘K</kbd>
+          </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <NotificationBell />
             <ThemeSwitcher open={themeOpen} onOpenChange={setThemeOpen} />
-
           </div>
         </header>
 
