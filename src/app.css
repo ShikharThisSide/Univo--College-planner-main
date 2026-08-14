@@ -199,10 +199,17 @@ body.univo-app {
 .dashboard-sidebar-action { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border: 0; border-radius: 10px; color: var(--text-muted); background: transparent; font-size: 13px; cursor: pointer; }
 .dashboard-sidebar-action:hover { color: var(--text-primary); background: var(--surface-hover); }
 .dashboard-sidebar-account { display: flex; align-items: center; gap: 9px; padding: 10px 8px; border-top: 1px solid var(--border-subtle); }.dashboard-sidebar-avatar { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%; color: #fff; background: var(--accent-from); font-size: 10px; font-weight: 800; }.dashboard-sidebar-account div { display: grid; min-width: 0; flex: 1; gap: 3px; }.dashboard-sidebar-account strong { overflow: hidden; color: var(--text-primary); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }.dashboard-sidebar-account small { overflow: hidden; color: var(--text-subtle); font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }.dashboard-sidebar-logout { padding: 5px; border: 0; color: var(--text-subtle); background: transparent; cursor: pointer; }.dashboard-sidebar-logout:hover { color: var(--accent-solid); }
-[data-theme="light"] .dashboard-shell .text-white\/40,
-[data-theme="light"] .dashboard-shell .text-white\/45,
-[data-theme="light"] .dashboard-shell .text-white\/50,
-[data-theme="light"] .dashboard-shell .text-white\/60 { color: var(--text-muted); }
+[data-theme="light"] .text-white\/20,
+[data-theme="light"] .text-white\/25,
+[data-theme="light"] .text-white\/30,
+[data-theme="light"] .text-white\/35,
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-white\/45,
+[data-theme="light"] .text-white\/50,
+[data-theme="light"] .text-white\/55,
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/80 { color: var(--text-primary); }
 
 .dashboard-widget-stack {
   display: flex;

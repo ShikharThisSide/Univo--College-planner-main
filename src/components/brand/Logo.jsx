@@ -1,21 +1,19 @@
 import { Link } from 'react-router-dom'
-import NovaBurst from './NovaBurst'
 
-export default function Logo({ to = '/', className = '', showText = true, size = 32 }) {
+export default function Logo({ to = '/', className = '', showText = true }) {
   const content = (
     <>
-      <NovaBurst size={size} />
-      {showText && <span className="font-display font-semibold text-lg tracking-tight">Univo</span>}
+      {showText && <span className="font-display font-extrabold text-xl tracking-tight univo-gradient-text text-[var(--accent-solid)]">Univo</span>}
     </>
   )
 
   if (to) {
     return (
-      <Link to={to} className={`inline-flex items-center gap-2.5 no-underline cursor-pointer ${className}`} aria-label="Home — Univo" title="Home">
+      <Link to={to} className={`inline-flex items-center gap-2 no-underline cursor-pointer ${className}`} aria-label="Home — Univo" title="Home">
         {content}
       </Link>
     )
   }
 
-  return <div className={`inline-flex items-center gap-2.5 ${className}`}>{content}</div>
+  return <div className={`inline-flex items-center gap-2 ${className}`}>{content}</div>
 }
