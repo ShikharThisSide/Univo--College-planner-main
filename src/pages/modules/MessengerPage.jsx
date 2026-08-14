@@ -6,6 +6,7 @@ import GlassCard from '../../components/ui/GlassCard'
 import { useAuth } from '../../context/AuthContext'
 import { DEMO_USERS } from '../../lib/constants'
 import { addFriend, areFriends, readSocial, requestFriend, cancelFriendRequest, readDMMessages, sendDMMessage, getUserLastActive, formatLastActive } from '../../lib/social'
+import { fetchGlobalRegisteredUsers } from '../../lib/cloudSync'
 
 function readPeople(currentUser) {
   let accounts = {}
@@ -46,17 +47,24 @@ export default function MessengerPage() {
   const [dmPdfFile, setDmPdfFile] = useState(null)
 
   const [friends, setFriends] = useState(() => readSocial(`friends:${user?.email}`))
+  const [people, setPeople] = useState(() => readPeople(user))
+
+  useEffect(() => {
+    fetchGlobalRegisteredUsers().then(() => {
+      setPeople(readPeople(user))
+    })
+  }, [user])
 
   useEffect(() => {
     if (!user?.email) return
-    const syncFriends = () => {
+    const syncSocial = () => {
       setFriends(readSocial(`friends:${user.email}`))
+      setPeople(readPeople(user))
     }
-    syncFriends()
-    window.addEventListener('univo-social-updated', syncFriends)
-    return () => window.removeEventListener('univo-social-updated', syncFriends)
+    syncSocial()
+    window.addEventListener('univo-social-updated', syncSocial)
+    return () => window.removeEventListener('univo-social-updated', syncSocial)
   }, [user?.email])
-  const people = useMemo(() => readPeople(user), [user])
   const friendPeople = people.filter((person) => friends.includes(person.email))
   const results = people.filter((person) => `${person.name} ${person.email} ${person.username || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
 

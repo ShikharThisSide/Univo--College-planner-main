@@ -1,5 +1,22 @@
-// Centralized Multi-Device Sync Engine
-// Syncs ALL user accounts, tasks, timetable, attendance, expenses, scratchpad, GPA, notes, groups, friends, messages, and theme preferences across devices & browsers
+export async function fetchGlobalRegisteredUsers() {
+  try {
+    const res = await fetch('/api/all-users')
+    if (!res.ok) return {}
+    const json = await res.json()
+    const cloudAccounts = json?.accounts || {}
+
+    if (Object.keys(cloudAccounts).length > 0) {
+      const localAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}') || {}
+      const merged = { ...cloudAccounts, ...localAccounts }
+      localStorage.setItem('univoAccounts', JSON.stringify(merged))
+      window.dispatchEvent(new Event('univo-social-updated'))
+      return merged
+    }
+  } catch (err) {
+    console.warn('[CloudSync] Global users fetch warning:', err)
+  }
+  return {}
+}
 
 export async function fetchCloudUserData(email) {
   if (!email) return null
