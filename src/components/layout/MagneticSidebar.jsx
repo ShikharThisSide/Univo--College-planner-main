@@ -15,9 +15,9 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
     <aside
       onMouseEnter={() => autoHide && onHoverChange?.(true)}
       onMouseLeave={() => autoHide && onHoverChange?.(false)}
-      className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-[var(--border-subtle)] ${collapsed ? 'w-[72px]' : 'w-[280px]'}`}
+      className={`dashboard-sidebar fixed left-0 top-0 h-full z-30 flex flex-col glass-panel border-r border-white/8 ${collapsed ? 'w-[72px]' : 'w-[280px]'}`}
     >
-      <div className={`p-4 ${collapsed ? 'px-4 flex justify-center' : 'px-5'}`}>
+      <div className={`p-4 ${collapsed ? 'px-4' : 'px-5'}`}>
         <Logo to="/" showText={!collapsed} size={collapsed ? 28 : 32} />
         <p className="dashboard-sidebar-workspace">UNIVO WORKSPACE</p>
       </div>
@@ -31,70 +31,55 @@ export default function MagneticSidebar({ items, collapsed = false, autoHide = f
               : location.pathname === item.path || (location.pathname + '/').startsWith(item.path + '/')
 
             return (
-              <div key={item.id} className="relative group">
-                <NavLink
-                  to={item.path}
-                  end={isHome}
-                  className={({ isActive }) =>
-                    `relative flex min-h-[44px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'text-[var(--accent-solid)] font-bold bg-[var(--accent-muted)]/60'
-                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
-                    } ${collapsed ? 'justify-center' : ''}`
-                  }
-                >
-                  {/* Left accent indicator bar for expanded view */}
-                  {!collapsed && isItemActive && (
-                    <motion.div
-                      layoutId="sidebar-active-bar"
-                      className="absolute left-0 top-2 bottom-2 w-[3.5px] rounded-r-full univo-gradient-bg pointer-events-none z-10"
-                      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                    />
-                  )}
-
-                  {/* Soft background pill for collapsed view */}
-                  {collapsed && isItemActive && (
-                    <motion.div
-                      layoutId="sidebar-active-pill-collapsed"
-                      className="absolute inset-1 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/30 pointer-events-none z-0"
-                      transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-                    />
-                  )}
-
-                  <span className="relative z-10 shrink-0">
-                    <NavIcon name={item.icon} size={collapsed ? 20 : 18} />
-                  </span>
-                  <span className="dashboard-sidebar-label relative z-10">{item.label}</span>
-                </NavLink>
-
-                {/* Floating tooltip for collapsed icon-only sidebar */}
-                {collapsed && (
-                  <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1 rounded-md bg-[var(--surface-modal)] text-[var(--text-primary)] text-xs font-semibold shadow-lg border border-[var(--border-strong)] opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 whitespace-nowrap">
-                    {item.label}
-                  </div>
+              <NavLink
+                key={item.id}
+                to={item.path}
+                end={isHome}
+                className={({ isActive }) =>
+                  `relative flex min-h-[48px] items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    isActive
+                      ? 'text-[var(--accent-solid)] font-bold bg-transparent'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-hover)]'
+                  } ${collapsed ? 'justify-center' : ''}`
+                }
+                title={collapsed ? item.label : undefined}
+              >
+                {/* Left accent indicator bar ONLY for expanded view */}
+                {!collapsed && isItemActive && (
+                  <motion.div
+                    layoutId="sidebar-active-bar"
+                    className="absolute left-0 top-2.5 bottom-2.5 w-[3.5px] rounded-r-full univo-gradient-bg pointer-events-none z-10"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
                 )}
-              </div>
+
+                {/* Subtle soft tint background pill ONLY for collapsed / auto-hide sidebar view */}
+                {collapsed && isItemActive && (
+                  <motion.div
+                    layoutId="sidebar-active-pill-collapsed"
+                    className="absolute inset-1 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/20 pointer-events-none z-0"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
+                )}
+
+                <span className="relative z-10 shrink-0">
+                  <NavIcon name={item.icon} size={collapsed ? 22 : 18} />
+                </span>
+                <span className="dashboard-sidebar-label relative z-10">{item.label}</span>
+              </NavLink>
             )
           })}
         </nav>
       </LayoutGroup>
 
       <div className="dashboard-sidebar-bottom">
-        <div className="relative group">
-          <button type="button" onClick={onSettings} className={`dashboard-sidebar-action ${collapsed ? 'justify-center' : ''}`} title="Settings">
-            <Icons.Settings size={18} />
-            <span className="dashboard-sidebar-label">Settings</span>
-          </button>
-          {collapsed && (
-            <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1 rounded-md bg-[var(--surface-modal)] text-[var(--text-primary)] text-xs font-semibold shadow-lg border border-[var(--border-strong)] opacity-0 group-hover:opacity-100 pointer-events-none transition-all z-50 whitespace-nowrap">
-              Settings
-            </div>
-          )}
-        </div>
-
+        <button type="button" onClick={onSettings} className={`dashboard-sidebar-action ${collapsed ? 'justify-center' : ''}`} title="Settings">
+          <Icons.Settings size={18} />
+          <span className="dashboard-sidebar-label">Settings</span>
+        </button>
         <div className={`dashboard-sidebar-account ${collapsed ? 'justify-center' : ''}`}>
           <span className="dashboard-sidebar-avatar">
-            {user?.avatarImage ? <img src={user.avatarImage} alt="Profile" className="w-full h-full object-cover rounded-full" /> : user?.avatar || user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}
+            {user?.avatarImage ? <img src={user.avatarImage} alt="Profile" /> : user?.avatar || user?.name?.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase() || '?'}
           </span>
           <div className="dashboard-sidebar-account-copy">
             <strong>{user?.name || 'Univo student'}</strong>

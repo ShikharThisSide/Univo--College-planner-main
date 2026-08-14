@@ -325,24 +325,8 @@ export default function IndividualStudentDashboard() {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setScheduleOpen(true)}
-            className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-sm hover:scale-102 active:scale-98 transition-all"
-          >
-            <Plus size={15} /> Add Schedule
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTaskOpen(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold univo-text-primary flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-102 active:scale-98 transition-all"
-          >
-            <Plus size={15} /> Add Task
-          </button>
-
-          <button
-            type="button"
             onClick={() => setFocusModalOpen(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold univo-text-primary flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-102 active:scale-98 transition-all"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <Zap size={15} className="text-amber-400" /> Focus Mode ({completedSessions} done)
           </button>
@@ -350,15 +334,31 @@ export default function IndividualStudentDashboard() {
           <button
             type="button"
             onClick={() => navigate('/dashboard/me/timetable')}
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold univo-text-primary flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-102 active:scale-98 transition-all"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <Clock size={15} className="text-[var(--accent-solid)]" /> Timetable
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setScheduleOpen(true)}
+            className="px-3.5 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105 shadow-md"
+          >
+            <Plus size={15} /> Add Schedule
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTaskOpen(true)}
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
+          >
+            <Plus size={15} /> Add Task
           </button>
 
           <button
             type="button"
             onClick={() => setQuickNoteOpen(true)}
-            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-card)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-semibold univo-text-primary flex items-center gap-1.5 cursor-pointer shadow-xs hover:scale-102 active:scale-98 transition-all"
+            className="px-3.5 py-2.5 rounded-xl bg-[var(--surface-control)] hover:bg-[var(--surface-hover)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"
           >
             <PenTool size={14} className="text-emerald-400" /> Quick Note
           </button>
