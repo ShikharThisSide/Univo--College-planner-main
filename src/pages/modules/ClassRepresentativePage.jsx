@@ -16,6 +16,7 @@ import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import { downloadPdf } from '../../lib/pdfExport'
 import { useAuth } from '../../context/AuthContext'
+import { pushUserDataToCloud } from '../../lib/cloudSync'
 
 const INITIAL_STUDENTS = []
 function getStoredRoster(storageKey) {
@@ -112,11 +113,54 @@ export default function ClassRepresentativePage() {
 
   const removeStudent = (id) => setStudents((current) => current.filter((student) => student.id !== id))
 
+  useEffect(() => {
+    if (!user?.email) return
+    const syncCR = () => {
+      try {
+        const meta = JSON.parse(localStorage.getItem(attendanceMetaKey) || 'null')
+        if (meta?.className) setClassName(meta.className)
+        if (meta?.sessionDate) setSessionDate(meta.sessionDate)
+        const storedRoster = getStoredRoster(rosterStorageKey)
+        if (Array.isArray(storedRoster) && storedRoster.length > 0) setStudents(storedRoster)
+      } catch {}
+    }
+    window.addEventListener('univo-cr-updated', syncCR)
+    return () => window.removeEventListener('univo-cr-updated', syncCR)
+  }, [user?.email, rosterStorageKey, attendanceMetaKey])
+
+  const handleSaveRegister = () => {
+    const validStudents = students.filter((student) => student.name.trim() && student.enrollment.trim())
+    localStorage.setItem(rosterStorageKey, JSON.stringify(validStudents))
+    localStorage.setItem(attendanceMetaKey, JSON.stringify({ className, sessionDate }))
+
+    const registerRecord = {
+      id: `reg-${Date.now()}`,
+      className,
+      sessionDate,
+      savedAt: new Date().toISOString(),
+      total: validStudents.length,
+      present: presentCount,
+      absent: absentCount,
+      students: validStudents
+    }
+
+    const existingRegisters = (() => { try { return JSON.parse(localStorage.getItem(`univoClassRegister:${user?.email || 'guest'}`) || '[]') } catch { return [] } })()
+    localStorage.setItem(`univoClassRegister:${user?.email || 'guest'}`, JSON.stringify([registerRecord, ...existingRegisters]))
+
+    setSavedAt(new Date())
+    showNotice('✓ Attendance register saved & synced to central cloud!')
+
+    if (user?.email) {
+      pushUserDataToCloud(user.email)
+    }
+  }
+
   const saveRoster = () => {
     const cleanedRoster = students.filter((student) => student.name.trim() && student.enrollment.trim())
     setStudents(cleanedRoster)
     setEditingRoster(false)
     showNotice(`Roster saved with ${cleanedRoster.length} ${cleanedRoster.length === 1 ? 'student' : 'students'}.`)
+    if (user?.email) pushUserDataToCloud(user.email)
   }
 
   const setAllStatus = (status) => {
@@ -216,7 +260,7 @@ export default function ClassRepresentativePage() {
                 <button type="button" onClick={() => setAllStatus('present')} className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-400/15"><UserCheck size={15} /> Mark all present</button>
                 <button type="button" onClick={() => setAllStatus('absent')} className="inline-flex items-center gap-2 rounded-lg border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-400/15"><UserX size={15} /> Mark all absent</button>
               </div>
-              <button type="button" onClick={() => { setSavedAt(new Date()); showNotice('Attendance register saved for this browser session.') }} className="cursor-pointer text-left text-xs font-semibold text-[var(--accent-solid)] hover:opacity-80">Save register</button>
+              <button type="button" onClick={handleSaveRegister} className="cursor-pointer text-left text-xs font-semibold text-[var(--accent-solid)] hover:opacity-80">Save register</button>
             </div>
             <p className="mt-3 text-xs text-white/35">{editingRoster ? 'Add or remove people, then save the list. Empty rows are discarded.' : 'Roster files need two columns: '} {!editingRoster && <><span className="text-white/55">name, enrollment</span>. CSV and TXT are supported.</>}</p>
           </div>

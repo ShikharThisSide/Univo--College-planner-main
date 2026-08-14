@@ -1,3 +1,6 @@
+// Centralized Multi-Device Sync Engine
+// Syncs ALL user accounts, tasks, timetable, attendance, class representative roster, expenses, scratchpad, GPA, notes, groups, friends, messages, and theme preferences across devices & browsers
+
 export async function fetchGlobalRegisteredUsers() {
   try {
     const res = await fetch('/api/all-users')
@@ -77,35 +80,52 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 5. Expenses & Budget
+  // 5. Class Representative Roster & Attendance Meta
+  if (Array.isArray(cloudData.classRoster) && cloudData.classRoster.length > 0) {
+    try {
+      localStorage.setItem(`univoClassRoster:${email}`, JSON.stringify(cloudData.classRoster))
+    } catch {}
+  }
+  if (cloudData.attendanceMeta) {
+    try {
+      localStorage.setItem(`univoAttendanceMeta:${email}`, JSON.stringify(cloudData.attendanceMeta))
+    } catch {}
+  }
+  if (Array.isArray(cloudData.classRegister) && cloudData.classRegister.length > 0) {
+    try {
+      localStorage.setItem(`univoClassRegister:${email}`, JSON.stringify(cloudData.classRegister))
+    } catch {}
+  }
+
+  // 6. Expenses & Budget
   if (Array.isArray(cloudData.expenses) && cloudData.expenses.length > 0) {
     try {
       localStorage.setItem(`univoExpenses:${email}`, JSON.stringify(cloudData.expenses))
     } catch {}
   }
 
-  // 6. Scratchpad Notes
+  // 7. Scratchpad Notes
   if (cloudData.scratchpad !== undefined && cloudData.scratchpad !== null) {
     try {
       localStorage.setItem(`univoScratchpad:${email}`, cloudData.scratchpad)
     } catch {}
   }
 
-  // 7. GPA & Marks
+  // 8. GPA & Marks
   if (cloudData.gpa) {
     try {
       localStorage.setItem(`univoGpa:${email}`, JSON.stringify(cloudData.gpa))
     } catch {}
   }
 
-  // 8. Notes Vault
+  // 9. Notes Vault
   if (Array.isArray(cloudData.notes) && cloudData.notes.length > 0) {
     try {
       localStorage.setItem(`univoNotes:${email}`, JSON.stringify(cloudData.notes))
     } catch {}
   }
 
-  // 9. Friends & Requests
+  // 10. Friends & Requests
   if (Array.isArray(cloudData.friends)) {
     try {
       const existing = JSON.parse(localStorage.getItem(`univoSocial:friends:${email}`) || '[]') || []
@@ -134,7 +154,7 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 10. Campus Groups
+  // 11. Campus Groups
   if (Array.isArray(cloudData.groups) && cloudData.groups.length > 0) {
     try {
       const existing = JSON.parse(localStorage.getItem('univoSocial:all_groups') || '[]') || []
@@ -145,7 +165,7 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 11. DM Message History
+  // 12. DM Message History
   if (cloudData.dmMessages && typeof cloudData.dmMessages === 'object') {
     try {
       Object.entries(cloudData.dmMessages).forEach(([key, msgs]) => {
@@ -156,7 +176,7 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 12. Theme & Preferences
+  // 13. Theme & Preferences
   if (cloudData.themeAccent) {
     localStorage.setItem('univoThemeAccent', cloudData.themeAccent)
   }
@@ -164,11 +184,12 @@ export function restoreUserDataToDevice(cloudData) {
     localStorage.setItem('univoThemeMode', cloudData.themeMode)
   }
 
-  // 13. Trigger Real-Time Window Refresh Events
+  // 14. Trigger Real-Time Window Refresh Events
   window.dispatchEvent(new Event('univo-social-updated'))
   window.dispatchEvent(new Event('univo-tasks-updated'))
   window.dispatchEvent(new Event('univo-timetable-updated'))
   window.dispatchEvent(new Event('univo-expenses-updated'))
+  window.dispatchEvent(new Event('univo-cr-updated'))
 }
 
 export async function pushUserDataToCloud(email) {
@@ -190,6 +211,15 @@ export async function pushUserDataToCloud(email) {
 
     let attendance = []
     try { attendance = JSON.parse(localStorage.getItem(`univoAttendance:${userEmail}`) || '[]') || [] } catch {}
+
+    let classRoster = []
+    try { classRoster = JSON.parse(localStorage.getItem(`univoClassRoster:${userEmail}`) || '[]') || [] } catch {}
+
+    let attendanceMeta = null
+    try { attendanceMeta = JSON.parse(localStorage.getItem(`univoAttendanceMeta:${userEmail}`) || 'null') } catch {}
+
+    let classRegister = []
+    try { classRegister = JSON.parse(localStorage.getItem(`univoClassRegister:${userEmail}`) || '[]') || [] } catch {}
 
     let expenses = []
     try { expenses = JSON.parse(localStorage.getItem(`univoExpenses:${userEmail}`) || '[]') || [] } catch {}
@@ -215,7 +245,6 @@ export async function pushUserDataToCloud(email) {
     let groups = []
     try { groups = JSON.parse(localStorage.getItem('univoSocial:all_groups') || '[]') || [] } catch {}
 
-    // Gather DM Message History involving userEmail
     const dmMessages = {}
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -236,6 +265,9 @@ export async function pushUserDataToCloud(email) {
       tasks,
       timetable,
       attendance,
+      classRoster,
+      attendanceMeta,
+      classRegister,
       expenses,
       scratchpad,
       gpa,

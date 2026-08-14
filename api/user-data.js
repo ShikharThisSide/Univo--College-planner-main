@@ -35,7 +35,10 @@ export default async function handler(req, res) {
       notifications,
       dmMessages,
       themeAccent,
-      themeMode
+      themeMode,
+      classRoster,
+      attendanceMeta,
+      classRegister
     } = req.body || {}
 
     if (!email) return res.status(400).json({ error: 'Email parameter required' })
@@ -61,6 +64,9 @@ export default async function handler(req, res) {
       dmMessages: dmMessages || existing.dmMessages || {},
       themeAccent: themeAccent || existing.themeAccent || 'emerald',
       themeMode: themeMode || existing.themeMode || 'dark',
+      classRoster: classRoster || existing.classRoster || [],
+      attendanceMeta: attendanceMeta || existing.attendanceMeta || null,
+      classRegister: classRegister || existing.classRegister || [],
       lastSyncedAt: Date.now()
     }
 
