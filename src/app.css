@@ -209,7 +209,17 @@ body.univo-app {
 [data-theme="light"] .text-white\/55,
 [data-theme="light"] .text-white\/60,
 [data-theme="light"] .text-white\/70,
-[data-theme="light"] .text-white\/80 { color: var(--text-primary); }
+[data-theme="light"] .text-white\/80 { color: var(--text-primary) !important; }
+
+.univo-text-primary { color: var(--text-primary) !important; }
+.univo-text-secondary { color: var(--text-secondary) !important; }
+.univo-text-muted { color: var(--text-muted) !important; }
+.univo-text-subtle { color: var(--text-subtle) !important; }
+
+[data-theme="light"] .univo-text-primary { color: #14252b !important; }
+[data-theme="light"] .univo-text-secondary { color: #33474e !important; }
+[data-theme="light"] .univo-text-muted { color: #50636a !important; }
+[data-theme="light"] .univo-text-subtle { color: #61747b !important; }
 
 .dashboard-widget-stack {
   display: flex;

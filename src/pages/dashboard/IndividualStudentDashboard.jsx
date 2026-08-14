@@ -661,10 +661,10 @@ export default function IndividualStudentDashboard() {
               dashboardExpenses.slice(0, 3).map((item) => (
                 <div key={item.id} className="p-2.5 rounded-xl bg-[var(--surface-control)] border border-[var(--border-subtle)] flex items-center justify-between gap-2 text-xs">
                   <div className="truncate min-w-0">
-                    <p className="font-bold text-[var(--text-primary)] truncate">{item.title}</p>
-                    <p className="text-[10px] text-[var(--text-subtle)] capitalize">{item.category} &middot; {item.paymentMethod}</p>
+                    <p className="font-bold univo-text-primary truncate">{item.title}</p>
+                    <p className="text-[10px] univo-text-subtle capitalize">{item.category} &middot; {item.paymentMethod}</p>
                   </div>
-                  <span className="font-bold text-[var(--text-primary)] font-mono shrink-0">-₹{Number(item.amount).toLocaleString('en-IN')}</span>
+                  <span className="font-extrabold univo-text-primary font-mono shrink-0">-₹{Number(item.amount).toLocaleString('en-IN')}</span>
                 </div>
               ))
             )}

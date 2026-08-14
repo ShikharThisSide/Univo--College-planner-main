@@ -262,10 +262,10 @@ export default function ExpenseTrackerPage() {
                 <Wallet size={16} className="text-[var(--accent-solid)]" /> Current Month ({formatMonthYearLabel(currentMonthKey)}) Summary
               </span>
               <div className="flex items-baseline gap-3 mt-1">
-                <span className="font-display text-4xl md:text-5xl font-bold text-[var(--text-primary)]">
+                <span className="font-display text-4xl md:text-5xl font-extrabold univo-text-primary">
                   ₹{totalSpent.toLocaleString('en-IN')}
                 </span>
-                <span className="text-sm font-semibold text-[var(--text-muted)]">
+                <span className="text-sm font-bold univo-text-secondary">
                   spent of ₹{monthlyBudget.toLocaleString('en-IN')} limit
                 </span>
               </div>
@@ -325,10 +325,10 @@ export default function ExpenseTrackerPage() {
                 <span className={`p-2 rounded-xl ${cat.color}`}>
                   <Icon size={16} />
                 </span>
-                <span className="text-[10px] font-mono text-[var(--text-subtle)]">{pct}%</span>
+                <span className="text-[10px] font-mono univo-text-subtle">{pct}%</span>
               </div>
-              <p className="text-xs font-medium text-[var(--text-secondary)] truncate">{cat.label}</p>
-              <p className="text-base font-bold font-display text-[var(--text-primary)] mt-0.5">
+              <p className="text-xs font-semibold univo-text-secondary truncate">{cat.label}</p>
+              <p className="text-base font-extrabold font-display univo-text-primary mt-0.5">
                 ₹{amount.toLocaleString('en-IN')}
               </p>
             </motion.div>
@@ -341,8 +341,8 @@ export default function ExpenseTrackerPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2">
             <CreditCard size={18} className="text-[var(--accent-solid)]" />
-            <h2 className="font-display font-semibold text-lg text-[var(--text-primary)]">Expense Log</h2>
-            <span className="text-xs text-[var(--text-subtle)] font-mono">({filteredExpenses.length} entries this month)</span>
+            <h2 className="font-display font-semibold text-lg univo-text-primary">Expense Log</h2>
+            <span className="text-xs univo-text-subtle font-mono">({filteredExpenses.length} entries this month)</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -353,9 +353,9 @@ export default function ExpenseTrackerPage() {
                 placeholder="Search expense..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-3.5 pr-9 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
+                className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-3.5 pr-9 py-2 text-xs univo-text-primary focus:outline-none focus:border-[var(--accent-solid)]"
               />
-              <Search size={14} className="absolute right-3 pointer-events-none text-[var(--text-subtle)]" />
+              <Search size={14} className="absolute right-3 pointer-events-none univo-text-subtle" />
             </div>
 
             {/* Category Filter Pills */}
@@ -363,7 +363,7 @@ export default function ExpenseTrackerPage() {
               type="button"
               onClick={() => setSelectedCategory('all')}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                selectedCategory === 'all' ? 'univo-gradient-bg text-black' : 'bg-[var(--surface-control)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                selectedCategory === 'all' ? 'univo-gradient-bg text-black' : 'bg-[var(--surface-control)] univo-text-muted hover:univo-text-primary'
               }`}
             >
               All
@@ -381,9 +381,9 @@ export default function ExpenseTrackerPage() {
                 exit={{ opacity: 0 }}
                 className="p-8 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2"
               >
-                <Wallet size={28} className="mx-auto text-[var(--text-subtle)]" />
-                <p className="text-sm font-semibold text-[var(--text-secondary)]">No expenses recorded for this month</p>
-                <p className="text-xs text-[var(--text-subtle)]">Log your mess fees, hostel rent, or daily snacks to keep your budget on track.</p>
+                <Wallet size={28} className="mx-auto univo-text-subtle" />
+                <p className="text-sm font-semibold univo-text-secondary">No expenses recorded for this month</p>
+                <p className="text-xs univo-text-subtle">Log your mess fees, hostel rent, or daily snacks to keep your budget on track.</p>
                 <button
                   type="button"
                   onClick={() => setAddModalOpen(true)}
@@ -411,8 +411,8 @@ export default function ExpenseTrackerPage() {
                         <Icon size={16} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-[var(--text-primary)] truncate">{tx.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-[var(--text-subtle)] mt-0.5">
+                        <p className="text-sm font-bold univo-text-primary truncate">{tx.title}</p>
+                        <div className="flex items-center gap-2 text-xs univo-text-subtle mt-0.5">
                           <span>{catObj.label}</span>
                           <span>&middot;</span>
                           <span className="font-mono">{tx.paymentMethod}</span>
@@ -423,7 +423,7 @@ export default function ExpenseTrackerPage() {
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0">
-                      <span className="font-display text-base font-bold text-[var(--text-primary)]">
+                      <span className="font-display text-base font-extrabold univo-text-primary shrink-0">
                         -₹{Number(tx.amount).toLocaleString('en-IN')}
                       </span>
                       <button
