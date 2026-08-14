@@ -274,12 +274,17 @@ body.univo-app {
   border: 1px solid var(--border-subtle);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  box-shadow: none !important;
 }
 
 .glass-card:hover {
   border-color: var(--border-strong);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 40px var(--accent-glow);
+  box-shadow: none !important;
   transform: translateY(-2px);
+}
+
+.glass-panel {
+  box-shadow: none !important;
 }
 
 .noise-bg::before {

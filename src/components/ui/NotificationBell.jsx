@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Bell, Check, Trash2, X, Users } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { addFriend, readSocial, respondToGroupInvite, writeSocial } from '../../lib/social'
+import { pushUserDataToCloud } from '../../lib/cloudSync'
 
 const PRODUCT_UPDATES = [{ id: 'groups-launch-2026-08', title: 'Groups are now available', body: 'Create private study and project groups from the new Groups section.', createdAt: new Date('2026-08-13T00:00:00+05:30').getTime(), kind: 'update' }]
 
@@ -35,6 +36,7 @@ export default function NotificationBell() {
       setRequests(readSocial(`requests:${storageKey}`))
       setGroupRequests(readSocial(`groupRequests:${storageKey}`))
       setInAppNotifs(readSocial(`notifications:${storageKey}`))
+      setDismissed(readSocial(`dismissed-notifications:${storageKey}`))
     }
     refresh()
     window.addEventListener('univo-social-updated', refresh)
@@ -84,6 +86,7 @@ export default function NotificationBell() {
     const next = [...dismissed, id]
     setDismissed(next)
     writeSocial(`dismissed-notifications:${storageKey}`, next)
+    if (user?.email) pushUserDataToCloud(user.email)
   }
 
   const respond = (item, accepted) => {
@@ -100,13 +103,14 @@ export default function NotificationBell() {
   const deleteAll = () => {
     const nextRequests = requests.map((item) => item.status === 'pending' ? { ...item, status: 'dismissed' } : item)
     const nextGroupRequests = groupRequests.map((item) => item.status === 'pending' ? { ...item, status: 'dismissed' } : item)
-    const nextDismissed = [...dismissed, ...welcome.map((item) => item.id), ...updateNotifications.map((item) => item.id)]
+    const nextDismissed = [...dismissed, ...welcome.map((item) => item.id), ...updateNotifications.map((item) => item.id), ...messageNotifs.map((item) => item.id)]
     setRequests(nextRequests)
     setGroupRequests(nextGroupRequests)
     writeSocial(`requests:${storageKey}`, nextRequests)
     writeSocial(`groupRequests:${storageKey}`, nextGroupRequests)
     setDismissed(nextDismissed)
     writeSocial(`dismissed-notifications:${storageKey}`, nextDismissed)
+    if (user?.email) pushUserDataToCloud(user.email)
   }
 
   return (

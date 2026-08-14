@@ -1,5 +1,5 @@
 // Centralized Multi-Device Sync Engine
-// Syncs ALL user accounts, tasks, timetable, attendance, class representative roster, expenses, scratchpad, GPA, notes, groups, friends, messages, and theme preferences across devices & browsers
+// Syncs ALL user accounts, tasks, timetable, attendance, class representative roster, expenses, scratchpad, GPA, notes, groups, friends, messages, notifications, dismissed notifications, and theme preferences across devices & browsers
 
 export async function fetchGlobalRegisteredUsers() {
   try {
@@ -154,7 +154,16 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 11. Campus Groups
+  // 11. Dismissed Notifications
+  if (Array.isArray(cloudData.dismissedNotifications) && cloudData.dismissedNotifications.length > 0) {
+    try {
+      const existing = JSON.parse(localStorage.getItem(`univoSocial:dismissed-notifications:${email}`) || '[]') || []
+      const merged = Array.from(new Set([...existing, ...cloudData.dismissedNotifications]))
+      localStorage.setItem(`univoSocial:dismissed-notifications:${email}`, JSON.stringify(merged))
+    } catch {}
+  }
+
+  // 12. Campus Groups
   if (Array.isArray(cloudData.groups) && cloudData.groups.length > 0) {
     try {
       const existing = JSON.parse(localStorage.getItem('univoSocial:all_groups') || '[]') || []
@@ -165,7 +174,7 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 12. DM Message History
+  // 13. DM Message History
   if (cloudData.dmMessages && typeof cloudData.dmMessages === 'object') {
     try {
       Object.entries(cloudData.dmMessages).forEach(([key, msgs]) => {
@@ -176,7 +185,7 @@ export function restoreUserDataToDevice(cloudData) {
     } catch {}
   }
 
-  // 13. Theme & Preferences
+  // 14. Theme & Preferences
   if (cloudData.themeAccent) {
     localStorage.setItem('univoThemeAccent', cloudData.themeAccent)
   }
@@ -184,7 +193,7 @@ export function restoreUserDataToDevice(cloudData) {
     localStorage.setItem('univoThemeMode', cloudData.themeMode)
   }
 
-  // 14. Trigger Real-Time Window Refresh Events
+  // 15. Trigger Real-Time Window Refresh Events
   window.dispatchEvent(new Event('univo-social-updated'))
   window.dispatchEvent(new Event('univo-tasks-updated'))
   window.dispatchEvent(new Event('univo-timetable-updated'))
@@ -242,6 +251,9 @@ export async function pushUserDataToCloud(email) {
     let joinRequests = []
     try { joinRequests = JSON.parse(localStorage.getItem(`univoSocial:joinRequests:${userEmail}`) || '[]') || [] } catch {}
 
+    let dismissedNotifications = []
+    try { dismissedNotifications = JSON.parse(localStorage.getItem(`univoSocial:dismissed-notifications:${userEmail}`) || '[]') || [] } catch {}
+
     let groups = []
     try { groups = JSON.parse(localStorage.getItem('univoSocial:all_groups') || '[]') || [] } catch {}
 
@@ -275,6 +287,7 @@ export async function pushUserDataToCloud(email) {
       friends,
       requests,
       joinRequests,
+      dismissedNotifications,
       groups,
       dmMessages,
       themeAccent,
