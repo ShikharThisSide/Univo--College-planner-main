@@ -17,6 +17,7 @@ import GlassCard from '../../components/ui/GlassCard'
 import { downloadPdf } from '../../lib/pdfExport'
 import { useAuth } from '../../context/AuthContext'
 import { pushUserDataToCloud } from '../../lib/cloudSync'
+import * as XLSX from 'xlsx'
 
 const INITIAL_STUDENTS = []
 function getStoredRoster(storageKey) {
@@ -32,27 +33,62 @@ function formatDate(value) {
   return new Date(`${value}T12:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
-function getRosterFromText(text) {
-  const rows = text
-    .split(/\r?\n/)
-    .map((line) => line.split(',').map((column) => column.trim().replace(/^"|"$/g, '')))
-    .filter((row) => row.some(Boolean))
+async function getRosterFromFile(file) {
+  const fileName = file.name.toLowerCase()
+  let dataRows = []
 
-  if (!rows.length) return []
-  const header = rows[0].map((value) => value.toLowerCase())
-  const hasHeader = header.some((value) => value.includes('name')) || header.some((value) => value.includes('enrol') || value.includes('roll'))
-  const nameIndex = header.findIndex((value) => value.includes('name'))
-  const enrollmentIndex = header.findIndex((value) => value.includes('enrol') || value.includes('roll'))
-  const dataRows = hasHeader ? rows.slice(1) : rows
+  if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+    const arrayBuffer = await file.arrayBuffer()
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+    const firstSheetName = workbook.SheetNames[0]
+    const worksheet = workbook.Sheets[firstSheetName]
+    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' })
+    dataRows = jsonRows.filter((row) => Array.isArray(row) && row.some((cell) => cell !== undefined && cell !== null && String(cell).trim() !== ''))
+  } else {
+    const text = await file.text()
+    dataRows = text
+      .split(/\r?\n/)
+      .map((line) => line.split(',').map((column) => column.trim().replace(/^"|"$/g, '')))
+      .filter((row) => row.some(Boolean))
+  }
 
-  return dataRows
-    .map((row, index) => ({
-      id: `${row[enrollmentIndex >= 0 ? enrollmentIndex : 1] || index}-${index}-${Date.now()}`,
-      name: row[nameIndex >= 0 ? nameIndex : 0] || '',
-      enrollment: row[enrollmentIndex >= 0 ? enrollmentIndex : 1] || '',
-      status: 'present',
-    }))
-    .filter((student) => student.name && student.enrollment)
+  if (!dataRows.length) return []
+
+  let headerIndex = -1
+  let nameCol = -1
+  let enrolCol = -1
+
+  for (let i = 0; i < Math.min(5, dataRows.length); i++) {
+    const row = dataRows[i].map((cell) => String(cell || '').toLowerCase().trim())
+    const foundName = row.findIndex((cell) => cell.includes('name') || cell.includes('student'))
+    const foundEnrol = row.findIndex((cell) => cell.includes('enrol') || cell.includes('roll') || cell.includes('reg') || cell.includes('id') || cell.includes('no'))
+
+    if (foundName >= 0 || foundEnrol >= 0) {
+      headerIndex = i
+      nameCol = foundName >= 0 ? foundName : 0
+      enrolCol = foundEnrol >= 0 ? foundEnrol : (nameCol === 0 ? 1 : 0)
+      break
+    }
+  }
+
+  const rowsToProcess = headerIndex >= 0 ? dataRows.slice(headerIndex + 1) : dataRows
+
+  if (nameCol === -1) nameCol = 0
+  if (enrolCol === -1) enrolCol = 1
+
+  return rowsToProcess
+    .map((row, index) => {
+      const name = String(row[nameCol] !== undefined ? row[nameCol] : (row[0] || '')).trim()
+      const enrollment = String(row[enrolCol] !== undefined ? row[enrolCol] : (row[1] || row[0] || '')).trim()
+      if (!name) return null
+      return {
+        id: `${enrollment || name}-${index}-${Date.now()}`,
+        name,
+        enrollment: enrollment || `${index + 1}`,
+        status: 'present',
+      }
+    })
+    .filter((student) => student && student.name)
 }
 
 export default function ClassRepresentativePage() {
@@ -171,15 +207,17 @@ export default function ClassRepresentativePage() {
     const file = event.target.files?.[0]
     if (!file) return
     try {
-      const importedStudents = getRosterFromText(await file.text())
+      const importedStudents = await getRosterFromFile(file)
       if (!importedStudents.length) {
-        showNotice('Could not find names and enrollment numbers in that file.')
+        showNotice('Could not find student names and enrollment numbers in that file.')
       } else {
         setStudents(importedStudents)
-        showNotice(`${importedStudents.length} students imported. Everyone starts as present.`)
+        showNotice(`${importedStudents.length} students imported from ${file.name}. Everyone starts as present.`)
+        if (user?.email) pushUserDataToCloud(user.email)
       }
-    } catch {
-      showNotice('The roster could not be read. Upload a CSV or TXT file.')
+    } catch (err) {
+      console.error('Roster import error:', err)
+      showNotice('The roster file could not be read. Upload an Excel (.xlsx, .xls), CSV, or TXT file.')
     }
     event.target.value = ''
   }
@@ -254,7 +292,7 @@ export default function ClassRepresentativePage() {
             <div className="mt-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => rosterInput.current?.click()} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10"><Upload size={15} /> Upload list</button>
-                <input ref={rosterInput} type="file" accept=".csv,.txt,text/csv,text/plain" className="hidden" onChange={importRoster} />
+                <input ref={rosterInput} type="file" accept=".xlsx,.xls,.csv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv,text/plain" className="hidden" onChange={importRoster} />
                 <button type="button" onClick={() => editingRoster ? saveRoster() : setEditingRoster(true)} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10">{editingRoster ? <Check size={15} /> : <Pencil size={15} />} {editingRoster ? 'Save list' : 'Edit list'}</button>
                 {editingRoster && <button type="button" onClick={addStudent} className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--accent-solid)]/25 bg-[var(--accent-muted)] px-3 py-2 text-xs font-semibold text-[var(--accent-solid)] hover:opacity-90"><Plus size={15} /> Add person</button>}
                 <button type="button" onClick={() => setAllStatus('present')} className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-400/15"><UserCheck size={15} /> Mark all present</button>
@@ -262,7 +300,7 @@ export default function ClassRepresentativePage() {
               </div>
               <button type="button" onClick={handleSaveRegister} className="cursor-pointer text-left text-xs font-semibold text-[var(--accent-solid)] hover:opacity-80">Save register</button>
             </div>
-            <p className="mt-3 text-xs text-white/35">{editingRoster ? 'Add or remove people, then save the list. Empty rows are discarded.' : 'Roster files need two columns: '} {!editingRoster && <><span className="text-white/55">name, enrollment</span>. CSV and TXT are supported.</>}</p>
+            <p className="mt-3 text-xs text-white/35">{editingRoster ? 'Add or remove people, then save the list. Empty rows are discarded.' : 'Upload Excel (.xlsx, .xls), CSV, or TXT roster file containing '} {!editingRoster && <><span className="text-white/55">Student Name</span> and <span className="text-white/55">Enrollment No</span>.</>}</p>
           </div>
 
           <div className="flex flex-col gap-4 border-b border-white/8 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6">
