@@ -37,7 +37,7 @@ export default function DashboardDock({ items = [], onSearch, onSettings, autoHi
           <Search size={18} /><span className="dashboardDockTooltip">Search</span>
         </button></div>
         <div className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${mouseX === null ? 1 : 1.05})` }}><button type="button" className="dashboardDockIcon group" onClick={onSettings} aria-label="Settings">
-          <Settings size={18} /><span className="dashboardDockTooltip">Settings</span>
+          <Icons.Settings2 size={19} strokeWidth={2.2} /><span className="dashboardDockTooltip">Settings</span>
         </button></div>
       </div>
     </nav>
