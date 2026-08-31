@@ -370,7 +370,7 @@ export default function IndividualStudentDashboard() {
       {/* TOP ROW 2-COLUMN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <GlassCard className="dashboardClockWidget" delay={0.12}>
-          <div className="dashboardClockFace"><div className="dashboardClockDigits">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div><div className="dashboardClockDate">{currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div></div>
+          <div className="dashboardClockFace"><div className="dashboardClockDigits">{[currentTime.getHours() % 12 || 12, currentTime.getMinutes(), currentTime.getSeconds()].map((value, index) => <span className="dashboardClockBlock" key={index}><b>{String(value).padStart(2, '0')}</b>{index === 0 && <small>{currentTime.getHours() >= 12 ? 'PM' : 'AM'}</small>}</span>)}</div><div className="dashboardClockDate">{currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div></div>
         </GlassCard>
         
         {/* WIDGET 1: TODAY'S SCHEDULE */}
