@@ -676,50 +676,6 @@ export default function IndividualStudentDashboard() {
           </div>
         </GlassCard>
 
-        {/* WIDGET 5: DASHBOARD SCRATCHPAD */}
-        <GlassCard delay={0.3} onClick={() => navigate('/dashboard/me/notes')} className="dashboardScratchpadCard cursor-pointer">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
-            <div className="flex items-center gap-2">
-              <StickyNote size={18} className="text-[var(--accent-solid)]" />
-              <h2 className="font-display font-bold text-lg text-[var(--text-primary)]">Dashboard Scratchpad</h2>
-            </div>
-            <button type="button" onClick={() => setQuickNoteOpen(true)} className="text-xs text-[var(--accent-solid)] font-bold hover:underline cursor-pointer">
-              + New Note
-            </button>
-          </div>
-
-          <form onSubmit={saveQuickNoteModal} className="flex items-center gap-2 mb-3">
-            <input
-              type="text"
-              placeholder="Drop a quick thought or reminder..."
-              value={newNoteInput}
-              onChange={(e) => setNewNoteInput(e.target.value)}
-              className="flex-1 bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl px-3 py-2 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)]"
-            />
-            <button type="submit" className="univo-gradient-bg text-black px-3.5 py-2 rounded-xl text-xs font-extrabold cursor-pointer shadow-sm hover:scale-105 transition-all">
-              Add
-            </button>
-          </form>
-
-          <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-            {notesList.length === 0 ? (
-              <p className="text-xs text-center py-6 text-[var(--text-subtle)] italic">No notes yet. Open Notes Hub to create one.</p>
-            ) : (
-              notesList.map((n) => (
-                <div key={n.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/25 text-xs transition-all">
-                  <span className="font-bold text-[var(--text-primary)]">{n.text}</span>
-                  <div className="flex items-center gap-2.5 shrink-0 ml-2">
-                    <span className="text-[10px] text-[var(--text-subtle)] font-mono">{n.time}</span>
-                    <button type="button" onClick={() => deleteNote(n.id)} className="text-[var(--text-subtle)] hover:text-red-400 cursor-pointer p-0.5" aria-label="Delete note">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </GlassCard>
-
       </div>
 
       {/* MODALS */}
