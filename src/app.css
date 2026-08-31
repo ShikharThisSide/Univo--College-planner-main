@@ -774,6 +774,14 @@ body.univo-app {
 .profileEditView > p { margin: -6px 0 8px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
 .profileEditView > label, .profileEditView > .settingsPhotoField { width: 100%; text-align: left; }
 .profileEditActions { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: flex-end; margin-top: 4px; }
+.groupOverviewBackdrop { background: rgb(0 0 0 / .68); backdrop-filter: blur(9px); }
+.groupOverviewModal { color: #172b32; background: #f7f8f8; border: 1px solid #d8dddd; }
+.groupOverviewModal .settingsEyebrow { color: #168b87 !important; }
+.groupOverviewTitle { max-width: 340px; margin-inline: auto; color: #172b32; font-size: clamp(36px, 7vw, 56px); line-height: .98; font-weight: 900; letter-spacing: -.045em; }
+.groupOverviewModal .border-\[var\(--border-subtle\)\] { border-color: #d6dddd; }
+.groupOverviewModal .bg-\[var\(--surface-control\)\] { background: #e9ebeb; }
+.groupOverviewModal .text-\[var\(--text-primary\)\] { color: #172b32; }
+.groupOverviewModal .text-\[var\(--text-muted\)\] { color: #60737b; }
 .notificationActivityCard { width: min(390px, calc(100vw - 32px)); background: var(--surface-modal); }
 .notificationActivityHeader { display: flex; align-items: center; gap: 12px; padding: 18px 18px 15px; border-bottom: 1px solid var(--border-subtle); }
 .notificationActivityHeaderIcon { width: 30px; height: 30px; color: var(--text-muted); flex: 0 0 auto; }
