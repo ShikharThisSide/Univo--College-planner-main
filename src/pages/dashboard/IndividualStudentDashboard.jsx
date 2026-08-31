@@ -517,10 +517,7 @@ export default function IndividualStudentDashboard() {
             )}
           </div>
         </GlassCard>
-      </div>
-
-      {/* SECONDARY ROW: 3-COLUMN WIDGET GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+      
 
         {/* WIDGET 3: TASKS TO COMPLETE */}
         <GlassCard delay={0.25}>
