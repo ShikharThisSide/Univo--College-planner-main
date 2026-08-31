@@ -21,6 +21,7 @@ import ExpenseTrackerPage from './pages/modules/ExpenseTrackerPage'
 import AttendanceTrackerPage from './pages/modules/AttendanceTrackerPage'
 import TasksPage from './pages/modules/TasksPage'
 import TimetablePage from './pages/modules/TimetablePage'
+import JournalPage from './pages/modules/JournalPage'
 import WorkspacePage from './pages/dashboard/WorkspacePage'
 import ChapterScrubber from './components/ui/ChapterScrubber'
 import { ROLES } from './lib/constants'
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="assignments" element={<TasksPage />} />
               <Route path="expenses" element={<ExpenseTrackerPage />} />
               <Route path="notes" element={<NotesHubPage />} />
+              <Route path="journal" element={<JournalPage />} />
               <Route path="marketplace" element={<ModulePlaceholder />} />
               <Route path="groups" element={<GroupsPage />} />
               <Route path="forum" element={<ModulePlaceholder />} />

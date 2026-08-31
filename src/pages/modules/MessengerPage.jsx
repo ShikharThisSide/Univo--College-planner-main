@@ -32,6 +32,10 @@ function PersonAvatar({ person, index = 0, large = false }) {
   )
 }
 
+function isActiveNow(timestamp) {
+  return timestamp && Date.now() - timestamp < 3 * 60 * 1000
+}
+
 export default function MessengerPage() {
   const { user } = useAuth()
   const [query, setQuery] = useState('')
@@ -65,6 +69,11 @@ export default function MessengerPage() {
     window.addEventListener('univo-social-updated', syncSocial)
     return () => window.removeEventListener('univo-social-updated', syncSocial)
   }, [user?.email])
+  useEffect(() => {
+    const refreshPresence = () => setPeople(readPeople(user))
+    const interval = setInterval(refreshPresence, 15000)
+    return () => clearInterval(interval)
+  }, [user])
   const friendPeople = people.filter((person) => friends.includes(person.email))
   const results = people.filter((person) => `${person.name} ${person.email} ${person.username || ''}`.toLowerCase().includes(query.trim().toLowerCase()))
 
@@ -336,7 +345,7 @@ export default function MessengerPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-display font-extrabold text-lg univo-gradient-text text-[var(--accent-solid)] tracking-tight">{activeChatFriend.name}</h3>
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Active Status" />
+                      <span className={`w-2.5 h-2.5 rounded-full ${isActiveNow(getUserLastActive(activeChatFriend.email) || activeChatFriend.lastActiveAt) ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`} title="Active Status" />
                     </div>
                     <p className="text-xs text-[var(--text-subtle)] font-medium font-mono flex items-center gap-1.5 mt-0.5">
                       <span>@{activeChatFriend.username || activeChatFriend.email.split('@')[0]}</span>

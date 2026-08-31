@@ -29,6 +29,7 @@ export const NAV_BY_ROLE = {
     { id: 'assignments', label: 'Tasks', path: '/dashboard/me/assignments', icon: 'ClipboardList' },
     { id: 'expenses', label: 'Expense Tracker', path: '/dashboard/me/expenses', icon: 'Wallet' },
     { id: 'notes', label: 'Notes Hub', path: '/dashboard/me/notes', icon: 'BookOpen' },
+    { id: 'journal', label: 'Journal', path: '/dashboard/me/journal', icon: 'BookHeart' },
     { id: 'groups', label: 'Groups', path: '/dashboard/me/groups', icon: 'UsersRound' },
     { id: 'messenger', label: 'Messenger', path: '/dashboard/me/messenger', icon: 'MessageCircle' },
   ],
