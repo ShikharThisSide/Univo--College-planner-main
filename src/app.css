@@ -718,6 +718,19 @@ body.univo-app {
   outline: none;
   transform: translateY(-2px);
 }
+.dashboardDockMagnifiedItem:nth-child(1) .dashboardDockIcon { color: #0f9f92; background: #e0f7f3; }
+.dashboardDockMagnifiedItem:nth-child(2) .dashboardDockIcon { color: #5678d4; background: #e8edff; }
+.dashboardDockMagnifiedItem:nth-child(3) .dashboardDockIcon { color: #e36b39; background: #fff0e7; }
+.dashboardDockMagnifiedItem:nth-child(4) .dashboardDockIcon { color: #c14bb7; background: #f9e8fa; }
+.dashboardDockMagnifiedItem:nth-child(5) .dashboardDockIcon { color: #d49a17; background: #fff6d9; }
+.dashboardDockMagnifiedItem:nth-child(6) .dashboardDockIcon { color: #4a9a64; background: #e7f7eb; }
+.dashboardDockMagnifiedItem:nth-child(7) .dashboardDockIcon { color: #e05c7b; background: #ffebf0; }
+.dashboardDockMagnifiedItem:nth-child(8) .dashboardDockIcon { color: #168b87; background: #e1f5f3; }
+.dashboardDockMagnifiedItem:nth-child(9) .dashboardDockIcon { color: #8156ce; background: #f0eaff; }
+.dashboardDockMagnifiedItem:nth-child(10) .dashboardDockIcon { color: #2f8dc4; background: #e5f3ff; }
+.dashboardDockMagnifiedItem:nth-child(11) .dashboardDockIcon { color: #da6a38; background: #fff0e5; }
+.dashboardDockMagnifiedItem:nth-child(12) .dashboardDockIcon { color: #64748b; background: #edf1f5; }
+.dashboardDockMagnifiedItem .dashboardDockIcon:hover, .dashboardDockMagnifiedItem .dashboardDockIcon:focus-visible { filter: saturate(1.2); box-shadow: 0 8px 18px rgb(0 0 0 / .12); }
 
 .dashboardDockTooltip {
   position: absolute;
