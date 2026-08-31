@@ -70,6 +70,7 @@ export default function IndividualStudentDashboard() {
   const storageKey = user?.email || 'guest'
 
   const [loading, setLoading] = useState(true)
+  const [currentTime, setCurrentTime] = useState(() => new Date())
   const [useDemoData] = useState(false)
 
   // Modals & Drawers
@@ -184,6 +185,7 @@ export default function IndividualStudentDashboard() {
     const timer = setTimeout(() => setLoading(false), 400)
     return () => clearTimeout(timer)
   }, [])
+  useEffect(() => { const interval = setInterval(() => setCurrentTime(new Date()), 1000); return () => clearInterval(interval) }, [])
 
   // Timer Interval Effect
   useEffect(() => {
@@ -367,6 +369,9 @@ export default function IndividualStudentDashboard() {
 
       {/* TOP ROW 2-COLUMN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <GlassCard className="dashboardClockWidget" delay={0.12}>
+          <div className="dashboardClockFace"><div className="dashboardClockDigits">{currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</div><div className="dashboardClockDate">{currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div></div>
+        </GlassCard>
         
         {/* WIDGET 1: TODAY'S SCHEDULE */}
         <GlassCard className="lg:col-span-2" delay={0.15}>
@@ -672,7 +677,7 @@ export default function IndividualStudentDashboard() {
         </GlassCard>
 
         {/* WIDGET 5: DASHBOARD SCRATCHPAD */}
-        <GlassCard delay={0.3}>
+        <GlassCard delay={0.3} onClick={() => navigate('/dashboard/me/notes')} className="dashboardScratchpadCard cursor-pointer">
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <StickyNote size={18} className="text-[var(--accent-solid)]" />
@@ -698,7 +703,7 @@ export default function IndividualStudentDashboard() {
 
           <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
             {notesList.length === 0 ? (
-              <p className="text-xs text-center py-6 text-[var(--text-subtle)] italic">No quick notes added. Type a quick reminder above!</p>
+              <p className="text-xs text-center py-6 text-[var(--text-subtle)] italic">No notes yet. Open Notes Hub to create one.</p>
             ) : (
               notesList.map((n) => (
                 <div key={n.id} className="flex items-center justify-between p-3 rounded-xl bg-[var(--accent-muted)] border border-[var(--accent-solid)]/25 text-xs transition-all">
