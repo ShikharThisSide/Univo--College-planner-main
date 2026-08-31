@@ -734,6 +734,8 @@ body.univo-app {
 .dashboardDockMagnifiedItem:nth-child(13) .dashboardDockIcon svg { filter: drop-shadow(0 1px 1px rgb(0 0 0 / .2)); }
 .dashboardDockIcon { border-radius: 14px; box-shadow: 0 2px 5px rgb(0 0 0 / .06), inset 0 1px 1px rgb(255 255 255 / .35); }
 .dashboardDockImage { width: 30px; height: 30px; border-radius: 9px; object-fit: cover; }
+.dashboardDockIcon.dock-home { overflow: hidden; }
+.dashboardDockIcon.dock-home .dashboardDockImage { width: 46px; height: 46px; border-radius: 0; object-fit: cover; }
 .dashboardDockIcon.dock-groups { overflow: hidden; }
 .dashboardDockIcon.dock-groups .dashboardDockImage { width: 46px; height: 46px; border-radius: 0; object-fit: cover; }
 .dashboardDockSettingsImage { width: 34px; height: 34px; border-radius: 10px; object-fit: cover; }

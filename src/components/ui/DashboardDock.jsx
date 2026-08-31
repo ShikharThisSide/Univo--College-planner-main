@@ -5,7 +5,7 @@ import * as Icons from 'lucide-react'
 
 function DockIcon({ item, onClick }) {
   const Icon = Icons[item.icon] || Icons.Circle
-  const iconAssets = { 'attendance-tracker': 'attendance.png', attendance: 'representative.png', timetable: 'timetable.png', journal: 'journal.png', groups: 'groups.png', messenger: 'messenger.png', notes: 'notes.png', expenses: 'wallet.png', assignments: 'tasks.png' }
+  const iconAssets = { home: 'home.png', 'attendance-tracker': 'attendance.png', attendance: 'representative.png', timetable: 'timetable.png', journal: 'journal.png', groups: 'groups.png', messenger: 'messenger.png', notes: 'notes.png', expenses: 'wallet.png', assignments: 'tasks.png' }
   const asset = iconAssets[item.id]
   return (
     <button type="button" className={`dashboardDockIcon dock-${item.id} group`} onClick={onClick} aria-label={item.label}>
