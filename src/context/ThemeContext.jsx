@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { ACCENT_PALETTES } from '../lib/constants'
+import { useAuth } from './AuthContext'
 
 const ThemeContext = createContext(null)
 
@@ -16,9 +17,16 @@ function readPreference(key, fallback, allowedValues) {
 }
 
 export function ThemeProvider({ children }) {
+  const { user } = useAuth()
+  const storageKey = (key) => `univoPreference:${user?.email || 'guest'}:${key}`
   const accentIds = ACCENT_PALETTES.map((palette) => palette.id)
-  const [accent, setAccentState] = useState(() => readPreference('univoAccent', DEFAULT_ACCENT, accentIds))
-  const [mode, setModeState] = useState(() => readPreference('univoMode', DEFAULT_MODE, ['dark', 'light']))
+  const [accent, setAccentState] = useState(() => readPreference(storageKey('accent'), DEFAULT_ACCENT, accentIds))
+  const [mode, setModeState] = useState(() => readPreference(storageKey('mode'), DEFAULT_MODE, ['dark', 'light']))
+
+  useEffect(() => {
+    setAccentState(readPreference(storageKey('accent'), DEFAULT_ACCENT, accentIds))
+    setModeState(readPreference(storageKey('mode'), DEFAULT_MODE, ['dark', 'light']))
+  }, [user?.email])
 
   const setAccent = (nextAccent) => {
     if (accentIds.includes(nextAccent)) setAccentState(nextAccent)
@@ -32,8 +40,8 @@ export function ThemeProvider({ children }) {
     document.documentElement.setAttribute('data-accent', accent)
     document.documentElement.setAttribute('data-theme', mode)
     try {
-      localStorage.setItem('univoAccent', accent)
-      localStorage.setItem('univoMode', mode)
+      localStorage.setItem(storageKey('accent'), accent)
+      localStorage.setItem(storageKey('mode'), mode)
     } catch {
       // The theme still works when browser storage is unavailable.
     }

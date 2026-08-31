@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Bell, Check, Trash2, X, Users } from 'lucide-react'
+import { Bell, Check, Trash2, X, Users, MessageCircle, Tag, CircleCheck, Award, Clock3 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { addFriend, readSocial, respondToGroupInvite, writeSocial } from '../../lib/social'
 import { pushUserDataToCloud } from '../../lib/cloudSync'
@@ -81,6 +81,14 @@ export default function NotificationBell() {
 
   const items = [...messageNotifs, ...pendingGroupRequests, ...pendingRequests, ...welcome, ...updateNotifications]
   const unreadCount = items.length
+  const activityIcon = (item) => {
+    if (item.kind === 'request' || item.kind === 'group_request') return <Users className="notificationActivityIcon" />
+    if (item.kind === 'update') return <Tag className="notificationActivityIcon notificationActivityIconRotated" />
+    if (item.kind === 'welcome') return <Award className="notificationActivityIcon" />
+    if (item.title?.toLowerCase().includes('message')) return <MessageCircle className="notificationActivityIcon" />
+    if (item.title?.toLowerCase().includes('reminder')) return <Clock3 className="notificationActivityIcon notificationActivityIconRotated" />
+    return <CircleCheck className="notificationActivityIcon" />
+  }
 
   const dismiss = (id) => {
     const next = [...dismissed, id]
@@ -123,20 +131,21 @@ export default function NotificationBell() {
         {open && (
           <>
             <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-            <motion.div initial={{ opacity: 0, y: 8, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: .96 }} className="absolute right-0 top-full mt-2 w-80 z-50 glass-panel rounded-2xl overflow-hidden shadow-2xl">
-              <div className="px-4 py-3 border-b border-white/8 flex items-center justify-between">
-                <span className="text-sm font-semibold">Notifications</span>
+            <motion.div initial={{ opacity: 0, y: 8, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: .96 }} className="notificationActivityCard absolute right-0 top-full mt-2 z-50 glass-panel rounded-2xl overflow-hidden shadow-2xl">
+              <div className="notificationActivityHeader">
+                <Bell className="notificationActivityHeaderIcon" />
+                <div><span className="notificationActivityTitle">{items.length} New Activities</span><span className="notificationActivitySubtitle">What's happening around you</span></div>
                 {items.length > 0 && <button type="button" onClick={deleteAll} className="text-[11px] text-white/45 hover:text-red-400 flex items-center gap-1"><Trash2 size={12} /> Delete all</button>}
               </div>
-              <ul className="max-h-96 overflow-y-auto">
+              <ul className="notificationActivityList max-h-96 overflow-y-auto">
                 {items.map((item) => (
-                  <li key={item.id} className="px-4 py-3 border-b border-white/5">
-                    <div className="flex items-start gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full univo-gradient-bg mt-1.5 shrink-0" />
+                  <li key={item.id} className="notificationActivityItem">
+                    <div className="notificationActivityIconWrap">{activityIcon(item)}</div>
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium">{item.title}</p>
-                        <p className="text-xs text-white/45 mt-0.5">{item.body}</p>
-                        <p className="text-[10px] text-white/30 mt-1">{formatNotificationTime(item.createdAt)}</p>
+                        <p className="notificationActivityItemTitle">{item.title}</p>
+                        <p className="notificationActivityItemDesc">{item.body}</p>
+                        <p className="notificationActivityItemTime">{formatNotificationTime(item.createdAt)}</p>
                         
                         {item.kind === 'request' && (
                           <div className="flex gap-2 mt-3">
@@ -165,4 +174,3 @@ export default function NotificationBell() {
     </div>
   )
 }
-

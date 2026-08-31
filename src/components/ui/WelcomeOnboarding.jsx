@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import { ArrowRight, BookOpen, CalendarCheck, Check, X } from 'lucide-react'
 
 const steps = [
@@ -8,9 +9,10 @@ const steps = [
 ]
 
 export default function WelcomeOnboarding({ onComplete }) {
+  const { user } = useAuth()
   const [step, setStep] = useState(0)
   const current = steps[step]
   const Icon = current.icon
-  const finish = () => { localStorage.removeItem('univoPendingOnboarding'); onComplete?.() }
+  const finish = () => { localStorage.removeItem(`univoPreference:${user?.email || 'guest'}:pendingOnboarding`); onComplete?.() }
   return <div className="welcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title"><div className="welcomeCard"><button type="button" className="welcomeClose" onClick={finish} aria-label="Close welcome tour"><X size={18} /></button><div className="welcomeVisual"><div className="welcomeOrb"><Icon size={30} /></div><div className="welcomeGlow" /></div><div className="welcomeBody"><span className="welcomeEyebrow">{current.label}</span><h2 id="welcome-title">{current.title}</h2><p>{current.description}</p><div className="welcomeProgress">{steps.map((item, index) => <span key={item.title} className={index === step ? 'active' : index < step ? 'done' : ''} />)}</div><div className="welcomeActions"><button type="button" className="welcomeSkip" onClick={finish}>Skip tour</button>{step < steps.length - 1 ? <button type="button" className="welcomeNext" onClick={() => setStep((value) => value + 1)}>Next <ArrowRight size={16} /></button> : <button type="button" className="welcomeNext" onClick={finish}>Open my workspace <ArrowRight size={16} /></button>}</div></div></div></div>
 }

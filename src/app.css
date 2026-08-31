@@ -767,6 +767,27 @@ body.univo-app {
 .settingsPalette:hover, .settingsPalette.active { border-color: var(--accent-solid); color: var(--text-primary); background: var(--accent-muted); }
 .settingsPalette span { width: 19px; height: 19px; flex: 0 0 auto; border-radius: 50%; }.settingsPalette b { font-size: 11px; }
 .settingsProfileCard { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--border-subtle); border-radius: 15px; background: var(--surface-subtle); }.settingsProfileIdentity { display: grid; gap: 5px; flex: 1; min-width: 0; }.settingsProfileIdentity strong { color: var(--text-primary); font-size: 15px; text-transform: uppercase; }.settingsProfileIdentity span { overflow: hidden; color: var(--text-muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }.settingsProfileEditor { display: grid; gap: 11px; margin-top: 12px; padding: 13px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-control); }.settingsProfileEditor label { display: grid; gap: 5px; color: var(--text-muted); font-size: 11px; font-weight: 700; }.settingsProfileEditor input { padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: 10px; color: var(--text-primary); background: var(--surface-subtle); outline: none; }.settingsProfileEditor input:focus { border-color: var(--accent-solid); }.settingsProfileEdit { padding: 7px 10px; border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-muted); background: var(--surface-control); font-size: 11px; font-weight: 700; cursor: pointer; }.settingsProfileEdit:hover { color: var(--accent-solid); border-color: var(--accent-solid); }.settingsProfileSave { justify-self: start; padding: 9px 14px; border: 0; border-radius: 999px; color: #182027; background: var(--accent-solid); font-size: 12px; font-weight: 800; cursor: pointer; }
+.profileEditView { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 24px 20px; border: 1px solid var(--border-subtle); border-radius: 24px; background: var(--surface-subtle); text-align: center; }
+.profileEditAvatar { width: 104px; height: 104px; overflow: hidden; display: grid; place-items: center; border: 6px solid var(--surface-modal); border-radius: 50%; color: #fff; background: var(--accent-from); font-size: 25px; font-weight: 800; box-shadow: 0 10px 25px rgb(0 0 0 / .18); }
+.profileEditAvatar img { width: 100%; height: 100%; object-fit: cover; }
+.profileEditView h3 { margin: 0; color: var(--text-primary); font-size: 22px; font-weight: 800; }
+.profileEditView > p { margin: -6px 0 8px; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+.profileEditView > label, .profileEditView > .settingsPhotoField { width: 100%; text-align: left; }
+.profileEditActions { display: flex; align-items: center; gap: 10px; width: 100%; justify-content: flex-end; margin-top: 4px; }
+.notificationActivityCard { width: min(390px, calc(100vw - 32px)); background: var(--surface-modal); }
+.notificationActivityHeader { display: flex; align-items: center; gap: 12px; padding: 18px 18px 15px; border-bottom: 1px solid var(--border-subtle); }
+.notificationActivityHeaderIcon { width: 30px; height: 30px; color: var(--text-muted); flex: 0 0 auto; }
+.notificationActivityHeader > div { display: grid; gap: 3px; flex: 1; }
+.notificationActivityTitle { color: var(--text-primary); font-size: 15px; font-weight: 800; }
+.notificationActivitySubtitle { color: var(--text-muted); font-size: 11px; }
+.notificationActivityItem { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--border-subtle); }
+.notificationActivityItem:last-child { border-bottom: 0; }
+.notificationActivityIconWrap { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 auto; border-radius: 12px; color: var(--accent-solid); background: var(--accent-muted); }
+.notificationActivityIcon { width: 20px; height: 20px; }
+.notificationActivityIconRotated { transform: rotate(45deg); }
+.notificationActivityItemTitle { margin: 0; color: var(--text-primary); font-size: 13px; font-weight: 700; }
+.notificationActivityItemDesc { margin: 4px 0 0; color: var(--text-muted); font-size: 11px; }
+.notificationActivityItemTime { margin: 6px 0 0; color: var(--text-subtle); font-size: 10px; }
 .rosterSearchControl { display: flex; align-items: center; gap: 10px; padding: 0 12px 0 14px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-control); }
 .rosterSearchInput { min-width: 0; flex: 1; padding: 10px 0; border: 0; outline: none; color: var(--text-primary); background: transparent; font-size: 13px; }
 .rosterSearchInput::placeholder { color: var(--text-subtle); }
@@ -919,3 +940,17 @@ button.univo-gradient-bg { cursor: pointer; }
 @media (max-width: 700px) { .groupsFeature { padding: 28px; }.groupsGlobe { position: absolute; right: -90px; width: 230px; height: 230px; opacity: .65; }.groupsFeatureCopy { max-width: 100%; }.groupsFeatureCopy h2 { font-size: 26px; } }
 main:has(.settingsEyebrow) h1 { color: var(--accent-solid); }
 .univoGlobeCanvas { display: block; width: 100%; height: 100%; opacity: 0; cursor: grab; transition: opacity .5s ease; }.univoGlobeCanvas:active { cursor: grabbing; }
+/* Product detail landing pages */
+.productDetailPage { min-height: 100vh; background: radial-gradient(circle at 75% 15%, color-mix(in srgb, var(--accent-solid) 22%, transparent), transparent 35%), var(--bg); color: var(--text); }
+.productDetailHero { max-width: 1120px; margin: 0 auto; padding: 42px 24px 110px; text-align: center; }
+.productBack { display: inline-block; color: var(--muted); text-decoration: none; margin-bottom: 72px; }
+.productDetailOrb { width: 82px; height: 82px; margin: auto; display: grid; place-items: center; border-radius: 28px; color: white; background: var(--accent-solid); box-shadow: 0 20px 60px color-mix(in srgb, var(--accent-solid) 35%, transparent); }
+.productDetailEyebrow { display: block; margin-top: 28px; color: var(--accent-solid); font-size: 12px; font-weight: 800; letter-spacing: .2em; }
+.productDetailHero h1 { max-width: 780px; margin: 16px auto; font-size: clamp(42px, 7vw, 82px); line-height: .98; letter-spacing: -.06em; }
+.productDetailHero > p { max-width: 600px; margin: 24px auto 44px; color: var(--muted); font-size: 18px; line-height: 1.6; }
+.productDetailGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; max-width: 900px; margin: 0 auto 42px; text-align: left; }
+.productDetailCard { min-height: 140px; padding: 24px; border: 1px solid color-mix(in srgb, var(--text) 12%, transparent); border-radius: 22px; background: color-mix(in srgb, var(--panel) 75%, transparent); }
+.productDetailCard span { color: var(--accent-solid); font-size: 12px; font-weight: 800; }
+.productDetailCard strong { display: block; margin-top: 34px; line-height: 1.35; }
+.productDetailCta { display: inline-flex; align-items: center; gap: 10px; padding: 16px 24px; border-radius: 999px; color: white; background: var(--accent-solid); text-decoration: none; font-weight: 800; }
+@media (max-width: 700px) { .productDetailGrid { grid-template-columns: 1fr; } .productDetailHero { padding-top: 28px; } .productBack { margin-bottom: 48px; } }

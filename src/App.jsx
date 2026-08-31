@@ -14,6 +14,7 @@ import ClassRepresentativePage from './pages/modules/ClassRepresentativePage'
 import NotesHubPage from './pages/modules/NotesHubPage'
 import FeaturesPage from './pages/features/FeaturesPage'
 import StudentPlanPage from './pages/students/StudentPlanPage'
+import ProductDetailPage from './pages/landing/ProductDetailPage'
 import MessengerPage from './pages/modules/MessengerPage'
 import GroupsPage from './pages/modules/GroupsPage'
 import ExpenseTrackerPage from './pages/modules/ExpenseTrackerPage'
@@ -27,14 +28,15 @@ import './app.css'
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <ThemeProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/pricing" element={<PricingSection />} />
             <Route path="/features" element={<FeaturesPage />} />
             <Route path="/students" element={<StudentPlanPage />} />
+            <Route path="/product/:slug" element={<ProductDetailPage />} />
             <Route path="/universities" element={<StudentPlanPage variant="university" />} />
             <Route path="/login" element={<LoginPage />} />
 
@@ -121,7 +123,7 @@ export default function App() {
           </Routes>
           <ChapterScrubber />
         </BrowserRouter>
-      </AuthProvider>
-    </ThemeProvider>
+      </ThemeProvider>
+    </AuthProvider>
   )
 }

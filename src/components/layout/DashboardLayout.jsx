@@ -13,22 +13,23 @@ import DashboardDock from '../ui/DashboardDock'
 import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
 import WelcomeOnboarding from '../ui/WelcomeOnboarding'
 import LiveMessageToast from '../ui/LiveMessageToast'
-import { pushUserDataToCloud } from '../../lib/cloudSync'
+import { fetchCloudUserData, pushUserDataToCloud, restoreUserDataToDevice } from '../../lib/cloudSync'
 import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
   const { user, logout, updateProfile } = useAuth()
+  const preferenceKey = (key) => `univoPreference:${user?.email || 'guest'}:${key}`
   const navigate = useNavigate()
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
   const [themeOpen, setThemeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem('univoSidebarCollapsed') !== 'false')
-  const [compactCards, setCompactCards] = useState(() => localStorage.getItem('univoCompactCards') === 'true')
-  const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem('univoNotifications') !== 'false')
-  const [autoHideSidebar, setAutoHideSidebar] = useState(() => localStorage.getItem('univoAutoHideSidebar') === 'true')
-  const [autoHideDock, setAutoHideDock] = useState(() => localStorage.getItem('univoAutoHideDock') === 'true')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(preferenceKey('sidebarCollapsed')) !== 'false')
+  const [compactCards, setCompactCards] = useState(() => localStorage.getItem(preferenceKey('compactCards')) === 'true')
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => localStorage.getItem(preferenceKey('notifications')) !== 'false')
+  const [autoHideSidebar, setAutoHideSidebar] = useState(() => localStorage.getItem(preferenceKey('autoHideSidebar')) === 'true')
+  const [autoHideDock, setAutoHideDock] = useState(() => localStorage.getItem(preferenceKey('autoHideDock')) === 'true')
   const [sidebarHovered, setSidebarHovered] = useState(false)
-  const [welcomeOpen, setWelcomeOpen] = useState(() => localStorage.getItem('univoPendingOnboarding') === 'true')
+  const [welcomeOpen, setWelcomeOpen] = useState(() => localStorage.getItem(preferenceKey('pendingOnboarding')) === 'true')
   const [profileName, setProfileName] = useState('')
   const [profileAvatar, setProfileAvatar] = useState('')
   const [profileEditing, setProfileEditing] = useState(false)
@@ -52,6 +53,19 @@ export default function DashboardLayout() {
     updateUserLastActive(user.email)
     const interval = setInterval(() => updateUserLastActive(user.email), 15000)
     return () => clearInterval(interval)
+  }, [user?.email])
+
+  // Keep an open session current when the same account changes on another device.
+  useEffect(() => {
+    if (!user?.email) return
+    let active = true
+    const refreshFromCloud = async () => {
+      const cloudData = await fetchCloudUserData(user.email)
+      if (active && cloudData) restoreUserDataToDevice(cloudData)
+    }
+    refreshFromCloud()
+    const interval = setInterval(refreshFromCloud, 5000)
+    return () => { active = false; clearInterval(interval) }
   }, [user?.email])
 
   // Automatic Background Cloud Autosave Engine
@@ -93,7 +107,7 @@ export default function DashboardLayout() {
   }
 
   const openSettings = () => setSettingsOpen(true)
-  const updatePreference = (key, value) => localStorage.setItem(key, String(value))
+  const updatePreference = (key, value) => localStorage.setItem(preferenceKey(key), String(value))
   const initials = user?.avatar || user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || '?'
   useEffect(() => {
     if (settingsOpen) {
@@ -185,7 +199,7 @@ export default function DashboardLayout() {
       {settingsOpen && <div className="settingsOverlay" role="dialog" aria-modal="true" aria-labelledby="settings-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setSettingsOpen(false) }}>
         <div className="settingsModal">
           <div className="settingsHeader"><div><p className="settingsEyebrow">PERSONAL WORKSPACE</p><h2 id="settings-title">Settings</h2><p>Shape your Univo workspace around the way you work.</p></div><button type="button" className="settingsClose" onClick={() => setSettingsOpen(false)} aria-label="Close settings"><X size={18} /></button></div>
-          <section className="settingsSection"><div className="settingsSectionTitle"><UserCircle size={17} /><div><strong>Profile</strong><span>Your account details</span></div></div><div className="settingsProfileCard"><span className="settingsAvatar">{profileImage ? <img src={profileImage} alt="Profile" /> : profileAvatar || initials}</span><div className="settingsProfileIdentity"><strong>{user?.name}</strong><span>{user?.email}</span></div><span className="settingsRole">{getRoleLabel(user?.role)}</span><button type="button" className="settingsProfileEdit" onClick={() => setProfileEditing((value) => !value)}>{profileEditing ? 'Close' : 'Edit profile'}</button></div>{profileEditing && <form className="settingsProfileEditor" onSubmit={saveProfile}><label>Full name<input value={profileName} onChange={(event) => setProfileName(event.target.value)} /></label><div className="settingsPhotoField"><span>Profile picture</span><button type="button" className="settingsPhotoPicker" onClick={() => { setPendingProfileImage(profileImage); setAvatarUploadOpen(true) }}>{profileImage ? <img src={profileImage} alt="Selected profile" /> : <span className="settingsAvatar settingsAvatarSmall">{profileAvatar || initials}</span>}<b>{profileImage ? 'Change picture' : 'Upload picture'}</b></button><small>PNG, JPG or WEBP · up to 5 MB</small></div><label>Avatar initials<input value={profileAvatar} maxLength={3} onChange={(event) => setProfileAvatar(event.target.value.toUpperCase())} /></label><button type="submit" className="settingsProfileSave">Save changes</button></form>}</section>
+          <section className="settingsSection"><div className="settingsSectionTitle"><UserCircle size={17} /><div><strong>Profile</strong><span>Your account details</span></div></div>{!profileEditing && <div className="settingsProfileCard"><span className="settingsAvatar">{profileImage ? <img src={profileImage} alt="Profile" /> : profileAvatar || initials}</span><div className="settingsProfileIdentity"><strong>{user?.name}</strong><span>{user?.email}</span></div><span className="settingsRole">{getRoleLabel(user?.role)}</span><button type="button" className="settingsProfileEdit" onClick={() => setProfileEditing(true)}>Edit profile</button></div>}{profileEditing && <form className="profileEditView" onSubmit={saveProfile}><div className="profileEditAvatar">{profileImage ? <img src={profileImage} alt="Profile" /> : <span>{profileAvatar || initials}</span>}</div><h3>{profileName || user?.name}</h3><p>{getRoleLabel(user?.role)}</p><label>Full name<input value={profileName} onChange={(event) => setProfileName(event.target.value)} /></label><div className="settingsPhotoField"><span>Profile picture</span><button type="button" className="settingsPhotoPicker" onClick={() => { setPendingProfileImage(profileImage); setAvatarUploadOpen(true) }}>{profileImage ? <img src={profileImage} alt="Selected profile" /> : <span className="settingsAvatar settingsAvatarSmall">{profileAvatar || initials}</span>}<b>{profileImage ? 'Change picture' : 'Upload picture'}</b></button><small>PNG, JPG or WEBP · up to 5 MB</small></div><label>Avatar initials<input value={profileAvatar} maxLength={3} onChange={(event) => setProfileAvatar(event.target.value.toUpperCase())} /></label><div className="profileEditActions"><button type="button" className="settingsProfileEdit" onClick={() => setProfileEditing(false)}>Cancel</button><button type="submit" className="settingsProfileSave">Save changes</button></div></form>}</section>
           {avatarUploadOpen && <div className="avatarUploadOverlay" role="dialog" aria-modal="true" aria-labelledby="avatar-upload-title"><div className="avatarUploadDialog"><div className="avatarUploadHeader"><h3 id="avatar-upload-title">Upload Image</h3><button type="button" onClick={() => setAvatarUploadOpen(false)} aria-label="Close upload dialog"><X size={18} /></button></div><div className="avatarUploadBody"><label className="avatarFileInput">Choose File<input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleProfileImage} /><span>{pendingProfileImage ? 'Image selected' : 'No file chosen'}</span></label>{pendingProfileImage && <><div className={`avatarUploadPreview ${avatarDragging ? 'is-dragging' : ''}`} onWheel={handleAvatarWheel} onPointerDown={handleAvatarPointerDown} onPointerMove={handleAvatarPointerMove} onPointerUp={stopAvatarDrag} onPointerCancel={stopAvatarDrag}><img src={pendingProfileImage} alt="Profile preview" style={{ transform: `translate3d(${avatarOffset.x}px, ${avatarOffset.y}px, 0) scale(${avatarZoom})` }} /><div className="avatarCropGrid" aria-hidden="true"><i /><i /><i /><i /></div></div><p className="avatarCropHint">Scroll or use your trackpad to zoom · drag the image to reposition</p></>}</div><div className="avatarUploadFooter"><button type="button" className="avatarUploadCancel" onClick={() => setAvatarUploadOpen(false)}>Cancel</button><button type="button" className="avatarUploadRemove" onClick={removeProfileImage} disabled={!profileImage}>Remove photo</button><button type="button" className="avatarUploadUpdate" onClick={confirmProfileImage} disabled={!pendingProfileImage}>Update</button></div></div></div>}
           <section className="settingsSection"><div className="settingsSectionTitle"><LayoutDashboard size={17} /><div><strong>Workspace</strong><span>Control your dashboard experience</span></div></div><label className="settingsToggle"><span><b>Compact cards</b><small>Use tighter spacing on dashboard widgets.</small></span><input type="checkbox" checked={compactCards} onChange={(event) => { setCompactCards(event.target.checked); updatePreference('univoCompactCards', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Collapsed sidebar</b><small>Keep navigation icons-only by default.</small></span><input type="checkbox" checked={sidebarCollapsed} onChange={(event) => { setSidebarCollapsed(event.target.checked); updatePreference('univoSidebarCollapsed', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Automatically hide and show the Sidebar</b><small>Show the full navigation when you hover over the left edge.</small></span><input type="checkbox" checked={autoHideSidebar} onChange={(event) => { setAutoHideSidebar(event.target.checked); updatePreference('univoAutoHideSidebar', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Automatically hide and show the Dock</b><small>Reveal quick navigation when you hover near the bottom.</small></span><input type="checkbox" checked={autoHideDock} onChange={(event) => { setAutoHideDock(event.target.checked); updatePreference('univoAutoHideDock', event.target.checked) }} /><i /></label></section>
           <section className="settingsSection"><div className="settingsSectionTitle"><Bell size={17} /><div><strong>Notifications</strong><span>Choose how much activity you see</span></div></div><label className="settingsToggle"><span><b>In-app notifications</b><small>Show reminders and updates in your dashboard.</small></span><input type="checkbox" checked={notificationsEnabled} onChange={(event) => { setNotificationsEnabled(event.target.checked); updatePreference('univoNotifications', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Email Product Release Updates</b><small>Receive email notifications when new platform features drop.</small></span><input type="checkbox" defaultChecked={true} onChange={(event) => { if (event.target.checked) { sendProductUpdateEmail({ email: user?.email || 'student@univo.edu', name: user?.name }) } }} /><i /></label></section>

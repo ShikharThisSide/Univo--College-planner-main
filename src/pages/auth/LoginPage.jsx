@@ -94,7 +94,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     const path = searchParams.get('path') || signupPath
     const normalizedGoogleEmail = googleEmail.trim().toLowerCase()
     const existingAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
-    if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem('univoPendingOnboarding', 'true')
+    if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem(`univoPreference:${normalizedGoogleEmail}:pendingOnboarding`, 'true')
     const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path, roleOverride: universityRole || undefined })
     navigate(dashboardPath, { replace: true })
   }, [login, navigate, searchParams, signupPath])
@@ -155,7 +155,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined, createdAt: Date.now() }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
       localStorage.setItem(`univoFreshAccount:${normalizedEmail}`, 'true')
-      localStorage.setItem('univoPendingOnboarding', 'true')
+      localStorage.setItem(`univoPreference:${normalizedEmail}:pendingOnboarding`, 'true')
       setNotice('Account created successfully. Signing you in…')
     } else if (mode === 'reset') {
       if (!accounts[normalizedEmail]) return setError('No account found for this email')

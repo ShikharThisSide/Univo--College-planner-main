@@ -187,10 +187,10 @@ export function restoreUserDataToDevice(cloudData) {
 
   // 14. Theme & Preferences
   if (cloudData.themeAccent) {
-    localStorage.setItem('univoThemeAccent', cloudData.themeAccent)
+    localStorage.setItem(`univoPreference:${email}:accent`, cloudData.themeAccent)
   }
   if (cloudData.themeMode) {
-    localStorage.setItem('univoThemeMode', cloudData.themeMode)
+    localStorage.setItem(`univoPreference:${email}:mode`, cloudData.themeMode)
   }
 
   // 15. Trigger Real-Time Window Refresh Events
@@ -268,8 +268,8 @@ export async function pushUserDataToCloud(email) {
       }
     } catch {}
 
-    const themeAccent = localStorage.getItem('univoThemeAccent') || 'emerald'
-    const themeMode = localStorage.getItem('univoThemeMode') || 'dark'
+    const themeAccent = localStorage.getItem(`univoPreference:${userEmail}:accent`) || 'deep-teal'
+    const themeMode = localStorage.getItem(`univoPreference:${userEmail}:mode`) || 'light'
 
     const payload = {
       email: userEmail,

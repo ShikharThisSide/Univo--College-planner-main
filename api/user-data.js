@@ -1,5 +1,32 @@
 import { cloudAccountStore, cloudUserDataStore } from './_cloudStore.js'
 
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY
+
+async function readPersistent(email) {
+  if (!supabaseUrl || !supabaseKey) return cloudUserDataStore.get(email) || null
+  const response = await fetch(`${supabaseUrl}/rest/v1/univo_user_data?email=eq.${encodeURIComponent(email)}&select=payload&limit=1`, {
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }
+  })
+  if (!response.ok) throw new Error(`Supabase read failed: ${response.status}`)
+  const rows = await response.json()
+  return rows[0]?.payload || null
+}
+
+async function writePersistent(email, payload) {
+  if (!supabaseUrl || !supabaseKey) {
+    cloudUserDataStore.set(email, payload)
+    cloudAccountStore.set(email, payload.account)
+    return
+  }
+  const response = await fetch(`${supabaseUrl}/rest/v1/univo_user_data?on_conflict=email`, {
+    method: 'POST',
+    headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ email, payload })
+  })
+  if (!response.ok) throw new Error(`Supabase write failed: ${response.status}`)
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true')
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -13,7 +40,7 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const { email } = req.query
     if (!email) return res.status(400).json({ error: 'Email parameter required' })
-    const data = cloudUserDataStore.get(email.toLowerCase()) || null
+    const data = await readPersistent(email.toLowerCase())
     return res.status(200).json({ success: true, data })
   }
 
@@ -45,7 +72,7 @@ export default async function handler(req, res) {
     if (!email) return res.status(400).json({ error: 'Email parameter required' })
 
     const userEmail = email.toLowerCase()
-    const existing = cloudUserDataStore.get(userEmail) || {}
+    const existing = await readPersistent(userEmail) || {}
 
     const payload = {
       email: userEmail,
@@ -72,8 +99,7 @@ export default async function handler(req, res) {
       lastSyncedAt: Date.now()
     }
 
-    cloudUserDataStore.set(userEmail, payload)
-    if (account) cloudAccountStore.set(userEmail, account)
+    await writePersistent(userEmail, payload)
 
     return res.status(200).json({ success: true, message: 'Comprehensive user data synced across devices', data: payload })
   }
