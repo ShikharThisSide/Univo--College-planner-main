@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Search, Settings } from 'lucide-react'
+import { Compass, Settings } from 'lucide-react'
 import * as Icons from 'lucide-react'
 
 function DockIcon({ item, onClick }) {
@@ -34,7 +34,7 @@ export default function DashboardDock({ items = [], onSearch, onSettings, autoHi
         {visibleItems.map((item, index) => <div key={item.id} className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${scales[index]})` }}><DockIcon item={item} onClick={() => go(item)} /><span className={`dashboardDockActiveDot ${location.pathname === item.path ? 'is-active' : ''}`} /></div>)}
         <span className="dashboardDockDivider" />
         <div className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${mouseX === null ? 1 : 1.05})` }}><button type="button" className="dashboardDockIcon group" onClick={onSearch} aria-label="Search">
-          <Search size={18} /><span className="dashboardDockTooltip">Search</span>
+          <Compass size={19} strokeWidth={2.1} /><span className="dashboardDockTooltip">Search</span>
         </button></div>
         <div className="dashboardDockMagnifiedItem" style={{ width: iconSize, transform: `scale(${mouseX === null ? 1 : 1.05})` }}><button type="button" className="dashboardDockIcon group" onClick={onSettings} aria-label="Settings">
           <Settings size={19} strokeWidth={2.2} /><span className="dashboardDockTooltip">Settings</span>
