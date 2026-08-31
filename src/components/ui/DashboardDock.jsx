@@ -6,7 +6,7 @@ import * as Icons from 'lucide-react'
 function DockIcon({ item, onClick }) {
   const Icon = Icons[item.icon] || Icons.Circle
   return (
-    <button type="button" className="dashboardDockIcon group" onClick={onClick} aria-label={item.label}>
+    <button type="button" className={`dashboardDockIcon dock-${item.id} group`} onClick={onClick} aria-label={item.label}>
       <Icon size={18} strokeWidth={2} />
       <span className="dashboardDockTooltip">{item.label}</span>
     </button>
