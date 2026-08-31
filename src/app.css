@@ -1014,3 +1014,4 @@ main:has(.settingsEyebrow) h1 { color: var(--accent-solid); }
 .journalEditorTools .journalDone, .journalSaveButton { background: linear-gradient(135deg, var(--accent-from), var(--accent-to)); }
 .journalDateControls > button { color: var(--text-muted); background: var(--surface-control); }
 .journalDateControls > button:hover { color: var(--accent-solid); background: var(--accent-muted); }
+.journalEditorDivider { background: #111; }
