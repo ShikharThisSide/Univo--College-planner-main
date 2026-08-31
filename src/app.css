@@ -181,7 +181,7 @@ body.univo-app {
 .dashboard-nav-active { color: var(--text-primary); }
 .dashboard-nav-inactive { color: var(--text-muted); }
 .dashboard-nav-inactive:hover { color: var(--text-primary); background: var(--surface-hover); }
-.dashboard-search { color: var(--text-muted); background: var(--surface-control); border: 1px solid var(--border-subtle); }
+.dashboard-search { color: var(--text-muted); background: var(--surface-control); border: 1px solid var(--border-subtle); cursor: pointer; }
 .dashboard-search:hover { color: var(--text-primary); border-color: var(--border-strong); }
 .dashboard-kbd { background: var(--surface-hover); color: var(--text-muted); }
 .dashboard-muted { color: var(--text-muted); }
