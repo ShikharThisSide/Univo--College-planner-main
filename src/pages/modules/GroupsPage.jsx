@@ -71,6 +71,7 @@ export default function GroupsPage() {
   const [openCreate, setOpenCreate] = useState(false)
   const [inviteModalGroup, setInviteModalGroup] = useState(null)
   const [chatModalGroup, setChatModalGroup] = useState(null)
+  const [selectedGroup, setSelectedGroup] = useState(null)
 
   // Chat Room State
   const [chatMessages, setChatMessages] = useState([])
@@ -439,6 +440,7 @@ export default function GroupsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="p-5 rounded-2xl glass-card border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all flex flex-col justify-between gap-4 text-[var(--text-primary)]"
+                  onClick={(e) => { if (e.target.closest('button')) return; setSelectedGroup(group) }}
                 >
                   <div className="space-y-3">
                     {/* CARD HEADER */}
@@ -546,6 +548,27 @@ export default function GroupsPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* GROUP OVERVIEW / JOIN MODAL */}
+      {selectedGroup && (() => {
+        const isMember = (selectedGroup.members || []).includes(myName)
+        const myRequests = readSocial(`joinRequests:${selectedGroup.creatorEmail}`, [])
+        const isPending = myRequests.some((r) => r.groupId === selectedGroup.id && r.requesterEmail === myEmail && r.status === 'pending')
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && setSelectedGroup(null)}>
+            <motion.div initial={{ opacity: 0, scale: .95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="glass-panel w-full max-w-md rounded-3xl p-7 relative bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
+              <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer" onClick={() => setSelectedGroup(null)} aria-label="Close"><X size={18} /></button>
+              <div className="flex flex-col items-center text-center gap-3 pt-2">
+                <div className="w-20 h-20 rounded-3xl univo-gradient-bg grid place-items-center text-black text-3xl shadow-lg">{selectedGroup.iconTag || '👥'}</div>
+                <div><p className="settingsEyebrow text-[var(--accent-solid)] font-bold">{selectedGroup.category || 'STUDY GROUP'}</p><h2 className="text-2xl font-extrabold font-display mt-1">{selectedGroup.name}</h2><p className="text-sm text-[var(--text-muted)] mt-2">{selectedGroup.description}</p></div>
+              </div>
+              <div className="mt-6 pt-5 border-t border-[var(--border-subtle)]"><div className="flex items-center justify-between mb-3"><h3 className="font-bold text-sm">Members</h3><span className="text-xs text-[var(--text-muted)]">{(selectedGroup.members || []).length} active</span></div><div className="flex flex-wrap gap-3">{(selectedGroup.members || []).map((member, index) => <div key={`${member}-${index}`} className="flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--surface-control)] border border-[var(--border-subtle)]"><span className="w-7 h-7 rounded-full univo-gradient-bg grid place-items-center text-black text-[10px] font-extrabold">{member.split(' ').map((p) => p[0]).join('').slice(0, 2).toUpperCase()}</span><span className="text-xs font-semibold">{member}</span></div>)}</div></div>
+              <div className="mt-6">{isMember ? <button type="button" onClick={() => { setSelectedGroup(null); setChatModalGroup(selectedGroup) }} className="w-full py-3 rounded-2xl univo-gradient-bg text-black text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer"><MessageCircle size={15} /> Open Group Chat</button> : isPending ? <button type="button" onClick={() => { handleCancelJoin(selectedGroup); setSelectedGroup(null) }} className="w-full py-3 rounded-2xl bg-red-500/15 border border-red-500/35 text-red-400 text-xs font-extrabold cursor-pointer"><Clock size={15} className="inline mr-1" /> Request Sent · Cancel</button> : <button type="button" onClick={() => { handleRequestJoin(selectedGroup); setSelectedGroup(null) }} className="w-full py-3 rounded-2xl univo-gradient-bg text-black text-xs font-extrabold flex items-center justify-center gap-2 cursor-pointer"><UserPlus size={15} /> Join Group</button>}</div>
+            </motion.div>
+          </div>
+        )
+      })()}
 
       {/* CREATE REAL GROUP MODAL */}
       {openCreate && (
