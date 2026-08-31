@@ -734,9 +734,8 @@ body.univo-app {
 .dashboardDockMagnifiedItem:nth-child(13) .dashboardDockIcon svg { filter: drop-shadow(0 1px 1px rgb(0 0 0 / .2)); }
 .dashboardDockIcon { border-radius: 14px; box-shadow: 0 2px 5px rgb(0 0 0 / .06), inset 0 1px 1px rgb(255 255 255 / .35); }
 .dashboardDockImage { width: 30px; height: 30px; border-radius: 9px; object-fit: cover; }
-.dashboardDockIcon.dock-messenger { color: #fff; background: linear-gradient(145deg, #4df477, #17bf3d); border-color: #65ef7e; box-shadow: 0 5px 12px rgb(25 194 61 / .28), inset 0 1px 2px rgb(255 255 255 / .45); }
-.dashboardDockIcon.dock-messenger:hover, .dashboardDockIcon.dock-messenger:focus-visible { color: #fff; background: linear-gradient(145deg, #5bfa80, #12b937); border-color: #7bff95; }
-.dashboardDockIcon.dock-messenger svg { stroke-width: 2.4; filter: drop-shadow(0 1px 1px rgb(0 90 20 / .22)); }
+.dashboardDockIcon.dock-messenger { color: var(--text-secondary); background: var(--surface-control); border-color: var(--border-subtle); box-shadow: 0 2px 5px rgb(0 0 0 / .06), inset 0 1px 1px rgb(255 255 255 / .35); }
+.dashboardDockIcon.dock-messenger:hover, .dashboardDockIcon.dock-messenger:focus-visible { color: var(--accent-solid); background: var(--accent-muted); border-color: var(--accent-solid); box-shadow: 0 2px 5px rgb(0 0 0 / .06), inset 0 1px 1px rgb(255 255 255 / .35); }
 .dashboardDockMagnifiedItem .dashboardDockIcon:hover, .dashboardDockMagnifiedItem .dashboardDockIcon:focus-visible { filter: saturate(1.2); box-shadow: 0 8px 18px rgb(0 0 0 / .12); }
 
 .dashboardDockTooltip {
