@@ -1153,4 +1153,4 @@ button, input, textarea, select { font-family: inherit; }
 .dashboard-shell .text-emerald-400 { color: #16834f !important; }
 .dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget,
 .dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget:hover { background: #202020 !important; border-color: #202020 !important; color: #fff !important; }
-.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget .dashboardClockBlock { background: #202020 !important; border-color: #202020 !important; }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget .dashboardClockBlock { background: #1b1b1b !important; border-color: #1b1b1b !important; box-shadow: inset 0 0 18px rgba(0,0,0,.18); }
