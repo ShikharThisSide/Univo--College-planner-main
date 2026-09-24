@@ -369,12 +369,12 @@ export default function IndividualStudentDashboard() {
 
       {/* TOP ROW 2-COLUMN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <GlassCard className="dashboardClockWidget" delay={0.12}>
+        <GlassCard className="dashboardFeatureCard dashboardClockWidget" delay={0.12}>
           <div className="dashboardClockFace"><div className="dashboardClockDigits">{[currentTime.getHours() % 12 || 12, currentTime.getMinutes(), currentTime.getSeconds()].map((value, index) => <span className="dashboardClockBlock" key={index}><b>{String(value).padStart(2, '0')}</b>{index === 0 && <small>{currentTime.getHours() >= 12 ? 'PM' : 'AM'}</small>}</span>)}</div><div className="dashboardClockDate">{currentTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</div></div>
         </GlassCard>
         
         {/* WIDGET 1: TODAY'S SCHEDULE */}
-        <GlassCard className="lg:col-span-2" delay={0.15}>
+        <GlassCard className="dashboardFeatureCard lg:col-span-2" delay={0.15}>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <Clock size={18} className="text-[var(--accent-solid)]" />
@@ -448,7 +448,7 @@ export default function IndividualStudentDashboard() {
         </GlassCard>
 
         {/* WIDGET 2: ATTENDANCE TRACKER */}
-        <GlassCard delay={0.2}>
+        <GlassCard className="dashboardFeatureCard" delay={0.2}>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <Percent size={18} className="text-[var(--accent-solid)]" />
@@ -520,7 +520,7 @@ export default function IndividualStudentDashboard() {
       
 
         {/* WIDGET 3: TASKS TO COMPLETE */}
-        <GlassCard delay={0.25}>
+        <GlassCard className="dashboardFeatureCard" delay={0.25}>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <CheckSquare size={18} className="text-[var(--accent-solid)]" />
@@ -609,7 +609,7 @@ export default function IndividualStudentDashboard() {
         </GlassCard>
 
         {/* WIDGET 4: EXPENSE TRACKER PREVIEW */}
-        <GlassCard delay={0.28}>
+        <GlassCard className="dashboardFeatureCard" delay={0.28}>
           <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <Wallet size={18} className="text-[var(--accent-solid)]" />
