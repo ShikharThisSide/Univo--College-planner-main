@@ -1145,5 +1145,9 @@ button, input, textarea, select { font-family: inherit; }
 .dashboard-sidebar nav a[aria-current="page"] svg { color: #fff !important; }
 .dashboard-sidebar .dashboard-sidebar-brand { color: #000 !important; }
 .dashboard-shell .dashboardClockWidget { background: #000 !important; border-color: #000 !important; }
-.dashboard-shell .dashboardClockWidget .dashboardClockBlock { background: linear-gradient(#202020 0 49%, #151515 50% 100%); }
+.dashboard-shell .dashboardClockWidget { overflow: hidden; padding: 24px !important; }
+.dashboard-shell .dashboardClockFace { min-height: 100%; }
+.dashboard-shell .dashboardClockDigits { gap: 8px; }
+.dashboard-shell .dashboardClockWidget .dashboardClockBlock { background: linear-gradient(#202020 0 49%, #151515 50% 100%); border: 1px solid #202020; }
+.dashboard-shell .dashboardClockDate { color: #fff; }
 .dashboard-shell .text-emerald-400 { color: #16834f !important; }
