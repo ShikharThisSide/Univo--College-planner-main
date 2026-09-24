@@ -1,4 +1,4 @@
-import { Calendar, ClipboardList, Building2, Coffee, Sparkles } from 'lucide-react'
+import { Calendar, ClipboardList, Building2, Coffee } from 'lucide-react'
 import PageTransition from '../../components/ui/PageTransition'
 import GlassCard from '../../components/ui/GlassCard'
 import AttendanceRing from '../../components/ui/AttendanceRing'
@@ -12,7 +12,7 @@ export default function InstitutionalStudentDashboard() {
     <PageTransition>
       <div className="mb-8">
         <p className="text-xs font-extrabold text-[var(--accent-solid)] uppercase tracking-widest flex items-center gap-1.5">
-          <Sparkles size={14} /> {getTimeGreeting()}
+          {getTimeGreeting()}
         </p>
         <h1 className="font-display text-4xl font-extrabold tracking-tight mt-1">
           <span className="univo-gradient-text text-[var(--accent-solid)]">{data.university}</span>
