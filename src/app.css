@@ -1200,6 +1200,19 @@ button, input, textarea, select { font-family: inherit; }
 .focusSetupTimer .focusSummary { margin-top: 2px; }
 .focusSetupTimer .univo-gradient-bg { background: #111113 !important; color: #fff !important; }
 @keyframes focusSetupWallpaper { to { transform: scale(1.08) translate3d(2%, -1%, 0); filter: hue-rotate(8deg); } }
+.focusWallpaper-rainy::after, .focusWallpaper-forest::after, .focusWallpaper-evening-time::after, .focusWallpaper-cozy-cafe::after { background-position: center; background-size: cover; background-repeat: no-repeat; filter: saturate(.82) contrast(.92); }
+.focusWallpaper-rainy::after { background-image: url('/focus-scenes/rainy.png'); }
+.focusWallpaper-forest::after { background-image: url('/focus-scenes/forest.png'); }
+.focusWallpaper-evening-time::after { background-image: url('/focus-scenes/evening.png'); }
+.focusWallpaper-cozy-cafe::after { background-image: url('/focus-scenes/cafe.png'); }
+.focusWallpaper-rainy::before, .focusWallpaper-forest::before, .focusWallpaper-evening-time::before, .focusWallpaper-cozy-cafe::before { background: rgba(255,255,255,.62); }
+.focusSceneChoice { position: relative; overflow: hidden; isolation: isolate; }
+.focusSceneChoice::before { position: absolute; inset: 0; z-index: -1; background-position: center; background-size: cover; opacity: .17; content: ''; }
+.focusScene-rainy::before { background-image: url('/focus-scenes/rainy.png'); }
+.focusScene-forest::before { background-image: url('/focus-scenes/forest.png'); }
+.focusScene-evening-time::before { background-image: url('/focus-scenes/evening.png'); }
+.focusScene-cozy-cafe::before { background-image: url('/focus-scenes/cafe.png'); }
+.focusSceneChoice > * { position: relative; }
 @media (max-width: 820px) { .focusModal { padding: 72px 22px 36px !important; }.focusSetupLayout { grid-template-columns: 1fr; gap: 28px; }.focusSetupTimer { order: -1; }.focusSetupHeading h2 { font-size: clamp(42px, 12vw, 64px); }.focusModal .focusOptions { grid-template-columns: 1fr; }.focusModal .focusDurationRow { flex-direction: column; } }
 .focusSummary { width: fit-content !important; padding: 8px 12px; border: 1px solid #e4e4e7; border-radius: 999px; color: #71717a; background: rgba(255,255,255,.64); font-size: 11px; font-weight: 700; }
 .focusRoom { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; overflow: hidden; color: #fff; background: #111; }

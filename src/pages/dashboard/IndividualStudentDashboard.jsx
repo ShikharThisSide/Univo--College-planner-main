@@ -827,7 +827,7 @@ export default function IndividualStudentDashboard() {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="focusModal glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center"
+            className={`focusModal glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center focusWallpaper-${focusScene.toLowerCase().replaceAll(' ', '-')}`}
           >
             <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setFocusModalOpen(false)} aria-label="Close">
               <X size={18} />
@@ -859,7 +859,7 @@ export default function IndividualStudentDashboard() {
               <div className="focusOptionGroup">
                 <div className="focusOptionHeading"><Waves size={15} /> Live study scene</div>
                 <div className="focusChoiceGrid">
-                  {['Rainy desk', 'Forest window', 'Night room', 'Cozy café'].map((scene) => (
+                  {['Rainy', 'Forest', 'Evening Time', 'Cozy Cafe'].map((scene) => (
                     <button type="button" key={scene} className={`focusChoice focusSceneChoice focusScene-${scene.toLowerCase().replaceAll(' ', '-')} ${focusScene === scene ? 'is-selected' : ''}`} onClick={() => setFocusScene(scene)}>
                       <span><strong>{scene}</strong><small>Preview study environment</small></span>{focusScene === scene && <b aria-label="Selected">✓</b>}
                     </button>
