@@ -1091,3 +1091,7 @@ button, input, textarea, select { font-family: inherit; }
 .dashboardClockWidget { background: #202122 !important; border-color: #202122 !important; }
 .dashboardFeatureCard,
 .dashboardFeatureCard:hover { transition: none !important; transform: none !important; box-shadow: none !important; }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) { --accent-from: #6e6e73; --accent-to: #6e6e73; --accent-solid: #6e6e73; --accent-glow: rgba(110, 110, 115, .12); --accent-muted: rgba(110, 110, 115, .1); }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .univo-gradient-bg { color: #fff !important; background: #6e6e73 !important; }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .univo-gradient-text,
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboard-user-name { color: #6e6e73 !important; -webkit-text-fill-color: #6e6e73; }
