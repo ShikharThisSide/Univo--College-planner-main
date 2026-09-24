@@ -1152,4 +1152,5 @@ button, input, textarea, select { font-family: inherit; }
 .dashboard-shell .dashboardClockDate { color: #fff; }
 .dashboard-shell .text-emerald-400 { color: #16834f !important; }
 .dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget,
-.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget:hover { background: #000 !important; border-color: #000 !important; color: #fff !important; }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget:hover { background: #202020 !important; border-color: #202020 !important; color: #fff !important; }
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboardClockWidget .dashboardClockBlock { background: #202020 !important; border-color: #202020 !important; }
