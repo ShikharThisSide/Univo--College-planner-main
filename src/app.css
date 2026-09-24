@@ -1193,6 +1193,10 @@ button, input, textarea, select { font-family: inherit; }
 .focusTimerRingInner { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: rgba(255,255,255,.92); }
 .focusTimerValue { color: #111113; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: clamp(48px, 6vw, 76px); font-weight: 800; letter-spacing: -.09em; }
 .focusTimerCard p { margin: 0; color: #86868b; font-size: 12px; font-weight: 700; }
+.focusSetupTimer.is-running .focusTimerRing { animation: focusTimerOrbit 2.8s linear infinite, focusTimerPulse 2.8s ease-in-out infinite; }
+.focusSetupTimer.is-running .focusTimerLabel { color: #6366f1; }
+@keyframes focusTimerOrbit { to { transform: rotate(360deg); } }
+@keyframes focusTimerPulse { 50% { box-shadow: 0 18px 58px rgba(99,102,241,.3); } }
 .focusSetupTimer .focusSummary { margin-top: 2px; }
 .focusSetupTimer .univo-gradient-bg { background: #111113 !important; color: #fff !important; }
 @keyframes focusSetupWallpaper { to { transform: scale(1.08) translate3d(2%, -1%, 0); filter: hue-rotate(8deg); } }

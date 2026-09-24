@@ -212,8 +212,7 @@ export default function IndividualStudentDashboard() {
     setFocusComplete(false)
     setTimerSeconds(focusDuration)
     setTimerActive(true)
-    setFocusModalOpen(false)
-    setFocusRoomOpen(true)
+    setFocusModalOpen(true)
   }
 
   const exitFocusRoom = () => {
@@ -870,20 +869,20 @@ export default function IndividualStudentDashboard() {
                 </div>
               </section>
 
-              <section className="focusSetupTimer">
-                <div className="focusTimerLabel">READY WHEN YOU ARE</div>
+              <section className={`focusSetupTimer ${timerActive ? 'is-running' : ''}`}>
+                <div className="focusTimerLabel">{timerActive ? 'FOCUS IN PROGRESS' : 'READY WHEN YOU ARE'}</div>
                 <div className="focusTimerCard">
                   <div className="focusTimerRing"><div className="focusTimerRingInner"><div className="focusTimerValue">{formatTimer(timerSeconds)}</div></div></div>
-                  <p>{Math.round(focusDuration / 60)}-minute uninterrupted study block</p>
+                  <p>{timerActive ? 'Focus session in progress' : `${Math.round(focusDuration / 60)}-minute uninterrupted study block`}</p>
                 </div>
                 <div className="focusSummary">{Math.round(focusDuration / 60)} min · {focusSound} · {focusScene}</div>
                 <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
-                onClick={startFocusSession}
+                onClick={() => timerActive ? setTimerActive(false) : startFocusSession()}
                 className="px-6 py-3.5 rounded-2xl univo-gradient-bg text-black font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
               >
-                <Play size={18} /> Start {Math.round(focusDuration / 60)}-Min Focus
+                {timerActive ? <Pause size={18} /> : <Play size={18} />} {timerActive ? 'Pause Focus' : `Start ${Math.round(focusDuration / 60)}-Min Focus`}
               </button>
 
               <button
