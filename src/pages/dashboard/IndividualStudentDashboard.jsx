@@ -682,11 +682,9 @@ export default function IndividualStudentDashboard() {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
+            className="taskModal glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
             onSubmit={saveSchedule}
           >
-            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
-
             <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setScheduleOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
@@ -776,9 +774,9 @@ export default function IndividualStudentDashboard() {
                 <label className="block font-semibold text-[var(--text-secondary)]">Priority Level</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { id: 'high', label: '🔴 High', color: 'bg-red-500/20 border-red-500/50 text-red-400' },
-                    { id: 'medium', label: '🟡 Medium', color: 'bg-amber-500/20 border-amber-500/50 text-amber-400' },
-                    { id: 'low', label: '🟢 Low', color: 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' }
+                    { id: 'high', label: 'High', color: 'taskPriorityHigh' },
+                    { id: 'medium', label: 'Medium', color: 'taskPriorityMedium' },
+                    { id: 'low', label: 'Low', color: 'taskPriorityLow' }
                   ].map((p) => (
                     <button
                       key={p.id}
@@ -786,7 +784,7 @@ export default function IndividualStudentDashboard() {
                       onClick={() => setTaskForm({ ...taskForm, priority: p.id })}
                       className={`py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
                         taskForm.priority === p.id
-                          ? `${p.color} ring-2 ring-[var(--accent-solid)]/30 scale-105 shadow-sm`
+                          ? `${p.color} ring-2 ring-[#6e6e73]/20 shadow-sm`
                           : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                       }`}
                     >
@@ -797,7 +795,7 @@ export default function IndividualStudentDashboard() {
               </div>
             </div>
 
-            <button type="submit" className="w-full univo-gradient-bg text-black font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg hover:scale-[1.02] transition-all">
+            <button type="submit" className="taskModalSubmit w-full font-extrabold rounded-2xl py-3.5 text-xs flex items-center justify-center gap-1.5 cursor-pointer mt-2 shadow-lg">
               <Plus size={16} /> Save Task
             </button>
           </motion.form>
