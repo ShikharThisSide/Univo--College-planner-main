@@ -830,29 +830,23 @@ export default function IndividualStudentDashboard() {
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             className="focusModal glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center"
           >
-            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
-
             <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setFocusModalOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
 
-            <div>
-              <p className="settingsEyebrow text-[var(--accent-solid)] font-bold uppercase tracking-wider">POMODORO FOCUS TIMER</p>
-              <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-1">Deep Work Session</h2>
-            </div>
+            <div className="focusSetupLayout">
+              <section className="focusSetupOptions">
+                <div className="focusSetupHeading">
+                  <p className="settingsEyebrow text-[var(--accent-solid)] font-bold uppercase tracking-wider">POMODORO FOCUS TIMER</p>
+                  <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-1">Deep Work Session</h2>
+                  <p className="focusSetupIntro">Set the atmosphere for a calm, uninterrupted study block.</p>
+                </div>
 
-            <div className="focusDurationRow" aria-label="Session duration">
-              {[['25 min', 'Quick Focus', 25], ['50 min', 'Deep Work', 50], ['90 min', 'Long Session', 90]].map(([label, description, minutes]) => <button type="button" key={minutes} className={`focusDurationChoice ${focusDuration === minutes * 60 ? 'is-selected' : ''}`} onClick={() => { setFocusDuration(minutes * 60); setTimerSeconds(minutes * 60) }}><strong>{label}</strong><small>{description}{minutes === 25 ? ' · Recommended' : ''}</small></button>)}
-            </div>
+                <div className="focusDurationRow" aria-label="Session duration">
+                  {[['25 min', 'Quick Focus', 25], ['50 min', 'Deep Work', 50], ['90 min', 'Long Session', 90]].map(([label, description, minutes]) => <button type="button" key={minutes} className={`focusDurationChoice ${focusDuration === minutes * 60 ? 'is-selected' : ''}`} onClick={() => { setFocusDuration(minutes * 60); setTimerSeconds(minutes * 60) }}><strong>{label}</strong><small>{description}{minutes === 25 ? ' · Recommended' : ''}</small></button>)}
+                </div>
 
-            <div className="py-6 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)]">
-              <div className="font-mono text-5xl md:text-6xl font-extrabold text-[var(--accent-solid)] tracking-tight">
-                {formatTimer(timerSeconds)}
-              </div>
-              <p className="text-xs text-[var(--text-subtle)] mt-2 font-semibold">25-minute uninterrupted study block</p>
-            </div>
-
-            <div className="focusOptions">
+                <div className="focusOptions">
               <div className="focusOptionGroup">
                 <div className="focusOptionHeading"><Music size={15} /> Study sound</div>
                 <div className="focusChoiceGrid">
@@ -873,11 +867,17 @@ export default function IndividualStudentDashboard() {
                   ))}
                 </div>
               </div>
-            </div>
+                </div>
+              </section>
 
-            <div className="focusSummary">{Math.round(focusDuration / 60)} min · {focusSound} · {focusScene}</div>
-
-            <div className="flex items-center justify-center gap-3">
+              <section className="focusSetupTimer">
+                <div className="focusTimerLabel">READY WHEN YOU ARE</div>
+                <div className="focusTimerCard">
+                  <div className="focusTimerRing"><div className="focusTimerRingInner"><div className="focusTimerValue">{formatTimer(timerSeconds)}</div></div></div>
+                  <p>{Math.round(focusDuration / 60)}-minute uninterrupted study block</p>
+                </div>
+                <div className="focusSummary">{Math.round(focusDuration / 60)} min · {focusSound} · {focusScene}</div>
+                <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={startFocusSession}
@@ -900,6 +900,8 @@ export default function IndividualStudentDashboard() {
               >
                 <RotateCcw size={18} />
               </button>
+                </div>
+              </section>
             </div>
           </motion.div>
         </div>
