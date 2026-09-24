@@ -1015,3 +1015,77 @@ main:has(.settingsEyebrow) h1 { color: var(--accent-solid); }
 .journalDateControls > button { color: var(--text-muted); background: var(--surface-control); }
 .journalDateControls > button:hover { color: var(--accent-solid); background: var(--accent-muted); }
 .journalEditorDivider { background: #111; }
+
+/* Apple Music-inspired workspace theme. */
+:root {
+  --accent-from: #ff375f;
+  --accent-to: #ff375f;
+  --accent-solid: #ff375f;
+  --accent-glow: rgba(255, 55, 95, .16);
+  --accent-muted: rgba(255, 55, 95, .1);
+  --text-primary: #1d1d1f;
+  --text-secondary: #424245;
+  --text-muted: #6e6e73;
+  --text-subtle: #86868b;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-control: #f5f5f7;
+  --surface-hover: #e8e8ed;
+  --surface-subtle: #fafafa;
+  --surface-modal: #ffffff;
+  --border-subtle: #e5e5e7;
+  --border-strong: #d2d2d7;
+  --overlay: rgba(0, 0, 0, .35);
+  --color-base: #ffffff;
+  color-scheme: light;
+}
+
+body.univo-app { background: #fff; color: #1d1d1f; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif; }
+.dashboard-shell { background: #fff !important; }
+.dashboard-shell > div.fixed { display: none; }
+.dashboard-sidebar { background: #f5f5f7 !important; border-right: 1px solid #e5e5e7; box-shadow: none !important; }
+.dashboard-sidebar nav a { border-radius: 9px; color: #424245; }
+.dashboard-sidebar nav a:hover { color: #1d1d1f; background: #e8e8ed; }
+.dashboard-nav-active { color: #1d1d1f !important; background: #e5e5e7 !important; }
+.dashboard-sidebar .dashboard-sidebar-workspace { color: #86868b; }
+.dashboard-sidebar-avatar { background: #ff375f; }
+.dashboard-sidebar-action, .dashboard-sidebar-logout { color: #6e6e73; }
+.dashboard-sidebar-action:hover { color: #1d1d1f; background: #e8e8ed; }
+.dashboard-sidebar-account { border-color: #e5e5e7; }
+.dashboard-sidebar-account strong { color: #1d1d1f; }
+.dashboard-sidebar-account small { color: #86868b; }
+.glass-panel { background: rgba(255,255,255,.92) !important; border-color: #e5e5e7 !important; box-shadow: 0 1px 0 rgba(0,0,0,.04); backdrop-filter: blur(18px); }
+.dashboard-search { color: #6e6e73; background: #f5f5f7; border-color: #e5e5e7; border-radius: 9px; }
+.dashboard-search:hover { color: #1d1d1f; border-color: #d2d2d7; }
+.dashboard-kbd { color: #6e6e73; background: #e8e8ed; }
+.glass-card, .surface-card { background: #fff !important; border-color: #e5e5e7 !important; box-shadow: 0 2px 10px rgba(0,0,0,.04); }
+.univo-gradient-bg { background: #ff375f !important; }
+.univo-gradient-text, .dashboard-user-name { color: #ff375f !important; background: none; -webkit-text-fill-color: #ff375f; }
+button, input, textarea, select { font-family: inherit; }
+
+/* Login contrast: keep the form bright and readable on the light theme. */
+.login-page { color: #1d1d1f !important; background: radial-gradient(circle at 18% 12%, #ffe8ed, transparent 34%), radial-gradient(circle at 84% 82%, #f5f5f7, transparent 38%), #fff !important; }
+.login-page-embedded { background: rgba(255,255,255,.72) !important; }
+.login-page::after { background: linear-gradient(120deg, rgba(255,55,95,.04), transparent 45%, rgba(0,0,0,.025)); }
+.login-orb { opacity: .08 !important; }
+.login-card { color: #1d1d1f !important; background: rgba(255,255,255,.94) !important; border: 1px solid #e5e5e7 !important; box-shadow: 0 24px 70px rgba(0,0,0,.12), inset 0 1px rgba(255,255,255,.9); backdrop-filter: blur(24px); }
+.login-card h1, .login-card h2, .login-card h3, .login-card p, .login-card label, .login-card span { color: #1d1d1f; }
+.login-card [class~="text-white/45"], .login-card [class~="text-white/35"], .login-card [class~="text-white/25"], .login-card [class~="text-white/40"], .login-card [class~="text-white/70"] { color: #6e6e73 !important; }
+.login-card [class~="text-white"] { color: #1d1d1f !important; }
+.login-back { color: #6e6e73 !important; }
+.login-card input { color: #1d1d1f !important; background: #f5f5f7 !important; border-color: #d2d2d7 !important; }
+.login-card input::placeholder { color: #86868b !important; }
+.login-card input:focus { border-color: #ff375f !important; box-shadow: 0 0 0 3px rgba(255,55,95,.12); }
+.login-card button { color: #1d1d1f; }
+.login-card .univo-gradient-bg { color: #fff !important; background: #ff375f !important; }
+.login-card .profileRoleCard, .login-card .profileRoleSelector button { color: #1d1d1f; background: #f5f5f7; border-color: #e5e5e7; }
+.profileRoleSelector { width: 100%; }
+.profileRoleSelector h1 { color: #1d1d1f !important; font-size: clamp(2.25rem, 5vw, 3.5rem); letter-spacing: -.055em; line-height: 1; }
+.profileRoleGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+.profileRoleCard { display: flex; min-height: 178px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 14px; padding: 20px 12px 16px; border: 1px solid #e5e5e7; border-radius: 18px; color: #1d1d1f !important; background: #fafafa !important; text-align: center; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+.profileRoleCard:hover, .profileRoleCard:focus-visible { transform: translateY(-3px); border-color: #ff375f; background: #fff !important; box-shadow: 0 10px 24px rgba(0,0,0,.08), 0 0 0 3px rgba(255,55,95,.1); outline: none; }
+.profileRoleIcon { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; color: #ff375f !important; background: rgba(255,55,95,.1); }
+.profileRoleCard > span:last-child { display: grid; gap: 7px; }
+.profileRoleCard strong { color: #1d1d1f !important; font-size: 14px; font-weight: 700; }
+.profileRoleCard small { color: #6e6e73 !important; font-size: 10px; line-height: 1.35; }
+@media (max-width: 560px) { .profileRoleGrid { grid-template-columns: 1fr; }.profileRoleCard { min-height: 0; flex-direction: row; justify-content: flex-start; padding: 14px; text-align: left; }.profileRoleCard > span:last-child { text-align: left; } }
