@@ -178,6 +178,9 @@ export default function IndividualStudentDashboard() {
   const [timerActive, setTimerActive] = useState(false)
   const [focusSound, setFocusSound] = useState('Lo-fi study')
   const [focusScene, setFocusScene] = useState('Rainy desk')
+  const [focusRoomOpen, setFocusRoomOpen] = useState(false)
+  const [focusComplete, setFocusComplete] = useState(false)
+  const [focusDuration, setFocusDuration] = useState(25 * 60)
   const [completedSessions, setCompletedSessions] = useState(() => {
     try { return parseInt(localStorage.getItem(`univoFocusSessions:${storageKey}`) || '0', 10) } catch { return 0 }
   })
@@ -197,14 +200,28 @@ export default function IndividualStudentDashboard() {
       interval = setInterval(() => setTimerSeconds((prev) => prev - 1), 1000)
     } else if (timerSeconds === 0 && timerActive) {
       setTimerActive(false)
-      setTimerSeconds(25 * 60)
+      setFocusComplete(true)
       const next = completedSessions + 1
       setCompletedSessions(next)
       localStorage.setItem(`univoFocusSessions:${storageKey}`, `${next}`)
-      alert('Great job! You completed a 25-minute focus session.')
     }
     return () => clearInterval(interval)
   }, [timerActive, timerSeconds, completedSessions, storageKey])
+
+  const startFocusSession = () => {
+    setFocusComplete(false)
+    setTimerSeconds(focusDuration)
+    setTimerActive(true)
+    setFocusModalOpen(false)
+    setFocusRoomOpen(true)
+  }
+
+  const exitFocusRoom = () => {
+    setTimerActive(false)
+    setFocusRoomOpen(false)
+    setFocusComplete(false)
+    setTimerSeconds(focusDuration)
+  }
 
   // Tasks Filter
   const activePendingTasks = useMemo(() => userTasks.filter((t) => t.status !== 'completed'), [userTasks])
@@ -826,6 +843,10 @@ export default function IndividualStudentDashboard() {
               <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-1">Deep Work Session</h2>
             </div>
 
+            <div className="focusDurationRow" aria-label="Session duration">
+              {[25, 50, 90].map((minutes) => <button type="button" key={minutes} className={`focusDurationChoice ${focusDuration === minutes * 60 ? 'is-selected' : ''}`} onClick={() => { setFocusDuration(minutes * 60); setTimerSeconds(minutes * 60) }}>{minutes} min</button>)}
+            </div>
+
             <div className="py-6 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)]">
               <div className="font-mono text-5xl md:text-6xl font-extrabold text-[var(--accent-solid)] tracking-tight">
                 {formatTimer(timerSeconds)}
@@ -859,11 +880,10 @@ export default function IndividualStudentDashboard() {
             <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
-                onClick={() => setTimerActive(!timerActive)}
+                onClick={startFocusSession}
                 className="px-6 py-3.5 rounded-2xl univo-gradient-bg text-black font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
               >
-                {timerActive ? <Pause size={18} /> : <Play size={18} />}
-                {timerActive ? 'Pause Session' : 'Start Focus Session'}
+                <Play size={18} /> Start Focus Session
               </button>
 
               <button
@@ -879,6 +899,17 @@ export default function IndividualStudentDashboard() {
               </button>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {focusRoomOpen && (
+        <div className={`focusRoom focusScene-${focusScene.toLowerCase().replaceAll(' ', '-')}`} role="dialog" aria-modal="true" aria-label="Univo Focus Room">
+          <div className="focusRoomOverlay" />
+          <header className="focusRoomHeader"><strong>UNIVO FOCUS ROOM</strong><button type="button" onClick={exitFocusRoom} aria-label="Exit focus room"><X size={20} /> Exit</button></header>
+          <main className="focusRoomContent">
+            {focusComplete ? <><p className="focusRoomEyebrow">FOCUS COMPLETE</p><div className="focusCompleteMark">✓</div><h2>Well done.</h2><p>You completed {Math.round(focusDuration / 60)} minutes of focused work.</p><button type="button" className="focusRoomPrimary" onClick={exitFocusRoom}>Return to dashboard</button></> : <><p className="focusRoomEyebrow">{focusSound.toUpperCase()}</p><div className="focusRoomTimer">{formatTimer(timerSeconds)}</div><p className="focusRoomPhase">Deep Work Session · {focusScene}</p><div className="focusRoomProgress"><span style={{ width: `${Math.max(0, Math.min(100, (timerSeconds / focusDuration) * 100))}%` }} /></div><div className="focusRoomControls"><button type="button" onClick={() => setTimerActive(!timerActive)}>{timerActive ? <Pause size={17} /> : <Play size={17} />}{timerActive ? 'Pause' : 'Resume'}</button><button type="button" onClick={exitFocusRoom}>Finish session</button></div></>}
+          </main>
+          {!focusComplete && <footer className="focusRoomFooter"><Music size={15} /> {focusSound} <span>Sound preview controls available after audio assets are added.</span></footer>}
         </div>
       )}
 

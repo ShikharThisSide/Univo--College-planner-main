@@ -1165,4 +1165,26 @@ button, input, textarea, select { font-family: inherit; }
 .focusChoiceGrid { display: grid; gap: 7px; }
 .focusChoice { padding: 9px 10px; border: 1px solid #e5e5e7; border-radius: 10px; color: #6e6e73; background: #f5f5f7; font-size: 11px; font-weight: 700; text-align: left; cursor: pointer; }
 .focusChoice:hover, .focusChoice.is-selected { border-color: #1d1d1f; color: #1d1d1f; background: #fff; }
+.focusDurationRow { display: flex; gap: 8px; }
+.focusDurationChoice { flex: 1; padding: 9px; border: 1px solid #e5e5e7; border-radius: 10px; color: #6e6e73; background: #f5f5f7; font-size: 11px; font-weight: 800; cursor: pointer; }
+.focusDurationChoice.is-selected { color: #fff; border-color: #1d1d1f; background: #1d1d1f; }
+.focusRoom { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; overflow: hidden; color: #fff; background: #111; }
+.focusRoom::before { position: absolute; inset: -30px; background: radial-gradient(circle at 50% 35%, rgba(65,78,105,.5), transparent 38%), linear-gradient(135deg,#17202d,#090b10 60%,#1b1515); content: ''; animation: focusRoomDrift 18s ease-in-out infinite alternate; }
+.focusScene-rainy-desk::before { background: radial-gradient(circle at 58% 32%, rgba(154,120,79,.35), transparent 22%), linear-gradient(135deg,#17202d,#07090c 60%,#241b16); }
+.focusScene-forest-window::before { background: radial-gradient(circle at 50% 35%, rgba(71,115,82,.4), transparent 28%), linear-gradient(135deg,#10211f,#090e0d 60%,#19291f); }
+.focusScene-night-room::before { background: radial-gradient(circle at 70% 30%, rgba(71,75,130,.35), transparent 24%), linear-gradient(135deg,#111521,#07080c 60%,#17121e); }
+.focusRoomOverlay { position: absolute; inset: 0; background: rgba(0,0,0,.42); }
+.focusRoomHeader, .focusRoomFooter, .focusRoomContent { position: relative; z-index: 1; }
+.focusRoomHeader { display: flex; align-items: center; justify-content: space-between; padding: 28px 34px; font-size: 12px; letter-spacing: .14em; }
+.focusRoomHeader button { display: inline-flex; align-items: center; gap: 7px; color: rgba(255,255,255,.72); background: transparent; border: 0; cursor: pointer; letter-spacing: 0; }
+.focusRoomContent { display: grid; flex: 1; place-content: center; justify-items: center; text-align: center; }
+.focusRoomEyebrow { margin: 0 0 18px; color: rgba(255,255,255,.64); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+.focusRoomTimer { font-size: clamp(80px, 14vw, 180px); font-weight: 800; letter-spacing: -.08em; line-height: .9; }
+.focusRoomPhase { margin: 22px 0 28px; color: rgba(255,255,255,.7); font-size: 15px; }
+.focusRoomProgress { width: min(460px, 65vw); height: 3px; overflow: hidden; background: rgba(255,255,255,.2); }.focusRoomProgress span { display: block; height: 100%; background: #fff; transition: width .4s linear; }
+.focusRoomControls { display: flex; gap: 10px; margin-top: 30px; }.focusRoomControls button, .focusRoomPrimary { display: inline-flex; align-items: center; gap: 8px; padding: 12px 18px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; color: #fff; background: rgba(255,255,255,.1); cursor: pointer; }.focusRoomControls button:first-child, .focusRoomPrimary { color: #111; background: #fff; }
+.focusRoomFooter { display: flex; align-items: center; gap: 8px; padding: 24px 34px; color: rgba(255,255,255,.8); font-size: 12px; }.focusRoomFooter span { color: rgba(255,255,255,.42); font-size: 10px; }
+.focusCompleteMark { display: grid; place-items: center; width: 70px; height: 70px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,.35); border-radius: 50%; font-size: 36px; }.focusRoomContent h2 { margin: 0; font-size: 42px; letter-spacing: -.05em; }.focusRoomContent > p:not(.focusRoomEyebrow) { color: rgba(255,255,255,.68); }.focusRoomPrimary { margin-top: 24px; }
+@keyframes focusRoomDrift { to { transform: scale(1.06) translate3d(1%, -1%, 0); } }
+@media (prefers-reduced-motion: reduce) { .focusRoom::before { animation: none; } }
 @media (max-width: 560px) { .focusOptions { grid-template-columns: 1fr; } }
