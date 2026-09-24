@@ -1088,4 +1088,4 @@ button, input, textarea, select { font-family: inherit; }
 .profileRoleCard strong { color: #1d1d1f !important; font-size: 14px; font-weight: 700; }
 .profileRoleCard small { color: #6e6e73 !important; font-size: 10px; line-height: 1.35; }
 @media (max-width: 560px) { .profileRoleGrid { grid-template-columns: 1fr; }.profileRoleCard { min-height: 0; flex-direction: row; justify-content: flex-start; padding: 14px; text-align: left; }.profileRoleCard > span:last-child { text-align: left; } }
-.dashboardClockWidget { background: #1d1d1f !important; border-color: #1d1d1f !important; }
+.dashboardClockWidget { background: #202122 !important; border-color: #202122 !important; }
