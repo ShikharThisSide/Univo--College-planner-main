@@ -177,7 +177,7 @@ export default function IndividualStudentDashboard() {
   const [timerSeconds, setTimerSeconds] = useState(25 * 60)
   const [timerActive, setTimerActive] = useState(false)
   const [focusSound, setFocusSound] = useState('Lo-fi study')
-  const [focusScene, setFocusScene] = useState('Rainy desk')
+  const [focusScene, setFocusScene] = useState('Cozy Cafe')
   const [focusRoomOpen, setFocusRoomOpen] = useState(false)
   const [focusComplete, setFocusComplete] = useState(false)
   const [focusDuration, setFocusDuration] = useState(25 * 60)
@@ -892,7 +892,7 @@ export default function IndividualStudentDashboard() {
                   setFocusDuration(25 * 60)
                   setTimerSeconds(25 * 60)
                   setFocusSound('Lo-fi study')
-                  setFocusScene('Rainy desk')
+                  setFocusScene('Cozy Cafe')
                 }}
                 className="p-3.5 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] cursor-pointer transition-all"
                 title="Reset Timer"
