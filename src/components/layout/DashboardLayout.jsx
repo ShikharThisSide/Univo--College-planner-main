@@ -1,27 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { LogOut, Search, UserCircle, Bell, LayoutDashboard, PanelLeft, RotateCcw, X } from 'lucide-react'
+import { LogOut, Search, UserCircle, Bell, LayoutDashboard, RotateCcw, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { NAV_BY_ROLE } from '../../lib/constants'
 import { getRoleLabel } from '../../lib/rbac'
 import MagneticSidebar from './MagneticSidebar'
 import { sendProductUpdateEmail, updateUserLastActive } from '../../lib/social'
 import NotificationBell from '../ui/NotificationBell'
-import ThemeSwitcher from '../ui/ThemeSwitcher'
 import CommandPalette, { useCommandPalette } from '../ui/CommandPalette'
 import DashboardDock from '../ui/DashboardDock'
 import AnimatedLoadingSkeleton from '../ui/AnimatedLoadingSkeleton'
 import WelcomeOnboarding from '../ui/WelcomeOnboarding'
 import LiveMessageToast from '../ui/LiveMessageToast'
 import { fetchCloudUserData, pushUserDataToCloud, restoreUserDataToDevice } from '../../lib/cloudSync'
-import { useTheme } from '../../context/ThemeContext'
 
 export default function DashboardLayout() {
   const { user, logout, updateProfile } = useAuth()
   const preferenceKey = (key) => `univoPreference:${user?.email || 'guest'}:${key}`
   const navigate = useNavigate()
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette()
-  const [themeOpen, setThemeOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => localStorage.getItem(preferenceKey('sidebarCollapsed')) !== 'false')
   const [compactCards, setCompactCards] = useState(() => localStorage.getItem(preferenceKey('compactCards')) === 'true')
@@ -40,7 +37,6 @@ export default function DashboardLayout() {
   const [avatarOffset, setAvatarOffset] = useState({ x: 0, y: 0 })
   const [avatarDragging, setAvatarDragging] = useState(false)
   const avatarDrag = useRef(null)
-  const { mode, setMode, accent, setAccent, palettes } = useTheme()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -182,7 +178,6 @@ export default function DashboardLayout() {
 
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <ThemeSwitcher open={themeOpen} onOpenChange={setThemeOpen} />
 
           </div>
         </header>
@@ -203,7 +198,6 @@ export default function DashboardLayout() {
           {avatarUploadOpen && <div className="avatarUploadOverlay" role="dialog" aria-modal="true" aria-labelledby="avatar-upload-title"><div className="avatarUploadDialog"><div className="avatarUploadHeader"><h3 id="avatar-upload-title">Upload Image</h3><button type="button" onClick={() => setAvatarUploadOpen(false)} aria-label="Close upload dialog"><X size={18} /></button></div><div className="avatarUploadBody"><label className="avatarFileInput">Choose File<input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleProfileImage} /><span>{pendingProfileImage ? 'Image selected' : 'No file chosen'}</span></label>{pendingProfileImage && <><div className={`avatarUploadPreview ${avatarDragging ? 'is-dragging' : ''}`} onWheel={handleAvatarWheel} onPointerDown={handleAvatarPointerDown} onPointerMove={handleAvatarPointerMove} onPointerUp={stopAvatarDrag} onPointerCancel={stopAvatarDrag}><img src={pendingProfileImage} alt="Profile preview" style={{ transform: `translate3d(${avatarOffset.x}px, ${avatarOffset.y}px, 0) scale(${avatarZoom})` }} /><div className="avatarCropGrid" aria-hidden="true"><i /><i /><i /><i /></div></div><p className="avatarCropHint">Scroll or use your trackpad to zoom · drag the image to reposition</p></>}</div><div className="avatarUploadFooter"><button type="button" className="avatarUploadCancel" onClick={() => setAvatarUploadOpen(false)}>Cancel</button><button type="button" className="avatarUploadRemove" onClick={removeProfileImage} disabled={!profileImage}>Remove photo</button><button type="button" className="avatarUploadUpdate" onClick={confirmProfileImage} disabled={!pendingProfileImage}>Update</button></div></div></div>}
           <section className="settingsSection"><div className="settingsSectionTitle"><LayoutDashboard size={17} /><div><strong>Workspace</strong><span>Control your dashboard experience</span></div></div><label className="settingsToggle"><span><b>Compact cards</b><small>Use tighter spacing on dashboard widgets.</small></span><input type="checkbox" checked={compactCards} onChange={(event) => { setCompactCards(event.target.checked); updatePreference('univoCompactCards', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Automatically hide and show the Dock</b><small>Reveal quick navigation when you hover near the bottom.</small></span><input type="checkbox" checked={autoHideDock} onChange={(event) => { setAutoHideDock(event.target.checked); updatePreference('autoHideDock', event.target.checked) }} /><i /></label></section>
           <section className="settingsSection"><div className="settingsSectionTitle"><Bell size={17} /><div><strong>Notifications</strong><span>Choose how much activity you see</span></div></div><label className="settingsToggle"><span><b>In-app notifications</b><small>Show reminders and updates in your dashboard.</small></span><input type="checkbox" checked={notificationsEnabled} onChange={(event) => { setNotificationsEnabled(event.target.checked); updatePreference('univoNotifications', event.target.checked) }} /><i /></label><label className="settingsToggle"><span><b>Email Product Release Updates</b><small>Receive email notifications when new platform features drop.</small></span><input type="checkbox" defaultChecked={true} onChange={(event) => { if (event.target.checked) { sendProductUpdateEmail({ email: user?.email || 'student@univo.edu', name: user?.name }) } }} /><i /></label></section>
-          <section className="settingsSection"><div className="settingsSectionTitle"><PanelLeft size={17} /><div><strong>Appearance</strong><span>Choose your mode and Univo theme colour</span></div></div><div className="settingsChoiceRow"><button type="button" className={mode === 'light' ? 'settingsChoice active' : 'settingsChoice'} onClick={() => setMode('light')}>Light</button><button type="button" className={mode === 'dark' ? 'settingsChoice active' : 'settingsChoice'} onClick={() => setMode('dark')}>Dark</button></div><p className="settingsPaletteLabel">Theme colour</p><div className="settingsPaletteGrid">{palettes.map((palette) => <button key={palette.id} type="button" className={`settingsPalette ${accent === palette.id ? 'active' : ''}`} onClick={() => setAccent(palette.id)} aria-label={`Use ${palette.label} theme`} aria-pressed={accent === palette.id}><span style={{ background: `linear-gradient(135deg, ${palette.from}, ${palette.to})` }} /><b>{palette.label}</b></button>)}</div></section>
           <div className="flex items-center justify-between mt-6 pt-4 border-t border-[var(--border-subtle)] gap-3">
             <button type="button" className="settingsReset !mt-0" onClick={() => { localStorage.removeItem('univoDashboardWidgetOrder'); localStorage.removeItem('univoDashboardWidgetLayoutVersion'); window.location.reload() }}><RotateCcw size={14} /> Reset dashboard layout</button>
             <button type="button" onClick={handleLogout} className="px-4 py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-all hover:scale-105"><LogOut size={14} /> Log out</button>
