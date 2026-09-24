@@ -164,7 +164,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         setOtp(generatedOtp)
         sendOTPEmail({ email: normalizedEmail, name: accounts[normalizedEmail]?.name, otp: generatedOtp })
         sendPasswordResetEmail({ email: normalizedEmail, name: accounts[normalizedEmail]?.name })
-        return setNotice(`📩 OTP Verification & Reset link delivered to ${normalizedEmail}! (OTP: ${generatedOtp})`)
+        return setNotice(`OTP verification and reset link delivered to ${normalizedEmail}. (OTP: ${generatedOtp})`)
       }
       if (enteredOtp !== otp) return setError('Incorrect OTP')
       if (password.length < 8) return setError('New password must be at least 8 characters')

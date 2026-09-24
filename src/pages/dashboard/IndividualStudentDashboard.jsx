@@ -44,11 +44,11 @@ import { useNavigate } from 'react-router-dom'
 import { getTimeGreeting } from '../../lib/timeGreeting'
 
 const MOTIVATIONAL_QUOTES = [
-  "Small daily habits build extraordinary semesters. Keep pushing! 🚀",
-  "Focus on progress, not perfection. You're doing great! 🔥",
+  "Small daily habits build extraordinary semesters. Keep pushing.",
+  "Focus on progress, not perfection. You're doing great.",
   "Consistency is the secret code to mastering your degree. 💻",
-  "Organized mind, seamless semester. Stay in your flow! ✨",
-  "One task at a time. You've got this! 🎯"
+  "Organized mind, seamless semester. Stay in your flow.",
+  "One task at a time. You've got this."
 ]
 
 function PriorityBadge({ priority }) {
@@ -198,7 +198,7 @@ export default function IndividualStudentDashboard() {
       const next = completedSessions + 1
       setCompletedSessions(next)
       localStorage.setItem(`univoFocusSessions:${storageKey}`, `${next}`)
-      alert('🎉 Great job! You completed a 25-minute focus session!')
+      alert('Great job! You completed a 25-minute focus session.')
     }
     return () => clearInterval(interval)
   }, [timerActive, timerSeconds, completedSessions, storageKey])
@@ -316,7 +316,7 @@ export default function IndividualStudentDashboard() {
             <Sparkles size={14} /> {getTimeGreeting()}
           </motion.p>
           <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="dashboard-user-name font-display text-4xl md:text-5xl font-extrabold tracking-tight mt-1">
-            <span className="univo-gradient-text text-[var(--accent-solid)]">{user?.name?.split(' ')[0] || 'Shikhar'}</span> <span className="inline-block animate-[wave_2s_ease-in-out_infinite]">👋</span>
+            <span className="univo-gradient-text text-[var(--accent-solid)]">{user?.name?.split(' ')[0] || 'Shikhar'}</span>
           </motion.h1>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-[var(--text-muted)] text-xs md:text-sm mt-1 flex items-center gap-2">
             <span>{quote}</span>
@@ -559,7 +559,7 @@ export default function IndividualStudentDashboard() {
                 >
                   <CheckCircle2 size={28} className="mx-auto text-emerald-400" />
                   <p className="text-xs font-bold text-[var(--text-primary)]">
-                    {completedTasks.length > 0 ? 'All tasks completed! 🎉' : 'No pending tasks right now.'}
+                    {completedTasks.length > 0 ? 'All tasks completed.' : 'No pending tasks right now.'}
                   </p>
                   <button type="button" onClick={() => setTaskOpen(true)} className="text-xs text-[var(--accent-solid)] font-bold underline cursor-pointer">
                     + Add a new task

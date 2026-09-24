@@ -304,7 +304,7 @@ export default function TasksPage() {
                 <CheckCircle2 size={36} className="mx-auto text-emerald-400 animate-pulse" />
                 <div>
                   <p className="text-base font-bold text-[var(--text-primary)]">
-                    {stats.completed > 0 && !showCompleted ? 'All active tasks completed! 🎉' : 'No tasks found'}
+                    {stats.completed > 0 && !showCompleted ? 'All active tasks completed.' : 'No tasks found'}
                   </p>
                   <p className="text-xs text-[var(--text-subtle)] mt-1 max-w-sm mx-auto">
                     {stats.completed > 0 && !showCompleted
@@ -402,7 +402,7 @@ export default function TasksPage() {
           {[
             { id: 'pending', label: 'Pending ⏳', color: 'text-amber-400 border-amber-500/30' },
             { id: 'in_progress', label: 'In Progress ⚡', color: 'text-cyan-400 border-cyan-500/30' },
-            { id: 'completed', label: 'Completed 🎉', color: 'text-emerald-400 border-emerald-500/30' }
+            { id: 'completed', label: 'Completed', color: 'text-emerald-400 border-emerald-500/30' }
           ].map((col) => {
             const colTasks = tasks.filter((t) => t.status === col.id)
 

@@ -572,7 +572,7 @@ export default function MessengerPage() {
                   <span className="font-mono text-[10px] text-[var(--text-subtle)]">Just now</span>
                 </div>
                 <div className="text-[var(--text-secondary)]"><strong>To:</strong> <span className="text-[var(--text-primary)] font-bold">{previewEmail.recipientName} &lt;{previewEmail.recipientEmail}&gt;</span></div>
-                <div className="text-[var(--text-secondary)]"><strong>Subject:</strong> <span className="text-[var(--text-primary)] font-semibold">👋 {previewEmail.senderName || 'Classmate'} sent you a friend request on Univo!</span></div>
+                <div className="text-[var(--text-secondary)]"><strong>Subject:</strong> <span className="text-[var(--text-primary)] font-semibold">{previewEmail.senderName || 'Classmate'} sent you a friend request on Univo.</span></div>
               </div>
 
               {/* RICH HTML / FALLBACK CONTENT FRAME */}
@@ -586,7 +586,7 @@ export default function MessengerPage() {
                 </div>
               ) : (
                 <div className="p-5 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] space-y-3 text-xs leading-relaxed text-[var(--text-primary)]">
-                  <p className="font-bold text-sm text-[var(--text-primary)]">Hey {previewEmail.recipientName}! 👋</p>
+                  <p className="font-bold text-sm text-[var(--text-primary)]">Hey {previewEmail.recipientName}.</p>
                   <p className="text-[var(--text-secondary)]">
                     <strong className="text-[var(--accent-solid)]">{previewEmail.senderName}</strong> ({previewEmail.senderEmail}) has sent you a friend request on Univo.
                   </p>

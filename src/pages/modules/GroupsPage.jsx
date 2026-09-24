@@ -172,7 +172,7 @@ export default function GroupsPage() {
       name: form.name.trim(),
       description: form.description.trim() || 'Campus study squad on Univo.',
       category: form.category || 'Study Group',
-      iconTag: form.category === 'Project Team' ? '🚀' : form.category === 'Exam Prep' ? '🎯' : '📚',
+      iconTag: form.category === 'Project Team' ? 'Project' : form.category === 'Exam Prep' ? 'Exam' : 'Study',
       creatorEmail: myEmail,
       members: [myName],
       pendingInvites: selectedInvites.map((p) => ({ email: p.email, name: p.name })),
@@ -612,10 +612,10 @@ export default function GroupsPage() {
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
                   className="w-full bg-[var(--surface-modal)] border border-[var(--border-subtle)] rounded-xl px-3 py-2.5 text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] cursor-pointer font-semibold"
                 >
-                  <option value="Study Group" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Study Group 📚</option>
-                  <option value="Project Team" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Project Team 🚀</option>
-                  <option value="Exam Prep" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Exam Prep 🎯</option>
-                  <option value="Campus Club" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Campus Club 🎉</option>
+                  <option value="Study Group" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Study Group</option>
+                  <option value="Project Team" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Project Team</option>
+                  <option value="Exam Prep" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Exam Prep</option>
+                  <option value="Campus Club" className="bg-[var(--surface-modal)] text-[var(--text-primary)]">Campus Club</option>
                 </select>
               </div>
 
