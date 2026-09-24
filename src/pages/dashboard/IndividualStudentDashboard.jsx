@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Circle,
   FileText,
-  Sparkles,
   StickyNote,
   CheckSquare,
   Trash2,
@@ -313,7 +312,7 @@ export default function IndividualStudentDashboard() {
       <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <motion.p initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="text-xs font-extrabold text-[var(--accent-solid)] uppercase tracking-widest flex items-center gap-1.5">
-            <Sparkles size={14} /> {getTimeGreeting()}
+            {getTimeGreeting()}
           </motion.p>
           <motion.h1 initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="dashboard-user-name font-display text-4xl md:text-5xl font-extrabold tracking-tight mt-1">
             <span className="univo-gradient-text text-[var(--accent-solid)]">{user?.name?.split(' ')[0] || 'Shikhar'}</span>

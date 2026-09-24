@@ -1091,3 +1091,4 @@ button, input, textarea, select { font-family: inherit; }
 .dashboardClockWidget { background: #202122 !important; border-color: #202122 !important; }
 .dashboardFeatureCard,
 .dashboardFeatureCard:hover { transition: none !important; transform: none !important; box-shadow: none !important; }
+.dashboard-shell { --accent-from: #fa243c; --accent-to: #fa243c; --accent-solid: #fa243c; --accent-glow: rgba(250, 36, 60, .14); --accent-muted: rgba(250, 36, 60, .1); }
