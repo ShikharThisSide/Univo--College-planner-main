@@ -836,7 +836,7 @@ export default function IndividualStudentDashboard() {
             <div className="focusSetupLayout">
               <section className="focusSetupOptions">
                 <div className="focusSetupHeading">
-                  <p className="settingsEyebrow text-[var(--accent-solid)] font-bold uppercase tracking-wider">POMODORO FOCUS TIMER</p>
+                  <p className="settingsEyebrow text-[var(--accent-solid)] font-bold uppercase tracking-wider">POMODORO FOCUS TIMER <span className="focusSceneBadge">{focusScene}</span></p>
                   <h2 className="text-2xl font-bold font-display text-[var(--text-primary)] mt-1">Deep Work Session</h2>
                   <p className="focusSetupIntro">Set the atmosphere for a calm, uninterrupted study block.</p>
                 </div>
