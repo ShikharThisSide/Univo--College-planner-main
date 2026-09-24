@@ -555,7 +555,7 @@ export default function IndividualStudentDashboard() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="p-6 text-center border border-dashed border-[var(--border-subtle)] rounded-2xl space-y-2 bg-[var(--surface-control)]"
+                  className="dashboardTaskEmpty"
                 >
                   <CheckCircle2 size={28} className="mx-auto text-emerald-400" />
                   <p className="text-xs font-bold text-[var(--text-primary)]">
@@ -573,7 +573,7 @@ export default function IndividualStudentDashboard() {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.92, y: -10 }}
-                    className={`p-3.5 rounded-xl border transition-all flex items-start justify-between gap-3 ${
+                    className={`dashboardTaskRow flex items-start justify-between gap-3 ${
                       t.status === 'completed'
                         ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'
                         : 'bg-[var(--surface-control)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
