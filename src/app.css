@@ -1111,3 +1111,39 @@ button, input, textarea, select { font-family: inherit; }
 .taskPriorityHigh { border-left: 3px solid #b42318 !important; }.taskPriorityMedium { border-left: 3px solid #b7791f !important; }.taskPriorityLow { border-left: 3px solid #198754 !important; }
 .taskModalSubmit { color: #fff !important; background: #2c2c2e !important; }
 .taskModalSubmit:hover { background: #1d1d1f !important; }
+
+/* Reference dashboard visual system: soft pastel canvas, black navigation, lime/orange status accents. */
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) {
+  --accent-from: #000;
+  --accent-to: #000;
+  --accent-solid: #000;
+  --accent-glow: rgba(0,0,0,.12);
+  --accent-muted: rgba(0,0,0,.06);
+  --surface-control: rgba(255,255,255,.72);
+  --border-subtle: rgba(0,0,0,.08);
+}
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) > main {
+  background: linear-gradient(135deg, #e8f9ff 0%, #fff4f5 45%, #efffdc 100%);
+}
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .glass-card,
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .surface-card {
+  background: rgba(255,255,255,.82) !important;
+  border-color: rgba(0,0,0,.08) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,.035) !important;
+}
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .univo-gradient-bg,
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .taskModalSubmit {
+  color: #fff !important;
+  background: #000 !important;
+}
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .dashboard-user-name,
+.dashboard-shell > div:not(.dashboard-sidebar):not(.fixed) .univo-gradient-text { color: #000 !important; -webkit-text-fill-color: #000; }
+.dashboard-sidebar { background: rgba(255,255,255,.86) !important; }
+.dashboard-sidebar nav a.dashboard-nav-active,
+.dashboard-sidebar nav a[aria-current="page"] { color: #fff !important; background: #000 !important; }
+.dashboard-sidebar nav a.dashboard-nav-active svg,
+.dashboard-sidebar nav a[aria-current="page"] svg { color: #fff !important; }
+.dashboard-sidebar .dashboard-sidebar-brand { color: #000 !important; }
+.dashboard-shell .dashboardClockWidget { background: #000 !important; border-color: #000 !important; }
+.dashboard-shell .dashboardClockWidget .dashboardClockBlock { background: linear-gradient(#202020 0 49%, #151515 50% 100%); }
+.dashboard-shell .text-emerald-400 { color: #16834f !important; }
