@@ -1160,11 +1160,14 @@ button, input, textarea, select { font-family: inherit; }
 .dashboard-shell .dashboard-sidebar .univo-gradient-text { color: #000 !important; -webkit-text-fill-color: #000; }
 .focusModal { position: fixed !important; inset: 0; z-index: 2; display: flex; max-width: none !important; width: 100% !important; min-height: 100vh; flex-direction: column; justify-content: center; padding: clamp(28px, 7vw, 90px) clamp(22px, 10vw, 180px) !important; border: 0 !important; border-radius: 0 !important; text-align: left; background: linear-gradient(120deg, rgba(231,247,255,.96), rgba(255,244,237,.95) 48%, rgba(237,251,218,.96)) !important; overflow: hidden; }
 .focusModal::before { position: absolute; inset: -10%; z-index: -1; background: radial-gradient(circle at 20% 25%, rgba(129,200,230,.35), transparent 26%), radial-gradient(circle at 78% 20%, rgba(255,188,125,.24), transparent 25%), radial-gradient(circle at 70% 80%, rgba(170,226,120,.28), transparent 28%); content: ''; animation: focusSetupDrift 18s ease-in-out infinite alternate; }
+.focusModal::after { position: absolute; top: 17%; right: 28%; left: 28%; height: 5px; background: #111; content: ''; }
 .focusModal > * { position: relative; z-index: 1; width: min(100%, 760px); margin-right: auto; margin-left: auto; }
-.focusModal > button[aria-label="Close"] { width: auto; margin: 0; }
+.focusModal > button[aria-label="Close"] { position: absolute; top: 22%; left: 9%; z-index: 2; width: auto; margin: 0; }
+.focusModal h2 { font-size: clamp(42px, 5vw, 68px); letter-spacing: -.06em; line-height: .98; white-space: nowrap; }
 .focusModal > .focusOptions { width: min(100%, 760px); }
 .focusModal > .focusDurationRow, .focusModal > .focusOptions, .focusModal > .focusModalSubmit { max-width: 760px; }
 @keyframes focusSetupDrift { to { transform: translate3d(2%, -1%, 0) scale(1.06); } }
+@media (max-width: 700px) { .focusModal::after { top: 10%; right: 12%; left: 12%; }.focusModal > button[aria-label="Close"] { top: 5%; left: auto; right: 22px; }.focusModal h2 { white-space: normal; } }
 .focusModal > div:first-of-type { text-align: center; }
 .focusOptions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .focusOptionGroup { display: grid; gap: 8px; }
