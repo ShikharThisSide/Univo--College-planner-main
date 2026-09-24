@@ -1197,6 +1197,9 @@ button, input, textarea, select { font-family: inherit; }
 .focusSetupTimer.is-running .focusTimerLabel { color: #6366f1; }
 @keyframes focusTimerOrbit { to { transform: rotate(360deg); } }
 @keyframes focusTimerPulse { 50% { box-shadow: 0 18px 58px rgba(99,102,241,.3); } }
+.focusModal { background: rgba(247,247,248,.12) !important; }
+.focusModal::before { background: rgba(255,255,255,.22); backdrop-filter: blur(8px); }
+.focusSetupTimer.is-running .focusTimerRing { animation: none; }
 .focusSetupTimer .focusSummary { margin-top: 2px; }
 .focusSetupTimer .univo-gradient-bg { background: #111113 !important; color: #fff !important; }
 @keyframes focusSetupWallpaper { to { transform: scale(1.08) translate3d(2%, -1%, 0); filter: hue-rotate(8deg); } }
