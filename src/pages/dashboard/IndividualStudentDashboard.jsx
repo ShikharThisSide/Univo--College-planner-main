@@ -22,6 +22,8 @@ import {
   Calendar,
   AlertCircle,
   Check,
+  Music,
+  Waves,
   Target,
   Percent,
   PenTool,
@@ -174,6 +176,8 @@ export default function IndividualStudentDashboard() {
   // Focus Timer State
   const [timerSeconds, setTimerSeconds] = useState(25 * 60)
   const [timerActive, setTimerActive] = useState(false)
+  const [focusSound, setFocusSound] = useState('Lo-fi study')
+  const [focusScene, setFocusScene] = useState('Rainy desk')
   const [completedSessions, setCompletedSessions] = useState(() => {
     try { return parseInt(localStorage.getItem(`univoFocusSessions:${storageKey}`) || '0', 10) } catch { return 0 }
   })
@@ -809,7 +813,7 @@ export default function IndividualStudentDashboard() {
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center"
+            className="focusModal glass-panel w-full max-w-lg rounded-3xl p-7 relative space-y-5 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden text-center"
           >
             <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
 
@@ -827,6 +831,29 @@ export default function IndividualStudentDashboard() {
                 {formatTimer(timerSeconds)}
               </div>
               <p className="text-xs text-[var(--text-subtle)] mt-2 font-semibold">25-minute uninterrupted study block</p>
+            </div>
+
+            <div className="focusOptions">
+              <div className="focusOptionGroup">
+                <div className="focusOptionHeading"><Music size={15} /> Study sound</div>
+                <div className="focusChoiceGrid">
+                  {['Lo-fi study', 'Rain ambience', 'Quiet'].map((sound) => (
+                    <button type="button" key={sound} className={`focusChoice ${focusSound === sound ? 'is-selected' : ''}`} onClick={() => setFocusSound(sound)}>
+                      {sound}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="focusOptionGroup">
+                <div className="focusOptionHeading"><Waves size={15} /> Live study scene</div>
+                <div className="focusChoiceGrid">
+                  {['Rainy desk', 'Forest window', 'Night room'].map((scene) => (
+                    <button type="button" key={scene} className={`focusChoice ${focusScene === scene ? 'is-selected' : ''}`} onClick={() => setFocusScene(scene)}>
+                      {scene}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center justify-center gap-3">
