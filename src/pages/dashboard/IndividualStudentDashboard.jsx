@@ -4,6 +4,7 @@ import {
   Flame,
   Coffee,
   Clock,
+  ArrowLeft,
   ArrowRight,
   Zap,
   BookOpen,
@@ -831,6 +832,10 @@ export default function IndividualStudentDashboard() {
           >
             <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setFocusModalOpen(false)} aria-label="Close">
               <X size={18} />
+            </button>
+
+            <button type="button" className="focusBackButton" onClick={() => setFocusModalOpen(false)}>
+              <ArrowLeft size={16} /> Back to dashboard
             </button>
 
             <div className="focusSetupLayout">
