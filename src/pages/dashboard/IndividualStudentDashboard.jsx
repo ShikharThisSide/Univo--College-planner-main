@@ -769,8 +769,6 @@ export default function IndividualStudentDashboard() {
             className="glass-panel w-full max-w-md rounded-3xl p-7 relative space-y-4 bg-[var(--surface-modal)] text-[var(--text-primary)] border border-[var(--border-strong)] shadow-2xl overflow-hidden"
             onSubmit={saveTask}
           >
-            <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
-
             <button type="button" className="absolute top-5 right-5 text-[var(--text-subtle)] hover:text-[var(--text-primary)] cursor-pointer p-1" onClick={() => setTaskOpen(false)} aria-label="Close">
               <X size={18} />
             </button>
@@ -844,7 +842,7 @@ export default function IndividualStudentDashboard() {
             </div>
 
             <div className="focusDurationRow" aria-label="Session duration">
-              {[25, 50, 90].map((minutes) => <button type="button" key={minutes} className={`focusDurationChoice ${focusDuration === minutes * 60 ? 'is-selected' : ''}`} onClick={() => { setFocusDuration(minutes * 60); setTimerSeconds(minutes * 60) }}>{minutes} min</button>)}
+              {[['25 min', 'Quick Focus', 25], ['50 min', 'Deep Work', 50], ['90 min', 'Long Session', 90]].map(([label, description, minutes]) => <button type="button" key={minutes} className={`focusDurationChoice ${focusDuration === minutes * 60 ? 'is-selected' : ''}`} onClick={() => { setFocusDuration(minutes * 60); setTimerSeconds(minutes * 60) }}><strong>{label}</strong><small>{description}{minutes === 25 ? ' · Recommended' : ''}</small></button>)}
             </div>
 
             <div className="py-6 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)]">
@@ -858,9 +856,9 @@ export default function IndividualStudentDashboard() {
               <div className="focusOptionGroup">
                 <div className="focusOptionHeading"><Music size={15} /> Study sound</div>
                 <div className="focusChoiceGrid">
-                  {['Lo-fi study', 'Rain ambience', 'Quiet'].map((sound) => (
+                  {[['Lo-fi study', 'Soft background beats'], ['Rain ambience', 'Gentle rainfall'], ['Quiet', 'No background sound']].map(([sound, description]) => (
                     <button type="button" key={sound} className={`focusChoice ${focusSound === sound ? 'is-selected' : ''}`} onClick={() => setFocusSound(sound)}>
-                      {sound}
+                      <span><strong>{sound}</strong><small>{description}</small></span>{focusSound === sound && <b aria-label="Selected">✓</b>}
                     </button>
                   ))}
                 </div>
@@ -868,14 +866,16 @@ export default function IndividualStudentDashboard() {
               <div className="focusOptionGroup">
                 <div className="focusOptionHeading"><Waves size={15} /> Live study scene</div>
                 <div className="focusChoiceGrid">
-                  {['Rainy desk', 'Forest window', 'Night room'].map((scene) => (
-                    <button type="button" key={scene} className={`focusChoice ${focusScene === scene ? 'is-selected' : ''}`} onClick={() => setFocusScene(scene)}>
-                      {scene}
+                  {['Rainy desk', 'Forest window', 'Night room', 'Cozy café'].map((scene) => (
+                    <button type="button" key={scene} className={`focusChoice focusSceneChoice focusScene-${scene.toLowerCase().replaceAll(' ', '-')} ${focusScene === scene ? 'is-selected' : ''}`} onClick={() => setFocusScene(scene)}>
+                      <span><strong>{scene}</strong><small>Preview study environment</small></span>{focusScene === scene && <b aria-label="Selected">✓</b>}
                     </button>
                   ))}
                 </div>
               </div>
             </div>
+
+            <div className="focusSummary">{Math.round(focusDuration / 60)} min · {focusSound} · {focusScene}</div>
 
             <div className="flex items-center justify-center gap-3">
               <button
@@ -883,14 +883,17 @@ export default function IndividualStudentDashboard() {
                 onClick={startFocusSession}
                 className="px-6 py-3.5 rounded-2xl univo-gradient-bg text-black font-extrabold text-sm flex items-center gap-2 cursor-pointer shadow-lg hover:scale-105 transition-all"
               >
-                <Play size={18} /> Start Focus Session
+                <Play size={18} /> Start {Math.round(focusDuration / 60)}-Min Focus
               </button>
 
               <button
                 type="button"
                 onClick={() => {
                   setTimerActive(false)
+                  setFocusDuration(25 * 60)
                   setTimerSeconds(25 * 60)
+                  setFocusSound('Lo-fi study')
+                  setFocusScene('Rainy desk')
                 }}
                 className="p-3.5 rounded-2xl bg-[var(--surface-control)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] text-[var(--text-primary)] cursor-pointer transition-all"
                 title="Reset Timer"
