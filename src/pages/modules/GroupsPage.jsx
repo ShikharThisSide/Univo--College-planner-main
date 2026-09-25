@@ -252,6 +252,7 @@ export default function GroupsPage() {
 
   return (
     <PageTransition>
+      <div className="groupsPage">
       {/* PAGE HEADER */}
       <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -751,6 +752,7 @@ export default function GroupsPage() {
           </motion.div>
         </div>
       )}
+      </div>
     </PageTransition>
   )
 }

@@ -166,20 +166,7 @@ export default function DashboardLayout() {
 
       <div className={`${sidebarIsCollapsed ? 'pl-[72px]' : 'pl-[280px]'} min-h-screen flex flex-col transition-[padding] duration-300`}>
         <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 glass-panel border-b border-white/8">
-            <button
-            type="button"
-            onClick={() => setCmdOpen(true)}
-            className="dashboard-search flex items-center gap-3 px-4 py-2 rounded-xl text-sm transition-all max-w-md w-full"
-          >
-            <Search size={16} />
-            <span className="flex-1 text-left">Search or jump to…</span>
-            <kbd className="dashboard-kbd px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>
-            </button>
-
-          <div className="flex items-center gap-2">
-            <NotificationBell />
-
-          </div>
+          <div className="flex-1" />
         </header>
 
         <main className="flex-1 px-8 pt-6 pb-32">

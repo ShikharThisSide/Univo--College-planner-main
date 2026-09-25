@@ -43,6 +43,7 @@ import { SkeletonDashboard } from '../../components/ui/Skeleton'
 import { individualStudentData } from '../../lib/mockData'
 import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import NotificationBell from '../../components/ui/NotificationBell'
 import { getTimeGreeting } from '../../lib/timeGreeting'
 
 const MOTIVATIONAL_QUOTES = [
@@ -345,6 +346,7 @@ export default function IndividualStudentDashboard() {
 
         {/* QUICK ACTION BAR */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-2">
+          <NotificationBell />
           <button
             type="button"
             onClick={() => setFocusModalOpen(true)}
