@@ -1116,15 +1116,15 @@ button, input, textarea, select { font-family: inherit; }
 .login-card button { color: #1d1d1f; }
 .login-card .univo-gradient-bg { color: #fff !important; background: #ff375f !important; }
 .login-card .profileRoleCard, .login-card .profileRoleSelector button { color: #1d1d1f; background: #f5f5f7; border-color: #e5e5e7; }
-.profileRoleSelector { width: 100%; }
-.profileRoleSelector h1 { color: #1d1d1f !important; font-size: clamp(2.25rem, 5vw, 3.5rem); letter-spacing: -.055em; line-height: 1; }
-.profileRoleGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
-.profileRoleCard { display: flex; min-height: 178px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 14px; padding: 20px 12px 16px; border: 1px solid #e5e5e7; border-radius: 18px; color: #1d1d1f !important; background: #fafafa !important; text-align: center; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
-.profileRoleCard:hover, .profileRoleCard:focus-visible { transform: translateY(-3px); border-color: #ff375f; background: #fff !important; box-shadow: 0 10px 24px rgba(0,0,0,.08), 0 0 0 3px rgba(255,55,95,.1); outline: none; }
-.profileRoleIcon { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 16px; color: #ff375f !important; background: rgba(255,55,95,.1); }
+.profileRoleSelector { width: 100%; padding-top: 8px; }
+.profileRoleSelector h1 { margin-bottom: 12px; color: #1d1d1f !important; font-size: clamp(2.25rem, 5vw, 3.5rem); letter-spacing: -.055em; line-height: 1; }
+.profileRoleGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 34px; }
+.profileRoleCard { display: flex; min-height: 196px; flex-direction: column; align-items: center; justify-content: flex-start; gap: 17px; padding: 25px 14px 20px; border: 1px solid #e5e5e7; border-radius: 22px; color: #1d1d1f !important; background: #fafafa !important; text-align: center; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease, background-color .2s ease; }
+.profileRoleCard:hover, .profileRoleCard:focus-visible { transform: translateY(-4px); border-color: #ff375f; background: #fff !important; box-shadow: 0 16px 30px rgba(0,0,0,.1), 0 0 0 4px rgba(255,55,95,.1); outline: none; }
+.profileRoleIcon { display: grid; place-items: center; width: 64px; height: 64px; border: 1px solid rgba(255,55,95,.16); border-radius: 18px; color: #ff375f !important; background: rgba(255,55,95,.1); }
 .profileRoleCard > span:last-child { display: grid; gap: 7px; }
 .profileRoleCard strong { color: #1d1d1f !important; font-size: 14px; font-weight: 700; }
-.profileRoleCard small { color: #6e6e73 !important; font-size: 10px; line-height: 1.35; }
+.profileRoleCard small { color: #6e6e73 !important; font-size: 11px; line-height: 1.45; }
 @media (max-width: 560px) { .profileRoleGrid { grid-template-columns: 1fr; }.profileRoleCard { min-height: 0; flex-direction: row; justify-content: flex-start; padding: 14px; text-align: left; }.profileRoleCard > span:last-child { text-align: left; } }
 .dashboardClockWidget { background: #202122 !important; border-color: #202122 !important; }
 .dashboardFeatureCard,
