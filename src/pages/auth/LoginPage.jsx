@@ -122,7 +122,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (isUniversity && mode !== 'create') {
       const accessResponse = await fetch(`/api/access-request?email=${encodeURIComponent(normalizedEmail)}`)
       const access = accessResponse.ok ? await accessResponse.json() : null
-      if (!access || access.status !== 'approved') return setError('Ask the admin to approve your email address.')
+      if (!access || access.status !== 'approved') return setError(universityRole === 'admin' ? 'Admin access requires approval.' : 'Ask the admin to approve your email address.')
       if (access.requested_role !== universityRole) return setError(`This email was approved for ${access.requested_role.replace('student_institutional', 'student')} access.`)
     }
 
@@ -296,6 +296,11 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
             <OtpBoxes value={enteredOtp} onChange={(value) => { setEnteredOtp(value); setError('') }} />
           )}
           {error && <p className="text-red-400 text-xs">{error}</p>}
+          {isUniversity && universityRole === 'admin' && error === 'Admin access requires approval.' && (
+            <button type="button" onClick={() => { setMode('create'); setError(''); setNotice('') }} className="w-full py-3 rounded-full border border-[var(--accent-solid)] text-[var(--accent-solid)] font-semibold text-sm hover:bg-[var(--accent-muted)] transition-colors">
+              Request admin access
+            </button>
+          )}
           {notice && <p className="text-[var(--accent-solid)] text-xs">{notice}</p>}
           <button type="submit" className="w-full py-3.5 rounded-full univo-gradient-bg font-semibold text-sm hover:opacity-90 transition-opacity">
             {mode === 'create' ? 'Create account' : mode === 'reset' ? (otp ? 'Update password' : 'Send OTP') : 'Continue'}
