@@ -122,7 +122,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (isUniversity && mode !== 'create') {
       const accessResponse = await fetch(`/api/access-request?email=${encodeURIComponent(normalizedEmail)}`)
       const access = accessResponse.ok ? await accessResponse.json() : null
-      if (!access || access.status !== 'approved') return setError('University access has not been approved for this email yet.')
+      if (!access || access.status !== 'approved') return setError('University access has not been approved for this email yet. Please ask the administrator to review and approve your access request before signing in.')
       if (access.requested_role !== universityRole) return setError(`This email was approved for ${access.requested_role.replace('student_institutional', 'student')} access.`)
     }
 
