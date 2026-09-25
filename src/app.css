@@ -902,6 +902,10 @@ body.univo-app {
   margin-bottom: 28px;
 }
 
+.login-university-card h1 {
+  margin-bottom: 34px !important;
+}
+
 .login-university-card form {
   gap: 16px;
 }
