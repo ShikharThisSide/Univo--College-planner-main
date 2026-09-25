@@ -46,6 +46,7 @@ export default async function handler(req, res) {
     const email = String(req.body?.email || '').trim().toLowerCase()
     const role = String(req.body?.role || '').trim()
     if (!/^\S+@\S+\.\S+$/.test(email) || !['student_institutional', 'teacher', 'admin'].includes(role)) return res.status(400).json({ error: 'Valid email and university role are required.' })
+    if (!process.env.RESEND_API_KEY) return res.status(503).json({ error: 'Approval email is not configured. Add RESEND_API_KEY to Vercel Production environment variables.' })
     const token = tokenFor(email, role)
     await saveRequest({ email, requested_role: role, status: 'pending', requested_at: new Date().toISOString() })
     const resend = new Resend(process.env.RESEND_API_KEY)
