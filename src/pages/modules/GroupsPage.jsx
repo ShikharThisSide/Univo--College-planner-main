@@ -9,7 +9,6 @@ import {
   Send,
   MessageCircle,
   FolderKanban,
-  Sparkles,
   BookOpen,
   CheckCircle2,
   Lock,
@@ -326,10 +325,6 @@ export default function GroupsPage() {
 
         <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-xs font-extrabold uppercase tracking-wider">
-              <Sparkles size={14} /> LEADER-APPROVED CAMPUS SQUADS
-            </div>
-
             <h2 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
               Build your <span className="univo-gradient-text text-[var(--accent-solid)]">campus circle.</span>
             </h2>
