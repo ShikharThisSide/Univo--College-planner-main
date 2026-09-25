@@ -864,7 +864,7 @@ export default function IndividualStudentDashboard() {
               <div className="focusOptionGroup">
                 <div className="focusOptionHeading"><Waves size={15} /> Live study scene</div>
                 <div className="focusChoiceGrid">
-                  {['Rainy', 'Forest', 'Evening Time', 'Cozy Cafe'].map((scene) => (
+                  {['Cozy Cafe', 'Rainy', 'Forest', 'Evening Time'].map((scene) => (
                     <button type="button" key={scene} className={`focusChoice focusSceneChoice focusScene-${scene.toLowerCase().replaceAll(' ', '-')} ${focusScene === scene ? 'is-selected' : ''}`} onClick={() => setFocusScene(scene)}>
                       <span><strong>{scene}</strong><small>Preview study environment</small></span>{focusScene === scene && <b aria-label="Selected">✓</b>}
                     </button>
