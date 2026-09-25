@@ -327,7 +327,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         <p className="text-center text-xs text-white/35 mt-6">
           {isUniversity ? (
             <>
-              Need university access? <button type="button" onClick={() => { setMode('create'); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Request access</button>
+              Need university access? <button type="button" onClick={() => { setMode('create'); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Ask the admin to give you access</button>
               <span className="mx-1">·</span>
               <Link to={loginHref('student')} className="text-[var(--accent-solid)] hover:underline">Individual student login</Link>
             </>
