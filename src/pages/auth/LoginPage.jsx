@@ -100,7 +100,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       if (cancelled) return
       const existingAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
       if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem(`univoPreference:${normalizedGoogleEmail}:pendingOnboarding`, 'true')
-      const dashboardPath = login({ email: googleEmail, name: cloudData?.account?.name || searchParams.get('google_name') || '', signupPath: path, roleOverride: cloudData?.account?.role || universityRole || undefined })
+      const dashboardPath = login({ email: googleEmail, name: cloudData?.account?.name || searchParams.get('google_name') || '', signupPath: path, roleOverride: isUniversity ? (cloudData?.account?.role || universityRole || undefined) : 'student_individual' })
       navigate(dashboardPath, { replace: true })
     }
     restoreAndContinue()
@@ -122,6 +122,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (isUniversity && mode !== 'create') {
       const accessResponse = await fetch(`/api/access-request?email=${encodeURIComponent(normalizedEmail)}`)
       const access = accessResponse.ok ? await accessResponse.json() : null
+      const cloudAccount = await fetchCloudUserData(normalizedEmail)
       if (!access || access.status !== 'approved') return setError(universityRole === 'admin' ? 'Admin access requires approval.' : 'Ask the admin to approve your email address.')
       if (access.requested_role !== universityRole) return setError(`This email was approved for ${access.requested_role.replace('student_institutional', 'student')} access.`)
     }
@@ -140,13 +141,13 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (mode === 'create' && password.length < 8) return setError('Password must be at least 8 characters')
     if (mode === 'create') {
       if (!fullName.trim()) return setError('Enter your full name')
-      if (accounts[normalizedEmail]) return setError('An account already exists for this email')
       if (isUniversity) {
         const response = await fetch('/api/access-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: normalizedEmail, role: universityRole }) })
         const result = await response.json()
         if (!response.ok) return setError(result.error || 'Unable to send the access request')
         return setNotice('Access request sent. You can create your account after approval.')
       }
+      if (accounts[normalizedEmail]) return setError('An account already exists for this email')
       if (!verificationToken) {
         try {
           const response = await fetch('/api/send-otp', {
@@ -201,7 +202,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       if (!accounts[normalizedEmail]) return setError('No account found. Please choose “Create one” first.')
       if (accounts[normalizedEmail].password !== password) return setError('Incorrect password')
     }
-    const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: accounts[normalizedEmail]?.role || universityRole || undefined })
+    const path = login({ email: normalizedEmail, password, name: accounts[normalizedEmail]?.name || fullName, signupPath, roleOverride: isUniversity ? universityRole : 'student_individual' })
     setIsLoading(true)
     navigate(path)
   }
