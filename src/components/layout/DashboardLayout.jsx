@@ -165,10 +165,6 @@ export default function DashboardLayout() {
       <MagneticSidebar items={navItems} collapsed={sidebarIsCollapsed} autoHide={autoHideSidebar} onHoverChange={setSidebarHovered} onSettings={openSettings} user={user} onLogout={handleLogout} />
 
       <div className={`${sidebarIsCollapsed ? 'pl-[72px]' : 'pl-[280px]'} min-h-screen flex flex-col transition-[padding] duration-300`}>
-        <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 glass-panel border-b border-white/8">
-          <div className="flex-1" />
-        </header>
-
         <main className="flex-1 px-8 pt-6 pb-32">
           <Outlet />
         </main>

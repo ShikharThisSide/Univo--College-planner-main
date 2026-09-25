@@ -346,7 +346,6 @@ export default function IndividualStudentDashboard() {
 
         {/* QUICK ACTION BAR */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.15 }} className="flex flex-wrap items-center gap-2">
-          <NotificationBell />
           <button
             type="button"
             onClick={() => setFocusModalOpen(true)}
@@ -378,6 +377,8 @@ export default function IndividualStudentDashboard() {
           >
             <Plus size={15} /> Add Task
           </button>
+
+          <NotificationBell />
 
           <button
             type="button"
