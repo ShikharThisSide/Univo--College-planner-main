@@ -66,6 +66,7 @@ export default function GroupsPage() {
 
   const [activeTab, setActiveTab] = useState('all') // 'all', 'my_groups', 'discover'
   const [groupSearch, setGroupSearch] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('All')
 
   // Modals
   const [openCreate, setOpenCreate] = useState(false)
@@ -136,6 +137,11 @@ export default function GroupsPage() {
       if (activeTab === 'my_groups' && !isMember) return false
       if (activeTab === 'discover' && isMember) return false
 
+      if (activeTab === 'discover' && categoryFilter !== 'All') {
+        const category = (group.category || '').toLowerCase()
+        if (!category.includes(categoryFilter.toLowerCase())) return false
+      }
+
       if (groupSearch.trim()) {
         const q = groupSearch.toLowerCase()
         const matchName = group.name.toLowerCase().includes(q)
@@ -145,7 +151,7 @@ export default function GroupsPage() {
       }
       return true
     })
-  }, [globalGroups, myName, activeTab, groupSearch])
+  }, [globalGroups, myName, activeTab, groupSearch, categoryFilter])
 
   // Handlers
   const handleRequestJoin = (group) => {
@@ -258,10 +264,10 @@ export default function GroupsPage() {
         <div>
           <p className="settingsEyebrow text-[var(--accent-solid)] font-bold">UNIVO COMMUNITY</p>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1 text-[var(--accent-solid)]">
-            Campus Groups & Study Squads
+            Groups
           </h1>
           <p className="text-[var(--text-muted)] text-sm mt-1">
-            Real campus groups, leader-moderated join approvals, shared PDF vaults, and live group chat.
+            Find and connect with your campus communities.
           </p>
         </div>
 
@@ -270,7 +276,7 @@ export default function GroupsPage() {
           onClick={() => setOpenCreate(true)}
           className="px-4 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center gap-2 cursor-pointer transition-all hover:scale-105 shadow-lg shrink-0"
         >
-          <Plus size={16} /> Create Real Group
+          <Plus size={16} /> Create Group
         </button>
       </div>
 
@@ -318,13 +324,13 @@ export default function GroupsPage() {
       <GlassCard className="mb-6 !p-0 overflow-hidden relative border border-[var(--border-subtle)]" delay={0.1}>
         <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
 
-        <div className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-4 max-w-xl">
+        <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-3 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--accent-solid)]/15 border border-[var(--accent-solid)]/30 text-[var(--accent-solid)] text-xs font-extrabold uppercase tracking-wider">
               <Sparkles size={14} /> LEADER-APPROVED CAMPUS SQUADS
             </div>
 
-            <h2 className="font-display text-3xl md:text-5xl font-extrabold text-[var(--text-primary)] leading-tight">
+            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
               Build your <span className="univo-gradient-text text-[var(--accent-solid)]">campus circle.</span>
             </h2>
 
@@ -341,7 +347,7 @@ export default function GroupsPage() {
             </div>
           </div>
 
-          <div className="w-full md:w-64 h-48 md:h-56 relative shrink-0">
+          <div className="w-32 md:w-44 h-24 md:h-32 relative shrink-0 opacity-80">
             <UnivoGlobe />
           </div>
         </div>
@@ -352,8 +358,8 @@ export default function GroupsPage() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
           {[
             { id: 'all', label: `All Groups (${globalGroups.length})` },
-            { id: 'my_groups', label: `My Joined Squads (${userGroups.length})` },
-            { id: 'discover', label: 'Discover Public Squads' }
+            { id: 'my_groups', label: `My Squads (${userGroups.length})` },
+            { id: 'discover', label: 'Discover Groups' }
           ].map((tab) => {
             const isActive = activeTab === tab.id
             return (
@@ -377,7 +383,7 @@ export default function GroupsPage() {
           <div className="relative flex items-center w-full">
             <input
               type="text"
-              placeholder="Search groups..."
+              placeholder="Search groups by name, course, or subject..."
               value={groupSearch}
               onChange={(e) => setGroupSearch(e.target.value)}
               className="w-full bg-[var(--surface-control)] border border-[var(--border-subtle)] rounded-xl pl-4 pr-10 py-2.5 text-xs text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-solid)] font-medium"
@@ -387,8 +393,23 @@ export default function GroupsPage() {
         </div>
       </div>
 
+      {activeTab === 'discover' && (
+        <div className="flex flex-wrap items-center gap-2 mb-5" aria-label="Group filters">
+          {['All', 'Study', 'Projects', 'Clubs', 'Events'].map((filter) => (
+            <button
+              key={filter}
+              type="button"
+              onClick={() => setCategoryFilter(filter)}
+              className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-colors cursor-pointer ${categoryFilter === filter ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/50 text-[var(--accent-solid)]' : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+            >
+              {filter}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* GROUPS LIST */}
-      <div className="grid md:grid-cols-2 gap-4 mb-10">
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
         <AnimatePresence mode="popLayout">
           {filteredGroups.length === 0 ? (
             <motion.div
@@ -469,9 +490,11 @@ export default function GroupsPage() {
                       </span>
                     </div>
 
-                    <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
-                      {group.description || 'Campus study squad for course collaboration and note sharing.'}
-                    </p>
+                    {group.description && (
+                      <p className="text-xs text-[var(--text-secondary)] leading-relaxed font-medium">
+                        {group.description}
+                      </p>
+                    )}
 
                     {/* MEMBERS STACK */}
                     <div className="pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
@@ -494,7 +517,7 @@ export default function GroupsPage() {
                           })}
                         </div>
                         <span className="text-xs text-[var(--text-secondary)] font-bold">
-                          {(group.members || []).length} active member{(group.members || []).length === 1 ? '' : 's'}
+                          {(group.members || []).length} member{(group.members || []).length === 1 ? '' : 's'}
                         </span>
                       </div>
                     </div>
@@ -509,7 +532,7 @@ export default function GroupsPage() {
                           onClick={() => setChatModalGroup(group)}
                           className="flex-1 py-2.5 rounded-xl univo-gradient-bg text-black text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer shadow-md hover:scale-[1.01] transition-all"
                         >
-                          <MessageCircle size={15} /> Group Chat & PDF Vault
+                          <MessageCircle size={15} /> Open Group
                         </button>
 
                         <button
