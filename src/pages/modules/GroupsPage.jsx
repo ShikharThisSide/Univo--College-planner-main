@@ -369,7 +369,7 @@ export default function GroupsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap border ${
                   isActive
-                    ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] shadow-md scale-105'
+                    ? 'relative z-10 bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] shadow-md'
                     : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
                 }`}
               >
