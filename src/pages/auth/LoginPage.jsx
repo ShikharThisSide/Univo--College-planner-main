@@ -119,6 +119,13 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     const normalizedEmail = email.trim().toLowerCase()
     let accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
 
+    if (isUniversity && mode !== 'create') {
+      const accessResponse = await fetch(`/api/access-request?email=${encodeURIComponent(normalizedEmail)}`)
+      const access = accessResponse.ok ? await accessResponse.json() : null
+      if (!access || access.status !== 'approved') return setError('University access has not been approved for this email yet.')
+      if (access.requested_role !== universityRole) return setError(`This email was approved for ${access.requested_role.replace('student_institutional', 'student')} access.`)
+    }
+
     // Always check the central database for existing accounts so another device
     // cannot accidentally create a fresh local session for an existing user.
     if (mode !== 'create') {
@@ -134,6 +141,12 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (mode === 'create') {
       if (!fullName.trim()) return setError('Enter your full name')
       if (accounts[normalizedEmail]) return setError('An account already exists for this email')
+      if (isUniversity) {
+        const response = await fetch('/api/access-request', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: normalizedEmail, role: universityRole }) })
+        const result = await response.json()
+        if (!response.ok) return setError(result.error || 'Unable to send the access request')
+        return setNotice('Access request sent. You can create your account after approval.')
+      }
       if (!verificationToken) {
         try {
           const response = await fetch('/api/send-otp', {
