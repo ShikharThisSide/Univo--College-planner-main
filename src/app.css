@@ -894,9 +894,25 @@ body.univo-app {
   padding: 42px 48px 36px;
 }
 
+.login-university-card {
+  padding: 44px 46px 40px !important;
+}
+
+.login-university-card .login-identity {
+  margin-bottom: 28px;
+}
+
+.login-university-card form {
+  gap: 16px;
+}
+
 @media (max-width: 640px) {
   .login-demo-card {
     padding: 32px 24px 28px;
+  }
+
+  .login-university-card {
+    padding: 36px 24px 32px !important;
   }
 }
 

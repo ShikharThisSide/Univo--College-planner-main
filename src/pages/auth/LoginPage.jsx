@@ -216,7 +216,7 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         initial={{ opacity: 0, y: 20, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className={`login-card ${embedded ? 'login-demo-card' : ''} w-full max-w-md glass-panel rounded-3xl p-8 relative`}
+        className={`login-card ${embedded ? 'login-demo-card' : ''} ${isUniversity ? 'login-university-card' : ''} w-full max-w-md glass-panel rounded-3xl p-8 relative`}
       >
         <Link to="/" className="login-back mb-5">
           <ArrowLeft size={15} />
@@ -324,21 +324,17 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
           )}
         </form>
 
-        <p className="text-center text-xs text-white/35 mt-6">
-          {isUniversity ? (
-            <>
-              Need university access? <button type="button" onClick={() => { setMode('create'); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Ask the admin to give you access</button>
-              <span className="mx-1">·</span>
-              <Link to={loginHref('student')} className="text-[var(--accent-solid)] hover:underline">Individual student login</Link>
-            </>
-          ) : mode === 'create' ? (
-            <>Already have an account? <button type="button" onClick={() => { setMode('login'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
-          ) : mode === 'reset' ? (
-            <>Remembered your password? <button type="button" onClick={() => { setMode('login'); setOtp(''); setEnteredOtp(''); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
-          ) : (
-            <>Don&apos;t have an account? <button type="button" onClick={() => { setMode('create'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Create one</button></>
-          )}
-        </p>
+        {!isUniversity && (
+          <p className="text-center text-xs text-white/35 mt-6">
+            {mode === 'create' ? (
+              <>Already have an account? <button type="button" onClick={() => { setMode('login'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
+            ) : mode === 'reset' ? (
+              <>Remembered your password? <button type="button" onClick={() => { setMode('login'); setOtp(''); setEnteredOtp(''); setError(''); setNotice('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Sign in</button></>
+            ) : (
+              <>Don&apos;t have an account? <button type="button" onClick={() => { setMode('create'); setError('') }} className="cursor-pointer text-[var(--accent-solid)] hover:underline">Create one</button></>
+            )}
+          </p>
+        )}
         </>}
         {mode === 'login' && error === 'Incorrect password' && (
           <button type="button" onClick={() => { setMode('reset'); setError(''); setNotice('') }} className="login-forgot cursor-pointer">Forgot password?</button>
