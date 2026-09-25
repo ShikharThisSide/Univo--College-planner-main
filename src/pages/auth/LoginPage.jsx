@@ -7,7 +7,7 @@ import NovaBurst from '../../components/brand/NovaBurst'
 import { useAuth } from '../../context/AuthContext'
 import AnimatedLoadingSkeleton from '../../components/ui/AnimatedLoadingSkeleton'
 import { sendOTPEmail, sendPasswordResetEmail } from '../../lib/social'
-import { fetchCloudUserData, restoreUserDataToDevice } from '../../lib/cloudSync'
+import { fetchCloudUserData, restoreUserDataToDevice, pushUserDataToCloud } from '../../lib/cloudSync'
 
 function OtpBoxes({ value, onChange }) {
   const inputRefs = useRef([])
@@ -154,6 +154,10 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
       }
       accounts[normalizedEmail] = { password, name: fullName.trim(), signupPath, role: universityRole || undefined, createdAt: Date.now() }
       localStorage.setItem('univoAccounts', JSON.stringify(accounts))
+      const syncedData = await pushUserDataToCloud(normalizedEmail)
+      if (!syncedData?.account) {
+        return setError('Your account was created on this device, but could not be saved online. Please try again when the app is connected.')
+      }
       localStorage.setItem(`univoFreshAccount:${normalizedEmail}`, 'true')
       localStorage.setItem(`univoPreference:${normalizedEmail}:pendingOnboarding`, 'true')
       setNotice('Account created successfully. Signing you in…')
