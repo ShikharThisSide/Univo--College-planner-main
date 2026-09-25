@@ -321,8 +321,6 @@ export default function GroupsPage() {
 
       {/* DOPE HERO BANNER */}
       <GlassCard className="mb-6 !p-0 overflow-hidden relative border border-[var(--border-subtle)]" delay={0.1}>
-        <div className="absolute top-0 left-0 right-0 h-1.5 univo-gradient-bg" />
-
         <div className="p-5 md:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
           <div className="space-y-3 max-w-2xl">
             <h2 className="font-display text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] leading-tight">
