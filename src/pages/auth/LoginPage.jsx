@@ -93,10 +93,18 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     if (!googleEmail) return
     const path = searchParams.get('path') || signupPath
     const normalizedGoogleEmail = googleEmail.trim().toLowerCase()
-    const existingAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
-    if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem(`univoPreference:${normalizedGoogleEmail}:pendingOnboarding`, 'true')
-    const dashboardPath = login({ email: googleEmail, name: searchParams.get('google_name') || '', signupPath: path, roleOverride: universityRole || undefined })
-    navigate(dashboardPath, { replace: true })
+    let cancelled = false
+    const restoreAndContinue = async () => {
+      const cloudData = await fetchCloudUserData(normalizedGoogleEmail)
+      if (cloudData) restoreUserDataToDevice(cloudData)
+      if (cancelled) return
+      const existingAccounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
+      if (!existingAccounts[normalizedGoogleEmail]) localStorage.setItem(`univoPreference:${normalizedGoogleEmail}:pendingOnboarding`, 'true')
+      const dashboardPath = login({ email: googleEmail, name: cloudData?.account?.name || searchParams.get('google_name') || '', signupPath: path, roleOverride: cloudData?.account?.role || universityRole || undefined })
+      navigate(dashboardPath, { replace: true })
+    }
+    restoreAndContinue()
+    return () => { cancelled = true }
   }, [login, navigate, searchParams, signupPath])
 
   const continueWithGoogle = () => {
@@ -111,8 +119,9 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
     const normalizedEmail = email.trim().toLowerCase()
     let accounts = JSON.parse(localStorage.getItem('univoAccounts') || '{}')
 
-    // If account not found in local memory, check central cloud database!
-    if (!accounts[normalizedEmail]) {
+    // Always check the central database for existing accounts so another device
+    // cannot accidentally create a fresh local session for an existing user.
+    if (mode !== 'create') {
       setIsLoading(true)
       const cloudData = await fetchCloudUserData(normalizedEmail)
       setIsLoading(false)
