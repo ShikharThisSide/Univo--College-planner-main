@@ -207,7 +207,7 @@ export default function TimetablePage() {
               onClick={() => setSelectedDay(day)}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 shrink-0 border ${
                 isSelected
-                  ? 'bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] font-extrabold shadow-sm scale-105'
+                  ? 'relative z-10 bg-[var(--accent-muted)] border-[var(--accent-solid)]/40 text-[var(--accent-solid)] font-extrabold shadow-sm'
                   : 'bg-[var(--surface-control)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
               }`}
             >
