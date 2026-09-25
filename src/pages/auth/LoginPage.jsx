@@ -252,11 +252,11 @@ export default function LoginPage({ embedded = false, initialPath = 'student' } 
         <h1 className="font-display text-3xl font-bold mt-2 mb-1">
           {mode === 'create' ? 'Create your account.' : mode === 'reset' ? 'Reset your password.' : isUniversity ? 'Set up your campus.' : 'Welcome back.'}
         </h1>
-        <p className="text-white/45 text-sm mb-6">
-          {isUniversity
-            ? 'One login for admins, teachers, and students — role-based redirect after auth.'
-            : mode === 'create' ? 'Create your personal dashboard and start planning your campus life.' : mode === 'reset' ? 'Enter your email and use the OTP to choose a new password.' : 'Sign in to your personal dashboard, notes hub, and community.'}
-        </p>
+        {!isUniversity && (
+          <p className="text-white/45 text-sm mb-6">
+            {mode === 'create' ? 'Create your personal dashboard and start planning your campus life.' : mode === 'reset' ? 'Enter your email and use the OTP to choose a new password.' : 'Sign in to your personal dashboard, notes hub, and community.'}
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {mode === 'create' && (
