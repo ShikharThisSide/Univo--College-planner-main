@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ChevronDown, Menu, X, GraduationCap, Building2, CalendarDays, CheckSquare, NotebookPen, Bell, Users, ArrowRight, Sparkles, Layers, Zap } from 'lucide-react'
+import { ChevronDown, Menu, X, GraduationCap, Building2, Sparkles, Layers, Zap } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import LoginPage from '../auth/LoginPage'
 import TextLoop from '../../components/ui/TextLoop'
@@ -9,17 +9,19 @@ import '../../styles.css'
 import SiteFooter from '../../components/layout/SiteFooter'
 
 const videoUrl = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260803_192301_9231ed6b-c55c-4a48-909c-4ebe11cf2e11.mp4'
-const links = ['Features', 'For Students', 'For Universities', 'FAQ']
+const links = ['Features', 'For Students', 'For Universities', 'Pricing', 'FAQ']
 
 const faqs = [
-  ['What is Univo?', 'Univo is a unified workspace for planning classes, tracking assignments, organizing notes, and staying connected to campus.'],
-  ['Can I use Univo without my university?', 'Yes. Start with a personal student workspace and connect your university later if it becomes available.'],
-  ['What can I manage as a student?', 'Your timetable, assignments, attendance, notes, journal, expenses, groups, and campus conversations.'],
-  ['How does university access work?', 'Universities can request an institutional workspace. Access and roles are managed through the institution’s configured permissions.'],
-  ['Will connecting a university duplicate my account?', 'No. The product is designed around one student identity with personal and institutional workspace access.'],
-  ['Is my personal data shared with my university?', 'Personal workspace content stays separate unless a supported feature explicitly makes it shared.'],
-  ['How do I get started?', 'Choose “I’m a Student” for a personal workspace, or “I’m a University” to request institutional access.'],
-  ['Is Univo available on mobile?', 'The responsive web experience is designed to work across desktop and mobile browsers.'],
+  ['What makes this platform different?', 'Univo brings planning, campus communities, and university workflows into one focused experience designed around real student life.'],
+  ['Can I use it for both personal and commercial projects?', 'Yes. Individual students can use Univo personally, while universities can set up dedicated workspaces for their campus community.'],
+  ['Does it support collaboration?', 'Yes. Shared workspaces, community tools, and role-based access make it easy for students, teachers, and administrators to work together.'],
+  ['How does the analytics system work?', 'University teams can view privacy-conscious engagement and workflow insights to understand how their campus workspace is being used.'],
+  ['Is there a mobile version available?', 'The platform is designed to work smoothly across desktop and mobile browsers, so you can stay on top of campus life anywhere.'],
+  ['How often are new updates released?', 'We ship regular improvements, feature updates, and fixes based on feedback from students and university teams.'],
+  ['Can I integrate it with external APIs?', 'Custom integrations are available for university plans. Contact us to discuss your campus systems and workflow needs.'],
+  ['Does the platform support dark mode?', 'Yes. Univo supports a dark interface for a more comfortable experience, especially during late-night study sessions.'],
+  ['What happens if I lose my data?', 'Your workspace data is securely stored and backed up. If you need help recovering access, our support team is here to assist.'],
+  ['Can I customize the UI components?', 'University workspaces can be tailored with the right workflows, permissions, and integrations for their campus.'],
 ]
 
 function Logo() {
@@ -173,7 +175,7 @@ export default function LandingPage() {
           <main className="main">
             <div className="copy">
               <h1>Your campus life,<br />finally in one place.</h1>
-              <p className="heroSub">Plan your classes, manage assignments, organize notes and stay connected to campus — all from one workspace.</p>
+              <p className="heroSub">Plan, track, connect — whether you're flying solo or part of a university workspace.</p>
 
               {/* Dual entry points */}
               <div className="entryPoints">
@@ -181,33 +183,34 @@ export default function LandingPage() {
                   <GraduationCap size={22} />
                   <div>
                     <strong>I'm a Student</strong>
-                  <span>Plan, track and stay organized — even before your university joins.</span>
+                    <span>Personal dashboard · Notes · Community</span>
                   </div>
                 </Link>
                 <Link to="/?login=university" className="entryCard entryUniversity">
                   <Building2 size={22} />
                   <div>
                     <strong>I'm a University</strong>
-                  <span>Create an institutional workspace for your campus community.</span>
+                    <span>Admin · Teachers · Campus workspace</span>
                   </div>
                 </Link>
               </div>
             </div>
 
-            <div className="heroPreview" aria-label="Student dashboard preview">
-              <div className="previewTop"><span>Student workspace</span><span className="previewStatus">Personal</span></div>
-              <div className="previewGreeting">Good morning<span>Here’s what needs your attention.</span></div>
-              <div className="previewGrid"><div><small>Today</small><strong>3 classes</strong><span>09:00 · Data Structures</span><span>14:00 · Design Studio</span></div><div><small>Tasks</small><strong>4 remaining</strong><span>Finish research notes</span><span>Submit assignment · Fri</span></div></div>
-              <div className="previewBottom"><span><NotebookPen size={14} /> Notes</span><span><Bell size={14} /> Reminders</span><span><ArrowRight size={14} /> Open dashboard</span></div>
+            <div className="cards">
+              <div className="card stats">
+                <div className="statNumber">2.8K+</div>
+                <p>Students across individual and institutional plans use Univo daily.</p>
+              </div>
+              <div className="card testimonial">
+                <div className="company"><span className="companyMark">U</span><span>Univo Students</span></div>
+                <p className="quote">"Finally an app that feels like Linear, not a college project spreadsheet."</p>
+                <div className="person">
+                  <img src="https://i.pravatar.cc/72?img=12" alt="Siddharth Agarwal" />
+                  <div><strong>Siddharth Agarwal</strong><span>CS · Semester 4</span></div>
+                </div>
+              </div>
             </div>
           </main>
-        </div>
-      </section>
-
-      <section className="capabilitySection" id="capabilities">
-        <div className="sectionIntro"><span className="eyebrow">One workspace, less friction</span><h2>The essentials for your semester.</h2><p>Start with the tools you need today. Connect to your institution when you’re ready.</p></div>
-        <div className="capabilityGrid">
-          {[[CalendarDays, 'Timetable and schedule', 'See classes, events and upcoming commitments at a glance.'], [CheckSquare, 'Tasks and assignments', 'Track deadlines, priorities and progress without losing the thread.'], [NotebookPen, 'Notes and journal', 'Keep study material and personal reflections in one organized place.'], [Bell, 'Attendance and reminders', 'Stay aware of attendance, deadlines and the next thing to do.'], [Users, 'Groups and messenger', 'Keep up with conversations and the people you work with.']].map(([Icon, title, description]) => <article key={title}><span className="capabilityIcon"><Icon size={20} /></span><h3>{title}</h3><p>{description}</p></article>)}
         </div>
       </section>
 

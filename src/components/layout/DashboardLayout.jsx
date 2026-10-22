@@ -170,7 +170,7 @@ export default function DashboardLayout() {
         </main>
       </div>
 
-      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onThemeOpen={openSettings} />
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} onThemeOpen={() => setThemeOpen(true)} />
       <DashboardDock items={navItems} onSearch={() => setCmdOpen(true)} onSettings={openSettings} autoHide={autoHideDock} />
       <LiveMessageToast />
       {welcomeOpen && <WelcomeOnboarding onComplete={() => setWelcomeOpen(false)} />}
